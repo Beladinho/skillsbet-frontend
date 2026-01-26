@@ -8,9 +8,12 @@ function App() {
   const API_URL = "https://skillsbet-production-37ae.up.railway.app";
 
   const fetchSkills = () => {
-    fetch(`${API_URL}/skills`) // ✅ PAS /api/skills
+    fetch(`${API_URL}/skills`)
       .then(res => res.json())
-      .then(data => setSkills(data))
+      .then(data => {
+        console.log("API DATA:", data);
+        setSkills(Array.isArray(data) ? data : []);
+      })
       .catch(err => console.error("Fetch error:", err));
   };
 
@@ -55,13 +58,17 @@ function App() {
         <button type="submit">Ajouter</button>
       </form>
 
-      <ul>
-        {skills.map((skill, index) => (
-          <li key={index}>
-            {skill.name} — {skill.level}
-          </li>
-        ))}
-      </ul>
+      {skills.length === 0 ? (
+        <p>Aucune compétence pour l’instant</p>
+      ) : (
+        <ul>
+          {skills.map((skill, index) => (
+            <li key={index}>
+              {skill.name} — {skill.level}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
