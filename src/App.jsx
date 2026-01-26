@@ -6,7 +6,10 @@ function App() {
   useEffect(() => {
     fetch("https://skillsbet-production-37ae.up.railway.app/skills")
       .then(res => res.json())
-      .then(data => setSkills(data.skills))
+      .then(data => {
+        console.log("API RESPONSE:", data);
+        setSkills(data); // ⚠️ on met data DIRECT, pas data.skills
+      })
       .catch(err => console.error("API ERROR:", err));
   }, []);
 
@@ -14,8 +17,8 @@ function App() {
     <div>
       <h1>SkillsBet</h1>
       <ul>
-        {skills.map(skill => (
-          <li key={skill.id}>
+        {skills.map((skill, index) => (
+          <li key={index}>
             {skill.name} — {skill.level}
           </li>
         ))}
