@@ -1,24 +1,17 @@
 import { useEffect, useState } from "react";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 function App() {
   const [skills, setSkills] = useState([]);
   const [name, setName] = useState("");
   const [level, setLevel] = useState("Débutant");
 
-  const API_URL = "https://skillsbet-production-37ae.up.railway.app";
-
   const fetchSkills = async () => {
     try {
       const res = await fetch(`${API_URL}/skills`);
       const data = await res.json();
-
-      // Sécurité anti crash
-      if (Array.isArray(data)) {
-        setSkills(data);
-      } else {
-        console.error("Format API inattendu :", data);
-        setSkills([]);
-      }
+      setSkills(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Erreur fetch skills:", err);
       setSkills([]);
@@ -31,14 +24,12 @@ function App() {
 
   const addSkill = async (e) => {
     e.preventDefault();
-
     try {
       await fetch(`${API_URL}/skills`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, level }),
       });
-
       setName("");
       setLevel("Débutant");
       fetchSkills();
@@ -48,10 +39,10 @@ function App() {
   };
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial" }}>
+    <div style={{ padding: 20, fontFamily: "Arial" }}>
       <h1>🚀 SkillsBet</h1>
 
-      <form onSubmit={addSkill} style={{ marginBottom: "20px" }}>
+      <form onSubmit={addSkill} style={{ marginBottom: 20 }}>
         <input
           type="text"
           placeholder="Nouvelle compétence"
@@ -71,8 +62,8 @@ function App() {
         {skills.length === 0 ? (
           <p>Aucune compétence pour le moment</p>
         ) : (
-          skills.map((skill, index) => (
-            <li key={index}>
+          skills.map((skill, i) => (
+            <li key={i}>
               {skill.name} — {skill.level}
             </li>
           ))
