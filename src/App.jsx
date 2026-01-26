@@ -8,10 +8,10 @@ function App() {
   const API_URL = "https://skillsbet-production-37ae.up.railway.app";
 
   const fetchSkills = () => {
-    fetch(`${API_URL}/skills`)
+    fetch(`${API_URL}/skills`) // ✅ PAS /api/skills
       .then(res => res.json())
       .then(data => setSkills(data))
-      .catch(err => console.error(err));
+      .catch(err => console.error("Fetch error:", err));
   };
 
   useEffect(() => {
@@ -30,8 +30,9 @@ function App() {
       .then(() => {
         setName("");
         setLevel("Débutant");
-        fetchSkills(); // refresh list
-      });
+        fetchSkills();
+      })
+      .catch(err => console.error("POST error:", err));
   };
 
   return (
