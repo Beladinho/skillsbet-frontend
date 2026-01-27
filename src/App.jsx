@@ -7,67 +7,72 @@ function App() {
   const [name, setName] = useState("");
   const [level, setLevel] = useState("Débutant");
 
+  // 🔄 Charger les compétences
   const fetchSkills = async () => {
-    try {
-      const res = await fetch(`${API_URL}/skills`);
-      const data = await res.json();
-      setSkills(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error("Erreur fetch skills:", err);
-      setSkills([]);
-    }
+    const res = await fetch(`${API_URL}/skills`);
+    const data = await res.json();
+    setSkills(data);
   };
 
   useEffect(() => {
     fetchSkills();
   }, []);
 
-  const addSkill = async (e) => {
-    e.preventDefault();
-    try {
-      await fetch(`${API_URL}/skills`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, level }),
-      });
-      setName("");
-      setLevel("Débutant");
-      fetchSkills();
-    } catch (err) {
-      console.error("Erreur ajout skill:", err);
-    }
+  // ➕ Ajouter une compétence
+  const addSkill = async () => {
+    if (!name) return;
+
+    await fetch(`${API_URL}/skills`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, level }),
+    });
+
+    setName("");
+    fetchSkills();
+  };
+
+  // ❌ Supprimer une compétence
+  const deleteSkill = async (id) => {
+    await fetch(`${API_URL}/skills/${id}`, {
+      method: "DELETE",
+    });
+
+    fetchSkills();
   };
 
   return (
-    <div style={{ padding: 20, fontFamily: "Arial" }}>
+    <div style={{ padding: "40px", fontFamily: "Arial" }}>
       <h1>🚀 SkillsBet</h1>
 
-      <form onSubmit={addSkill} style={{ marginBottom: 20 }}>
-        <input
-          type="text"
-          placeholder="Nouvelle compétence"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-        <select value={level} onChange={(e) => setLevel(e.target.value)}>
-          <option>Débutant</option>
-          <option>Intermédiaire</option>
-          <option>Avancé</option>
-        </select>
-        <button type="submit">Ajouter</button>
-      </form>
+      <h2>Nouvelle compétence</h2>
+      <input
+        placeholder="Nom de la compétence"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
 
+      <select value={level} onChange={(e) => setLevel(e.target.value)}>
+        <option>Débutant</option>
+        <option>Intermédiaire</option>
+        <option>Avancé</option>
+      </select>
+
+      <button onClick={addSkill}>Ajouter</button>
+
+      <h2>Liste des compétences</h2>
       <ul>
-        {skills.length === 0 ? (
-          <p>Aucune compétence pour le moment</p>
-        ) : (
-          skills.map((skill, i) => (
-            <li key={i}>
-              {skill.name} — {skill.level}
-            </li>
-          ))
-        )}
+        {skills.map((skill) => (
+          <li key={skill.id}>
+            {skill.name} — {skill.level}
+            <button
+              onClick={() => deleteSkill(skill.id)}
+              style={{ marginLeft: "10px" }}
+            >
+              ❌
+            </button>
+          </li>
+        ))}
       </ul>
     </div>
   );
