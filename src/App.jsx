@@ -7,7 +7,6 @@ function App() {
   const [name, setName] = useState("");
   const [level, setLevel] = useState("Débutant");
 
-  // 🔄 Charger les compétences
   const fetchSkills = async () => {
     const res = await fetch(`${API_URL}/skills`);
     const data = await res.json();
@@ -18,10 +17,7 @@ function App() {
     fetchSkills();
   }, []);
 
-  // ➕ Ajouter une compétence
   const addSkill = async () => {
-    if (!name) return;
-
     await fetch(`${API_URL}/skills`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -32,8 +28,9 @@ function App() {
     fetchSkills();
   };
 
-  // ❌ Supprimer une compétence
   const deleteSkill = async (id) => {
+    if (!id) return; // sécurité anti undefined
+
     await fetch(`${API_URL}/skills/${id}`, {
       method: "DELETE",
     });
@@ -42,7 +39,7 @@ function App() {
   };
 
   return (
-    <div style={{ padding: "40px", fontFamily: "Arial" }}>
+    <div style={{ padding: 20 }}>
       <h1>🚀 SkillsBet</h1>
 
       <h2>Nouvelle compétence</h2>
@@ -67,7 +64,7 @@ function App() {
             {skill.name} — {skill.level}
             <button
               onClick={() => deleteSkill(skill.id)}
-              style={{ marginLeft: "10px" }}
+              style={{ marginLeft: 10 }}
             >
               ❌
             </button>
