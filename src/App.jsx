@@ -1,104 +1,85 @@
 import { useEffect, useState } from "react";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API = "https://skillsbet-production-37ae.up.railway.app";
 
 function App() {
   const [skills, setSkills] = useState([]);
   const [name, setName] = useState("");
   const [level, setLevel] = useState("Débutant");
   const [category, setCategory] = useState("Frontend");
-  const [filter, setFilter] = useState("Toutes");
+  const [stats, setStats] = useState({ progress: 0 });
 
-  const fetchSkills = () => {
-    fetch(`${API_URL}/skills`)
-      .then(res => res.json())
-      .then(data => setSkills(data));
+  const loadSkills = async () => {
+    const res = await fetch(`${API}/skills`);
+    const data = await res.json();
+    setSkills(data);
+  };
+
+  const loadStats = async () => {
+    const res = await fetch(`${API}/stats`);
+    const data = await res.json();
+    setStats(data);
   };
 
   useEffect(() => {
-    fetchSkills();
+    loadSkills();
+    loadStats();
   }, []);
 
-  const addSkill = (e) => {
-    e.preventDefault();
-    fetch(`${API_URL}/skills`, {
+  const addSkill = async () => {
+    if (!name) return;
+
+    await fetch(`${API}/skills`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, level, category }),
-    }).then(() => {
-      setName("");
-      fetchSkills();
     });
+
+    setName("");
+    loadSkills();
+    loadStats();
   };
 
-  const deleteSkill = (id) => {
-    fetch(`${API_URL}/skills/${id}`, { method: "DELETE" })
-      .then(() => fetchSkills());
+  const deleteSkill = async (id) => {
+    await fetch(`${API}/skills/${id}`, { method: "DELETE" });
+    loadSkills();
+    loadStats();
   };
-
-  const updateLevel = (skill) => {
-    const next =
-      skill.level === "Débutant"
-        ? "Intermédiaire"
-        : skill.level === "Intermédiaire"
-        ? "Avancé"
-        : "Débutant";
-
-    fetch(`${API_URL}/skills/${skill.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ level: next }),
-    }).then(() => fetchSkills());
-  };
-
-  const categories = ["Toutes", ...new Set(skills.map(s => s.category))];
-
-  const filteredSkills =
-    filter === "Toutes" ? skills : skills.filter(s => s.category === filter);
 
   return (
-    <div style={{ padding: 30, fontFamily: "Arial", maxWidth: 700, margin: "auto" }}>
+    <div style={{ padding: 30, fontFamily: "Arial" }}>
       <h1>🚀 SkillsBet</h1>
 
-      <form onSubmit={addSkill} style={{ marginBottom: 20 }}>
-        <input
-          type="text"
-          placeholder="Nom de la compétence"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-        <select value={level} onChange={(e) => setLevel(e.target.value)}>
-          <option>Débutant</option>
-          <option>Intermédiaire</option>
-          <option>Avancé</option>
-        </select>
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          <option>Frontend</option>
-          <option>Backend</option>
-          <option>DevOps</option>
-          <option>Autre</option>
-        </select>
-        <button type="submit">Ajouter</button>
-      </form>
+      <h3>Nom de la compétence</h3>
+      <input value={name} onChange={(e) => setName(e.target.value)} />
 
-      <h3>Filtrer par catégorie</h3>
-      <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-        {categories.map(cat => (
-          <option key={cat}>{cat}</option>
-        ))}
+      <h3>Niveau</h3>
+      <select value={level} onChange={(e) => setLevel(e.target.value)}>
+        <option>Débutant</option>
+        <option>Intermédiaire</option>
+        <option>Avancé</option>
       </select>
 
+      <h3>Catégorie</h3>
+      <select value={category} onChange={(e) => setCategory(e.target.value)}>
+        <option>Frontend</option>
+        <option>Backend</option>
+        <option>DevOps</option>
+        <option>Autre</option>
+      </select>
+
+      <br /><br />
+      <button onClick={addSkill}>Ajouter</button>
+
+      <h2>📊 Progression globale : {stats.progress}%</h2>
+
       <h2>Compétences</h2>
-      <ul>
-        {filteredSkills.map(skill => (
-          <li key={skill.id}>
-            <b>{skill.name}</b> — {skill.level} ({skill.category})
-            <button onClick={() => updateLevel(skill)}>⬆️</button>
-            <button onClick={() => deleteSkill(skill.id)}>❌</button>
-          </li>
-        ))}
-      </ul>
+      {skills.map((skill) => (
+        <div key={skill.id}>
+          {skill.name} — {skill.level} ({skill.category})
+          <button onClick={() => deleteSkill(skill.id)}> ❌</button>
+        </div>
+      ))}
     </div>
   );
 }
