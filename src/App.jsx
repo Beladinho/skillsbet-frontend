@@ -6,12 +6,13 @@ function App() {
   const [skills, setSkills] = useState([]);
   const [name, setName] = useState("");
   const [level, setLevel] = useState("Débutant");
+  const [category, setCategory] = useState("Frontend");
+  const [filter, setFilter] = useState("Toutes");
 
   const fetchSkills = () => {
     fetch(`${API_URL}/skills`)
       .then(res => res.json())
-      .then(data => setSkills(data))
-      .catch(err => console.error(err));
+      .then(data => setSkills(data));
   };
 
   useEffect(() => {
@@ -20,14 +21,12 @@ function App() {
 
   const addSkill = (e) => {
     e.preventDefault();
-
     fetch(`${API_URL}/skills`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, level }),
+      body: JSON.stringify({ name, level, category }),
     }).then(() => {
       setName("");
-      setLevel("Débutant");
       fetchSkills();
     });
   };
@@ -52,31 +51,13 @@ function App() {
     }).then(() => fetchSkills());
   };
 
-  // 🎯 Couleurs par niveau
-  const levelColor = (lvl) => {
-    if (lvl === "Avancé") return "#16a34a";
-    if (lvl === "Intermédiaire") return "#f59e0b";
-    return "#ef4444";
-  };
+  const categories = ["Toutes", ...new Set(skills.map(s => s.category))];
 
-  // 🔢 Score global
-  const totalPoints = skills.reduce((acc, skill) => {
-    if (skill.level === "Avancé") return acc + 3;
-    if (skill.level === "Intermédiaire") return acc + 2;
-    return acc + 1;
-  }, 0);
-
-  const maxPoints = skills.length * 3;
-  const progress = maxPoints ? Math.round((totalPoints / maxPoints) * 100) : 0;
-
-  // 📊 Tri : Avancé → Intermédiaire → Débutant
-  const sortedSkills = [...skills].sort((a, b) => {
-    const order = { "Avancé": 3, "Intermédiaire": 2, "Débutant": 1 };
-    return order[b.level] - order[a.level];
-  });
+  const filteredSkills =
+    filter === "Toutes" ? skills : skills.filter(s => s.category === filter);
 
   return (
-    <div style={{ padding: 30, fontFamily: "Arial", maxWidth: 600, margin: "auto" }}>
+    <div style={{ padding: 30, fontFamily: "Arial", maxWidth: 700, margin: "auto" }}>
       <h1>🚀 SkillsBet</h1>
 
       <form onSubmit={addSkill} style={{ marginBottom: 20 }}>
@@ -86,60 +67,34 @@ function App() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          style={{ padding: 8, marginRight: 8 }}
         />
-        <select value={level} onChange={(e) => setLevel(e.target.value)} style={{ padding: 8 }}>
+        <select value={level} onChange={(e) => setLevel(e.target.value)}>
           <option>Débutant</option>
           <option>Intermédiaire</option>
           <option>Avancé</option>
         </select>
-        <button type="submit" style={{ marginLeft: 10, padding: 8 }}>Ajouter</button>
+        <select value={category} onChange={(e) => setCategory(e.target.value)}>
+          <option>Frontend</option>
+          <option>Backend</option>
+          <option>DevOps</option>
+          <option>Autre</option>
+        </select>
+        <button type="submit">Ajouter</button>
       </form>
 
-      {/* 📈 Progression */}
-      <div style={{ marginBottom: 25 }}>
-        <strong>Progression globale : {progress}%</strong>
-        <div style={{
-          height: 12,
-          background: "#e5e7eb",
-          borderRadius: 6,
-          marginTop: 5
-        }}>
-          <div style={{
-            width: `${progress}%`,
-            height: "100%",
-            background: "#3b82f6",
-            borderRadius: 6,
-            transition: "0.3s"
-          }} />
-        </div>
-      </div>
+      <h3>Filtrer par catégorie</h3>
+      <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+        {categories.map(cat => (
+          <option key={cat}>{cat}</option>
+        ))}
+      </select>
 
-      <h2>Liste des compétences</h2>
-      <ul style={{ listStyle: "none", padding: 0 }}>
-        {sortedSkills.map(skill => (
-          <li key={skill.id} style={{
-            marginBottom: 10,
-            padding: 10,
-            borderRadius: 8,
-            background: "#f9fafb",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center"
-          }}>
-            <span>
-              <b>{skill.name}</b> —{" "}
-              <span
-                onClick={() => updateLevel(skill)}
-                style={{
-                  cursor: "pointer",
-                  color: levelColor(skill.level),
-                  fontWeight: "bold"
-                }}
-              >
-                {skill.level}
-              </span>
-            </span>
+      <h2>Compétences</h2>
+      <ul>
+        {filteredSkills.map(skill => (
+          <li key={skill.id}>
+            <b>{skill.name}</b> — {skill.level} ({skill.category})
+            <button onClick={() => updateLevel(skill)}>⬆️</button>
             <button onClick={() => deleteSkill(skill.id)}>❌</button>
           </li>
         ))}
@@ -149,4 +104,3 @@ function App() {
 }
 
 export default App;
-
