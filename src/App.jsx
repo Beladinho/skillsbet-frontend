@@ -1,92 +1,76 @@
 import { useEffect, useState } from "react";
+import Login from "./Login";
+import { apiRequest, getToken, logout } from "./api";
 
-const API = "https://skillsbet-production-37ae.up.railway.app";
-
-function App() {
+export default function App() {
+  const [loggedIn, setLoggedIn] = useState(!!getToken());
   const [skills, setSkills] = useState([]);
   const [name, setName] = useState("");
   const [level, setLevel] = useState("Débutant");
   const [category, setCategory] = useState("Frontend");
-  const [stats, setStats] = useState({ progress: 0, badges: [] });
 
   const loadSkills = async () => {
-    const res = await fetch(`${API}/skills`);
-    setSkills(await res.json());
-  };
-
-  const loadStats = async () => {
-    const res = await fetch(`${API}/stats`);
-    setStats(await res.json());
+    const data = await apiRequest("/skills");
+    setSkills(data);
   };
 
   useEffect(() => {
-    loadSkills();
-    loadStats();
-  }, []);
+    if (loggedIn) loadSkills();
+  }, [loggedIn]);
 
   const addSkill = async () => {
-    if (!name) return;
-
-    await fetch(`${API}/skills`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, level, category }),
-    });
-
+    await apiRequest("/skills", "POST", { name, level, category });
     setName("");
     loadSkills();
-    loadStats();
   };
 
   const deleteSkill = async (id) => {
-    await fetch(`${API}/skills/${id}`, { method: "DELETE" });
+    await apiRequest(`/skills/${id}`, "DELETE");
     loadSkills();
-    loadStats();
   };
 
+  if (!loggedIn) return <Login onLogin={() => setLoggedIn(true)} />;
+
   return (
-    <div style={{ padding: 30, fontFamily: "Arial" }}>
+    <div style={{ maxWidth: 500, margin: "auto", textAlign: "center" }}>
       <h1>🚀 SkillsBet</h1>
 
-      <h3>Nom de la compétence</h3>
-      <input value={name} onChange={(e) => setName(e.target.value)} />
+      <button onClick={() => { logout(); setLoggedIn(false); }}>
+        Se déconnecter
+      </button>
 
-      <h3>Niveau</h3>
+      <h3>Nouvelle compétence</h3>
+      <input
+        placeholder="Nom de la compétence"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      /><br /><br />
+
       <select value={level} onChange={(e) => setLevel(e.target.value)}>
         <option>Débutant</option>
         <option>Intermédiaire</option>
         <option>Avancé</option>
-      </select>
+        <option>Expert</option>
+      </select><br /><br />
 
-      <h3>Catégorie</h3>
       <select value={category} onChange={(e) => setCategory(e.target.value)}>
         <option>Frontend</option>
         <option>Backend</option>
         <option>DevOps</option>
+        <option>Design</option>
         <option>Autre</option>
-      </select>
+      </select><br /><br />
 
-      <br /><br />
       <button onClick={addSkill}>Ajouter</button>
 
-      <h2>📊 Progression globale : {stats.progress}%</h2>
-
-      <h3>🏆 Badges débloqués</h3>
-      {stats.badges.length === 0 ? (
-        <p>Aucun badge pour l’instant</p>
-      ) : (
-        stats.badges.map((badge, i) => <div key={i}>{badge}</div>)
-      )}
-
-      <h2>Compétences</h2>
-      {skills.map((skill) => (
-        <div key={skill.id}>
-          {skill.name} — {skill.level} ({skill.category})
-          <button onClick={() => deleteSkill(skill.id)}> ❌</button>
+      <h3>Compétences</h3>
+      {skills.map((s) => (
+        <div key={s.id}>
+          {s.name} — {s.level} ({s.category})
+          <button onClick={() => deleteSkill(s.id)}>❌</button>
         </div>
       ))}
     </div>
   );
 }
 
-export default App;
