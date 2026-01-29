@@ -5,7 +5,7 @@ import { getUserSkills, addSkill, deleteSkill, getStats } from "./api"
 export default function App() {
   const [user, setUser] = useState(null)
   const [skills, setSkills] = useState([])
-  const [stats, setStats] = useState({ xp: 0, level: 1, xp_to_next_level: 100 })
+  const [stats, setStats] = useState({ xp: 0, level: 1, xp_to_next_level: 100, badges: [] })
 
   const [name, setName] = useState("")
   const [level, setLevel] = useState("Débutant")
@@ -43,7 +43,6 @@ export default function App() {
   return (
     <div style={{ padding: 30 }}>
       <h1>🚀 SkillsBet</h1>
-      <h3>👤 Joueur : {user.username || "ID " + user.id}</h3>
 
       <h2>➕ Nouvelle compétence</h2>
       <input placeholder="Nom" value={name} onChange={e => setName(e.target.value)} />
@@ -67,6 +66,13 @@ export default function App() {
       <h2>📊 Niveau {stats.level}</h2>
       <p>XP total : {stats.xp}</p>
       <p>XP avant niveau suivant : {stats.xp_to_next_level}</p>
+
+      <h2>🏆 Badges débloqués</h2>
+      {stats.badges.length === 0 ? (
+        <p>Aucun badge pour l’instant</p>
+      ) : (
+        stats.badges.map((b, i) => <div key={i}>{b}</div>)
+      )}
 
       <h2>📚 Compétences</h2>
       {skills.map(skill => (
