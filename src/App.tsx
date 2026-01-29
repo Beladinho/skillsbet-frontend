@@ -9,112 +9,53 @@ function App() {
   const [level, setLevel] = useState("Débutant")
   const [category, setCategory] = useState("Frontend")
 
-  const [stats, setStats] = useState({
-    total_xp: 0,
-    level: 1,
-    xp_to_next_level: 100,
-    badges: [] as string[],
-  })
+  const [stats, setStats] = useState<any>(null)
 
-  const fetchSkills = async () => {
-    const res = await fetch(`${API_URL}/skills`)
-    const data = await res.json()
-    setSkills(data)
-  }
+  const fetchAll = async () => {
+    const skillsRes = await fetch(`${API_URL}/skills`)
+    setSkills(await skillsRes.json())
 
-  const fetchStats = async () => {
-    const res = await fetch(`${API_URL}/stats`)
-    const data = await res.json()
-    setStats(data)
+    const statsRes = await fetch(`${API_URL}/stats`)
+    setStats(await statsRes.json())
   }
 
   const addSkill = async () => {
-    if (!name) return
     await fetch(`${API_URL}/skills`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, level, category }),
     })
     setName("")
-    fetchSkills()
-    fetchStats()
+    fetchAll()
   }
 
   const deleteSkill = async (id: number) => {
     await fetch(`${API_URL}/skills/${id}`, { method: "DELETE" })
-    fetchSkills()
-    fetchStats()
+    fetchAll()
   }
 
   useEffect(() => {
-    fetchSkills()
-    fetchStats()
+    fetchAll()
   }, [])
 
-  const progressPercent =
-    100 - (stats.xp_to_next_level / (stats.level * 100)) * 100
+  if (!stats) return <div>Chargement...</div>
+
+  const progress = 100 - (stats.xp_to_next_level / (stats.level * 100)) * 100
 
   return (
     <div className="container">
       <h1>🚀 SkillsBet</h1>
 
       <div className="card">
-        <h2>Ajouter une compétence</h2>
-        <input
-          placeholder="Nom de la compétence"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-
-        <select value={level} onChange={(e) => setLevel(e.target.value)}>
-          <option>Débutant</option>
-          <option>Intermédiaire</option>
-          <option>Avancé</option>
-          <option>Expert</option>
-        </select>
-
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          <option>Frontend</option>
-          <option>Backend</option>
-          <option>DevOps</option>
-          <option>Autre</option>
-        </select>
-
-        <button onClick={addSkill}>Ajouter</button>
-      </div>
-
-      <div className="card">
         <h2>📊 Niveau {stats.level}</h2>
         <p>XP Total : {stats.total_xp}</p>
         <div className="progress-bar">
-          <div
-            className="progress-fill"
-            style={{ width: `${progressPercent}%` }}
-          />
+          <div className="progress-fill" style={{ width: `${progress}%` }} />
         </div>
         <p>XP avant niveau suivant : {stats.xp_to_next_level}</p>
       </div>
 
       <div className="card">
-        <h2>🏆 Badges débloqués</h2>
-        {stats.badges.length === 0 ? (
-          <p>Aucun badge pour l’instant</p>
-        ) : (
-          stats.badges.map((b, i) => <div key={i}>{b}</div>)
-        )}
-      </div>
-
-      <div className="card">
-        <h2>Compétences</h2>
-        {skills.map((skill) => (
-          <div key={skill.id} className="skill">
-            {skill.name} — {skill.level} ({skill.category})
-            <button onClick={() => deleteSkill(skill.id)}>❌</button>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-export default App
+        <h2>🏆 Badges</h2>
+        {stats.badges.map((b: string, i: number) => <div key={i}>{b}</div>)}
+      </
