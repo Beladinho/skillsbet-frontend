@@ -1,61 +1,60 @@
 import { useState } from "react"
 import { useAuth } from "../context/AuthContext"
 
-const API_URL = import.meta.env.VITE_API_URL
+const API = import.meta.env.VITE_API_URL
 
 export default function AuthPage() {
   const { login } = useAuth()
   const [isLogin, setIsLogin] = useState(true)
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const submit = async () => {
+    setError("")
+    try {
+      const res = await fetch(API + (isLogin ? "/login" : "/register"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      })
 
-    const endpoint = isLogin ? "/login" : "/register"
+      if (!res.ok) throw new Error("Erreur auth")
 
-    const response = await fetch(`${API_URL}${endpoint}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    })
-
-    const data = await response.json()
-
-    if (data.access_token) {
+      const data = await res.json()
       login(data.access_token)
-    } else {
-      alert(data.detail || "Erreur")
+    } catch (e) {
+      setError("Identifiants invalides")
     }
   }
 
   return (
-    <div style={{ padding: 30 }}>
-      <h2>🔐 SkillsBet {isLogin ? "Login" : "Register"}</h2>
+    <div style={{ padding: 20 }}>
+      <h1>🔐 SkillsBet</h1>
+      <h2>{isLogin ? "Login" : "Register"}</h2>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <br /><br />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <br /><br />
-        <button type="submit">
-          {isLogin ? "Se connecter" : "Créer un compte"}
-        </button>
-      </form>
-
+      <input
+        placeholder="Username"
+        value={username}
+        onChange={e => setUsername(e.target.value)}
+      />
       <br />
-      <button onClick={() => setIsLogin(!isLogin)}>
-        {isLogin ? "S'inscrire" : "J'ai déjà un compte"}
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={e => setPassword(e.target.value)}
+      />
+      <br />
+      <button onClick={submit}>
+        {isLogin ? "Connexion" : "Créer un compte"}
       </button>
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      <p onClick={() => setIsLogin(!isLogin)} style={{ cursor: "pointer" }}>
+        {isLogin ? "Créer un compte" : "Déjà un compte ? Login"}
+      </p>
     </div>
   )
 }
