@@ -1,23 +1,15 @@
-const API = import.meta.env.VITE_API_URL
+export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080"
 
-export async function apiFetch(path, options = {}) {
+export async function apiFetch(endpoint, options = {}) {
   const token = localStorage.getItem("token")
-
-  const res = await fetch(API + path, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: "Bearer " + token } : {}),
-      ...(options.headers || {})
-    }
-  })
-
-  // ⚠️ IMPORTANT : NE PAS logout automatiquement ici
-  if (!res.ok) {
-    const text = await res.text()
-    throw new Error(text || "Erreur API")
+  const headers = {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {})
   }
-
-  return res.json()
+  const response = await fetch(`${API_URL}${endpoint}`, {
+    ...options,
+    headers,
+  })
+  return response.json()
 }
 
