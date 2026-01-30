@@ -15,33 +15,59 @@ export default function App() {
     loadLeaderboard()
   }, [])
 
-  const loadStats = async () => setStats(await apiFetch("/stats"))
-  const loadLeaderboard = async () => setLeaderboard(await apiFetch("/leaderboard"))
+  const loadStats = async () => {
+    try {
+      const data = await apiFetch("/stats")
+      setStats(data)
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
-  if (showProfile) return <Profile />
+  const loadLeaderboard = async () => {
+    try {
+      const data = await apiFetch("/leaderboard")
+      setLeaderboard(data)
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
   return (
     <UserGate>
       <div style={{ padding: 20 }}>
-        <h1>🚀 SkillsBet connecté</h1>
-        <button onClick={() => setShowProfile(true)}>Voir mon profil</button>
-        <button onClick={logout}>Se déconnecter</button>
 
-        {stats && (
+        {showProfile ? (
           <>
-            <h2>Niveau {stats.level}</h2>
-            <p>XP: {stats.xp}</p>
+            <button onClick={() => setShowProfile(false)}>⬅ Retour</button>
+            <Profile />
+          </>
+        ) : (
+          <>
+            <h1>🚀 SkillsBet connecté</h1>
+            <button onClick={() => setShowProfile(true)}>Voir mon profil</button>
+            <button onClick={logout}>Se déconnecter</button>
+
+            {stats && (
+              <>
+                <h2>Niveau {stats.level}</h2>
+                <p>XP: {stats.xp}</p>
+              </>
+            )}
+
+            <hr />
+
+            <h2>Classement</h2>
+            <ol>
+              {leaderboard.map((p, i) => (
+                <li key={i}>
+                  {p.username} — Niveau {p.level} — {p.xp} XP
+                </li>
+              ))}
+            </ol>
           </>
         )}
 
-        <hr />
-
-        <h2>Classement</h2>
-        <ol>
-          {leaderboard.map((p, i) => (
-            <li key={i}>{p.username} — Niveau {p.level} — {p.xp} XP</li>
-          ))}
-        </ol>
       </div>
     </UserGate>
   )
