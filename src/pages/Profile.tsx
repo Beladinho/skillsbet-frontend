@@ -1,97 +1,83 @@
-import { useState, useEffect } from "react";
-import { useGame } from "../context/GameContext";
+import { useEffect, useState } from "react"
+import { apiFetch } from "../api"
+import { useAuth } from "../context/AuthContext"
 
-type Badge = {
-  name: string;
-  icon: string;
-};
+interface ProfileData {
+  username: string
+  xp: number
+  level: number
+  bio: string
+  avatar: string
+}
 
 export default function Profile() {
-  const { wallet } = useGame();
-
-  const [level, setLevel] = useState(1);
-  const [xp, setXp] = useState(0);
-  const [gamesPlayed, setGamesPlayed] = useState(0);
-  const [wins, setWins] = useState(0);
-  const [badges, setBadges] = useState<Badge[]>([]);
+  const { logout } = useAuth()
+  const [profile, setProfile] = useState<ProfileData | null>(null)
+  const [bio, setBio] = useState("")
+  const [avatar, setAvatar] = useState("")
 
   useEffect(() => {
-    // Simule récupération depuis backend
-    setLevel(5);
-    setXp(1200);
-    setGamesPlayed(45);
-    setWins(30);
-    setBadges([
-      { name: "Débutant", icon: "🌱" },
-      { name: "Pro du Snake", icon: "🐍" },
-      { name: "Tetris Master", icon: "🧱" },
-    ]);
-  }, []);
+    loadProfile()
+  }, [])
+
+  const loadProfile = async () => {
+    const data = await apiFetch("/me")
+    setProfile(data)
+    setBio(data.bio || "")
+    setAvatar(data.avatar || "")
+  }
+
+  const saveProfile = async () => {
+    await apiFetch("/me", {
+      method: "PUT",
+      body: JSON.stringify({ bio, avatar }),
+    })
+    alert("Profil mis à jour ✅")
+    loadProfile()
+  }
+
+  if (!profile) return <p>Chargement du profil...</p>
 
   return (
-    <div style={{ maxWidth: 800, margin: "0 auto", padding: 20 }}>
-      <h2 style={{ marginBottom: 20 }}>👤 Profil Utilisateur</h2>
+    <div style={{ padding: 20 }}>
+      <h1>👤 Profil de {profile.username}</h1>
+      <button onClick={logout}>Se déconnecter</button>
 
-      {/* Carte profil */}
-      <div
-        style={{
-          background: "#020617",
-          borderRadius: 16,
-          padding: 25,
-          boxShadow: "0 10px 30px rgba(0,0,0,0.4)",
-          marginBottom: 30,
-        }}
-      >
-        <p>
-          <strong>Wallet :</strong> 💰 {wallet} €
-        </p>
-        <p>
-          <strong>Niveau :</strong> {level} ({xp} XP)
-        </p>
-        <p>
-          <strong>Parties jouées :</strong> {gamesPlayed}
-        </p>
-        <p>
-          <strong>Victoires :</strong> {wins}
-        </p>
-      </div>
+      <h2>🎖 Niveau {profile.level}</h2>
+      <p>XP : {profile.xp}</p>
 
-      {/* Badges */}
-      <div
-        style={{
-          background: "#020617",
-          borderRadius: 16,
-          padding: 25,
-          boxShadow: "0 10px 30px rgba(0,0,0,0.4)",
-        }}
-      >
-        <h3 style={{ marginBottom: 15 }}>🏅 Badges</h3>
-        <div
-          style={{
-            display: "flex",
-            gap: 15,
-            flexWrap: "wrap",
-          }}
-        >
-          {badges.map((b) => (
-            <div
-              key={b.name}
-              style={{
-                background: "#334155",
-                borderRadius: 12,
-                padding: "10px 15px",
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                cursor: "default",
-              }}
-            >
-              <span style={{ fontSize: 24 }}>{b.icon}</span>
-              <span>{b.name}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <hr />
+
+      <h3>🖼 Avatar (URL d'image)</h3>
+      {avatar && (
+        <img
+          src={avatar}
+          alt="avatar"
+          style={{ width: 120, height: 120, borderRadius: "50%", objectFit: "cover" }}
+        />
+      )}
+      <input
+        type="text"
+        value={avatar}
+        onChange={(e) => setAvatar(e.target.value)}
+        placeholder="https://..."
+        style={{ width: "100%", marginTop: 10 }}
+      />
+
+      <h3>📝 Bio</h3>
+      <textarea
+        value={bio}
+        onChange={(e) => setBio(e.target.value)}
+        rows={4}
+        style={{ width: "100%" }}
+        placeholder="Parle de toi, de tes compétences, de tes objectifs..."
+      />
+
+      <br />
+      <button onClick={saveProfile} style={{ marginTop: 10 }}>
+        💾 Sauvegarder
+      </button>
     </div>
-  );
+  )
 }
+
