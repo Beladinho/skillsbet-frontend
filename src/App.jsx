@@ -1,26 +1,34 @@
-import { useContext } from "react";
-import { AuthContext } from "./context/AuthContext";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
+import { useEffect, useState } from "react"
+import { apiFetch } from "./api"
+import UserGate from "./components/UserGate"
+import { useAuth } from "./context/AuthContext"
 
 export default function App() {
-  const { token, logout } = useContext(AuthContext);
+  const { logout } = useAuth()
+  const [stats, setStats] = useState(null)
 
-  if (!token) {
-    return (
-      <div style={{ padding: 40 }}>
-        <h1>🔐 Auth SkillsBet</h1>
-        <Login />
-        <hr />
-        <Register />
-      </div>
-    );
+  useEffect(() => {
+    loadStats()
+  }, [])
+
+  const loadStats = async () => {
+    const data = await apiFetch("/stats")
+    setStats(data)
   }
 
   return (
-    <div style={{ padding: 40 }}>
-      <h1>🚀 SkillsBet connecté</h1>
-      <button onClick={logout}>Se déconnecter</button>
-    </div>
-  );
+    <UserGate>
+      <div style={{ padding: 20 }}>
+        <h1>🚀 SkillsBet connecté</h1>
+        <button onClick={logout}>Se déconnecter</button>
+
+        {stats && (
+          <>
+            <h2>📊 Niveau {stats.level}</h2>
+            <p>XP: {stats.xp}</p>
+          </>
+        )}
+      </div>
+    </UserGate>
+  )
 }
