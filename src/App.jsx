@@ -6,14 +6,21 @@ import { useAuth } from "./context/AuthContext"
 export default function App() {
   const { logout } = useAuth()
   const [stats, setStats] = useState(null)
+  const [leaderboard, setLeaderboard] = useState([])
 
   useEffect(() => {
     loadStats()
+    loadLeaderboard()
   }, [])
 
   const loadStats = async () => {
     const data = await apiFetch("/stats")
     setStats(data)
+  }
+
+  const loadLeaderboard = async () => {
+    const data = await apiFetch("/leaderboard")
+    setLeaderboard(data)
   }
 
   return (
@@ -36,6 +43,17 @@ export default function App() {
             </ul>
           </>
         )}
+
+        <hr />
+
+        <h2>🌍 Classement des joueurs</h2>
+        <ol>
+          {leaderboard.map((player, index) => (
+            <li key={index}>
+              {player.username} — Niveau {player.level} — {player.xp} XP
+            </li>
+          ))}
+        </ol>
       </div>
     </UserGate>
   )
