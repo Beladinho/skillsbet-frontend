@@ -26,9 +26,18 @@ export default function App() {
           <>
             <h2>📊 Niveau {stats.level}</h2>
             <p>XP: {stats.xp}</p>
+
+            <h3>🏆 Badges débloqués</h3>
+            {stats.badges.length === 0 && <p>Aucun badge pour l’instant</p>}
+            <ul>
+              {stats.badges.map((badge, index) => (
+                <li key={index}>{badge}</li>
+              ))}
+            </ul>
           </>
         )}
       </div>
     </UserGate>
   )
 }
+
