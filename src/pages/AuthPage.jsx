@@ -1,36 +1,27 @@
-import { useState } from "react"
-import { useAuth } from "../context/AuthContext"
+import { useState } from "react";
+import { login, register } from "../api";
 
-const API = import.meta.env.VITE_API_URL
+export default function Auth({ setToken }) {
+  const [isLogin, setIsLogin] = useState(true);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-export default function AuthPage() {
-  const { login } = useAuth()
-  const [isLogin, setIsLogin] = useState(true)
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-
-  const submit = async () => {
-    setError("")
+  const handleSubmit = async () => {
     try {
-      const res = await fetch(API + (isLogin ? "/login" : "/register"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-      })
+      const data = isLogin
+        ? await login(username, password)
+        : await register(username, password);
 
-      if (!res.ok) throw new Error("Erreur auth")
-
-      const data = await res.json()
-      login(data.access_token)
-    } catch (e) {
-      setError("Identifiants invalides")
+      localStorage.setItem("token", data.access_token);
+      setToken(data.access_token);
+    } catch (err) {
+      setError(err.message);
     }
-  }
+  };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>🔐 SkillsBet</h1>
+    <div className="auth">
       <h2>{isLogin ? "Login" : "Register"}</h2>
 
       <input
@@ -38,23 +29,23 @@ export default function AuthPage() {
         value={username}
         onChange={e => setUsername(e.target.value)}
       />
-      <br />
+
       <input
         type="password"
         placeholder="Password"
         value={password}
         onChange={e => setPassword(e.target.value)}
       />
-      <br />
-      <button onClick={submit}>
+
+      <button onClick={handleSubmit}>
         {isLogin ? "Connexion" : "Créer un compte"}
       </button>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p style={{color:"red"}}>{error}</p>}
 
-      <p onClick={() => setIsLogin(!isLogin)} style={{ cursor: "pointer" }}>
-        {isLogin ? "Créer un compte" : "Déjà un compte ? Login"}
+      <p onClick={() => setIsLogin(!isLogin)} style={{cursor:"pointer"}}>
+        {isLogin ? "Créer un compte" : "Déjà un compte ? Connexion"}
       </p>
     </div>
-  )
+  );
 }

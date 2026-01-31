@@ -1,26 +1,55 @@
-const API_URL = "https://skillsbet-production-37ae.up.railway.app"
+const API_URL = "https://skillsbet-production-37ae.up.railway.app";
 
-export const getToken = () => localStorage.getItem("token")
+export async function register(username, password) {
+  const res = await fetch(`${API_URL}/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password })
+  });
 
-export const api = async (endpoint, method = "GET", body = null) => {
-  const headers = {
-    "Content-Type": "application/json",
-  }
+  if (!res.ok) throw new Error("Erreur inscription");
 
-  const token = getToken()
-  if (token) headers["Authorization"] = `Bearer ${token}`
+  return res.json();
+}
 
-  const res = await fetch(`${API_URL}${endpoint}`, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : null,
-  })
+export async function login(username, password) {
+  const res = await fetch(`${API_URL}/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password })
+  });
 
-  if (res.status === 401) {
-    localStorage.removeItem("token")
-    window.location.reload()
-  }
+  if (!res.ok) throw new Error("Identifiants invalides");
 
-  return res.json()
+  return res.json();
+}
+
+export async function addSkill(skill, token) {
+  const res = await fetch(`${API_URL}/skills`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify(skill)
+  });
+
+  return res.json();
+}
+
+export async function getStats(token) {
+  const res = await fetch(`${API_URL}/stats`, {
+    headers: { "Authorization": `Bearer ${token}` }
+  });
+
+  return res.json();
+}
+
+export async function getBadges(token) {
+  const res = await fetch(`${API_URL}/badges`, {
+    headers: { "Authorization": `Bearer ${token}` }
+  });
+
+  return res.json();
 }
 
