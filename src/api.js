@@ -1,15 +1,26 @@
-export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080"
+const API_URL = "https://skillsbet-production-37ae.up.railway.app"
 
-export async function apiFetch(endpoint, options = {}) {
-  const token = localStorage.getItem("token")
+export const getToken = () => localStorage.getItem("token")
+
+export const api = async (endpoint, method = "GET", body = null) => {
   const headers = {
     "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {})
   }
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
+
+  const token = getToken()
+  if (token) headers["Authorization"] = `Bearer ${token}`
+
+  const res = await fetch(`${API_URL}${endpoint}`, {
+    method,
     headers,
+    body: body ? JSON.stringify(body) : null,
   })
-  return response.json()
+
+  if (res.status === 401) {
+    localStorage.removeItem("token")
+    window.location.reload()
+  }
+
+  return res.json()
 }
 
