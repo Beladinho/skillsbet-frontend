@@ -1,61 +1,36 @@
-const API_URL = "https://skillsbet-production-37ae.up.railway.app";
+const API_URL = import.meta.env.VITE_API_URL;
 
-export async function login(username, password) {
-  const res = await fetch(`${API_URL}/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password })
+async function request(path, method = "GET", body = null, token = null) {
+  const headers = { "Content-Type": "application/json" };
+
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const res = await fetch(`${API_URL}${path}`, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : null,
   });
 
-  if (!res.ok) throw new Error("Identifiants invalides");
-
-  return res.json(); // retourne directement le token (string)
-}
-
-export async function register(username, password) {
-  const res = await fetch(`${API_URL}/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password })
-  });
-
-  if (!res.ok) throw new Error("Erreur création compte");
-
-  return res.json(); // retourne directement le token
-}
-
-export async function getStats(token) {
-  const res = await fetch(`${API_URL}/stats`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-
-  if (!res.ok) throw new Error("Token invalide");
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || "Erreur serveur");
+  }
 
   return res.json();
 }
 
-export async function addSkill(skill, token) {
-  const res = await fetch(`${API_URL}/skills`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify(skill)
-  });
+export const login = (username, password) =>
+  request("/login", "POST", { username, password });
 
-  if (!res.ok) throw new Error("Erreur ajout compétence");
+export const register = (username, password) =>
+  request("/register", "POST", { username, password });
 
-  return res.json();
-}
+export const getStats = (token) =>
+  request("/stats", "GET", null, token);
 
-export async function getBadges(token) {
-  const res = await fetch(`${API_URL}/badges`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+export const addSkill = (skill, token) =>
+  request("/skills", "POST", skill, token);
 
-  if (!res.ok) throw new Error("Erreur badges");
-
-  return res.json();
-}
+export const getBadges = (token) =>
+  request("/badges", "GET", null, token);
 

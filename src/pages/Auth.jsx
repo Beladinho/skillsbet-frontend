@@ -8,20 +8,18 @@ export default function Auth({ setToken }) {
   const [error, setError] = useState("");
 
   const handleSubmit = async () => {
-    setError("");
     try {
-      const response = isLogin
+      setError("");
+
+      const token = isLogin
         ? await login(username, password)
         : await register(username, password);
-
-      const token = response; // backend renvoie une STRING
-
-      if (!token) throw new Error("Token non reçu");
 
       localStorage.setItem("token", token);
       setToken(token);
     } catch (err) {
-      setError(err.message);
+      console.error(err);
+      setError("Erreur connexion serveur");
     }
   };
 
@@ -49,7 +47,10 @@ export default function Auth({ setToken }) {
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <p onClick={() => setIsLogin(!isLogin)} style={{ cursor: "pointer", marginTop: 10 }}>
+      <p
+        style={{ cursor: "pointer", marginTop: 10 }}
+        onClick={() => setIsLogin(!isLogin)}
+      >
         {isLogin ? "Créer un compte" : "Déjà un compte ? Connexion"}
       </p>
     </div>
