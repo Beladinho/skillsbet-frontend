@@ -8,13 +8,15 @@ export default function Auth({ setToken }) {
   const [error, setError] = useState("");
 
   const handleSubmit = async () => {
+    setError("");
     try {
-      const data = isLogin
+      const response = isLogin
         ? await login(username, password)
         : await register(username, password);
 
-      // ⚠️ BACKEND RENVOIE UNE STRING DIRECTEMENT
-      const token = typeof data === "string" ? data : data.access_token;
+      const token = response; // backend renvoie une STRING
+
+      if (!token) throw new Error("Token non reçu");
 
       localStorage.setItem("token", token);
       setToken(token);
@@ -25,7 +27,8 @@ export default function Auth({ setToken }) {
 
   return (
     <div className="auth">
-      <h2>{isLogin ? "Login" : "Register"}</h2>
+      <h2>🔐 SkillsBet</h2>
+      <h3>{isLogin ? "Login" : "Register"}</h3>
 
       <input
         placeholder="Username"
@@ -44,9 +47,9 @@ export default function Auth({ setToken }) {
         {isLogin ? "Connexion" : "Créer un compte"}
       </button>
 
-      {error && <p style={{color:"red"}}>{error}</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <p onClick={() => setIsLogin(!isLogin)} style={{cursor:"pointer"}}>
+      <p onClick={() => setIsLogin(!isLogin)} style={{ cursor: "pointer", marginTop: 10 }}>
         {isLogin ? "Créer un compte" : "Déjà un compte ? Connexion"}
       </p>
     </div>
