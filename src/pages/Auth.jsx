@@ -7,7 +7,9 @@ export default function Auth({ setToken }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // 🔥 EMPÊCHE LE RELOAD DE LA PAGE
+
     try {
       setError("");
 
@@ -15,10 +17,12 @@ export default function Auth({ setToken }) {
         ? await login(username, password)
         : await register(username, password);
 
+      console.log("TOKEN REÇU :", token); // 👈 TU DOIS VOIR ÇA
+
       localStorage.setItem("token", token);
       setToken(token);
     } catch (err) {
-      console.error(err);
+      console.error("ERREUR LOGIN:", err);
       setError("Erreur connexion serveur");
     }
   };
@@ -28,22 +32,26 @@ export default function Auth({ setToken }) {
       <h2>🔐 SkillsBet</h2>
       <h3>{isLogin ? "Login" : "Register"}</h3>
 
-      <input
-        placeholder="Username"
-        value={username}
-        onChange={e => setUsername(e.target.value)}
-      />
+      <form onSubmit={handleSubmit}>  {/* 🔥 FORM AVEC SUBMIT */}
+        <input
+          placeholder="Username"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
+          required
+        />
 
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={e => setPassword(e.target.value)}
-      />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          required
+        />
 
-      <button onClick={handleSubmit}>
-        {isLogin ? "Connexion" : "Créer un compte"}
-      </button>
+        <button type="submit">
+          {isLogin ? "Connexion" : "Créer un compte"}
+        </button>
+      </form>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
