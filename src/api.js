@@ -1,36 +1,56 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
-async function request(path, method = "GET", body = null, token = null) {
-  const headers = { "Content-Type": "application/json" };
-
-  if (token) headers["Authorization"] = `Bearer ${token}`;
-
-  const res = await fetch(`${API_URL}${path}`, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : null,
+export const register = async (username, password) => {
+  const res = await fetch(`${API_URL}/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password }),
   });
 
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || "Erreur serveur");
-  }
-
+  if (!res.ok) throw new Error("Register failed");
   return res.json();
-}
+};
 
-export const login = (username, password) =>
-  request("/login", "POST", { username, password });
+export const login = async (username, password) => {
+  const res = await fetch(`${API_URL}/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password }),
+  });
 
-export const register = (username, password) =>
-  request("/register", "POST", { username, password });
+  if (!res.ok) throw new Error("Login failed");
+  return res.json();
+};
 
-export const getStats = (token) =>
-  request("/stats", "GET", null, token);
+export const addSkill = async (skill, token) => {
+  const res = await fetch(`${API_URL}/skills`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(skill),
+  });
 
-export const addSkill = (skill, token) =>
-  request("/skills", "POST", skill, token);
+  if (!res.ok) throw new Error("Add skill failed");
+  return res.json();
+};
 
-export const getBadges = (token) =>
-  request("/badges", "GET", null, token);
+export const getStats = async (token) => {
+  const res = await fetch(`${API_URL}/stats`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) throw new Error("Stats failed");
+  return res.json();
+};
+
+export const getBadges = async (token) => {
+  const res = await fetch(`${API_URL}/badges`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) throw new Error("Badges failed");
+  return res.json();
+};
 
