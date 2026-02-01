@@ -1,19 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 
-function App() {
-  const [token, setToken] = useState(localStorage.getItem("token"));
+export default function App() {
+  const [token, setToken] = useState(null);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setToken(null);
-  };
+  useEffect(() => {
+    const savedToken = localStorage.getItem("token");
+    if (savedToken) setToken(savedToken);
+  }, []);
 
-  if (!token) return <Auth setToken={setToken} />;
+  if (!token) {
+    return <Auth setToken={setToken} />;
+  }
 
-  return <Dashboard token={token} onLogout={handleLogout} />;
+  return <Dashboard token={token} setToken={setToken} />;
 }
-
-export default App;
 
