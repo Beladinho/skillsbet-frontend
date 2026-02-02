@@ -1,26 +1,24 @@
 const API_URL = import.meta.env.VITE_API_URL
 
-export async function api(endpoint, method = "GET", body = null, token = null) {
+export const api = async (endpoint, method = "GET", body = null, token = null) => {
   const headers = {
-    "Content-Type": "application/json",
+    "Content-Type": "application/json"
   }
 
   if (token) {
     headers["Authorization"] = `Bearer ${token}`
   }
 
-  const config = {
+  const options = {
     method,
-    headers,
+    headers
   }
 
-  // 🔥 ICI EST LA CORRECTION IMPORTANTE
   if (body) {
-    config.body = JSON.stringify(body)
+    options.body = JSON.stringify(body)  // 🔥 LA LIGNE QUI SAUVE TOUT
   }
 
-  const response = await fetch(`${API_URL}${endpoint}`, config)
-
+  const response = await fetch(`${API_URL}${endpoint}`, options)
   const data = await response.json()
 
   if (!response.ok) {
