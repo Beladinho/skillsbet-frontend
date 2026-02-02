@@ -1,53 +1,30 @@
-import { useEffect, useState } from "react";
-import AddSkill from "../components/AddSkill";
+import { useContext, useEffect, useState } from "react"
+import { AuthContext } from "../context/AuthContext"
+import AddSkill from "../components/AddSkill"
+import { api } from "../api"
 
-const API_URL = import.meta.env.VITE_API_URL;
+export default function Dashboard() {
+  const { token, logout } = useContext(AuthContext)
+  const [stats, setStats] = useState({ xp: 0, level: 1 })
 
-export default function Dashboard({ token, setToken }) {
-  const [stats, setStats] = useState(null);
+  const loadStats = async () => {
+    try {
+      const data = await api("/stats", "GET", null, token)
+      setStats(data)
+    } catch (err) {
+      console.error("Erreur stats:", err)
+    }
+  }
 
   useEffect(() => {
-    fetchStats();
-  }, []);
-
-  const fetchStats = async () => {
-    try {
-      const res = await fetch(`${API_URL}/stats`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) throw new Error();
-
-      const data = await res.json();
-      setStats(data);
-    } catch {
-      localStorage.removeItem("token");
-      setToken(null);
-    }
-  };
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    setToken(null);
-  };
+    loadStats()
+  }, [])
 
   return (
     <div>
       <h2>🚀 SkillsBet connecté</h2>
       <button onClick={logout}>Se déconnecter</button>
 
-      {stats && (
-        <>
-          <h3>XP: {stats.xp}</h3>
-          <h3>Niveau: {stats.level}</h3>
-
-          {/* 👇 FORMULAIRE D’AJOUT DE SKILL */}
-          <AddSkill token={token} onSkillAdded={fetchStats} />
-        </>
-      )}
-    </div>
-  );
-}
+      <p>XP : {stats.xp}</p>
+      <p>Niveau : {stats.level}</p
 
