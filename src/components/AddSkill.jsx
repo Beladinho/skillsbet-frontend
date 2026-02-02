@@ -17,16 +17,25 @@ export default function AddSkill({ token, onSkillAdded }) {
     setLoading(true)
 
     try {
+      const payload = {
+        name: name.trim(),
+        level: level.trim(),
+        category: category.trim(),
+      }
+
+      console.log("ENVOI SKILL =>", payload)
+
       const response = await fetch(`${API_URL}/skills`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ name, level, category }),
+        body: JSON.stringify(payload), // 🔥 OBLIGATOIRE
       })
 
       const data = await response.json()
+      console.log("REPONSE API =>", data)
 
       if (!response.ok) {
         throw new Error(JSON.stringify(data))
