@@ -1,15 +1,19 @@
 import { useContext, useEffect, useState } from "react"
 import { AuthContext } from "../context/AuthContext"
-import { api } from "../api"
 import AddSkill from "../components/AddSkill"
+import { api } from "../api"
 
 export default function Dashboard() {
   const { token, logout } = useContext(AuthContext)
   const [stats, setStats] = useState({ xp: 0, level: 1 })
 
   const loadStats = async () => {
-    const data = await api("/stats", "GET", null, token)
-    setStats(data)
+    try {
+      const data = await api("/stats", "GET", null, token)
+      setStats(data)
+    } catch (err) {
+      console.error("Erreur stats:", err)
+    }
   }
 
   useEffect(() => {
@@ -20,6 +24,7 @@ export default function Dashboard() {
     <div>
       <h2>🚀 SkillsBet connecté</h2>
       <button onClick={logout}>Se déconnecter</button>
+
       <p>XP : {stats.xp}</p>
       <p>Niveau : {stats.level}</p>
 

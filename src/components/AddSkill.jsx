@@ -5,25 +5,70 @@ export default function AddSkill({ token, onSkillAdded }) {
   const [name, setName] = useState("")
   const [level, setLevel] = useState("")
   const [category, setCategory] = useState("")
+  const [loading, setLoading] = useState(false)
 
   const addSkill = async () => {
-    if (!name || !level || !category) return alert("Remplis tous les champs")
+    if (!name || !level || !category) {
+      alert("Remplis tous les champs")
+      return
+    }
 
-    await api("/skills", "POST", { name, level, category }, token)
+    setLoading(true)
 
-    setName("")
-    setLevel("")
-    setCategory("")
-    onSkillAdded()
+    try {
+      await api(
+        "/skills",
+        "POST",
+        {
+          name: name.trim(),
+          level: level.trim(),
+          category: category.trim(),
+        },
+        token
+      )
+
+      alert("Compétence ajoutée 🚀")
+      setName("")
+      setLevel("")
+      setCategory("")
+      onSkillAdded()
+
+    } catch (err) {
+      console.error("ERREUR AJOUT SKILL :", err)
+      alert("Erreur ajout compétence")
+    }
+
+    setLoading(false)
   }
 
   return (
-    <div>
+    <div style={{ marginTop: "20px" }}>
       <h3>Ajouter une compétence</h3>
-      <input placeholder="Nom" value={name} onChange={e => setName(e.target.value)} />
-      <input placeholder="Niveau" value={level} onChange={e => setLevel(e.target.value)} />
-      <input placeholder="Catégorie" value={category} onChange={e => setCategory(e.target.value)} />
-      <button onClick={addSkill}>Ajouter</button>
+
+      <input
+        placeholder="Nom (ex: Python)"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <br />
+
+      <input
+        placeholder="Niveau (ex: Avancé)"
+        value={level}
+        onChange={(e) => setLevel(e.target.value)}
+      />
+      <br />
+
+      <input
+        placeholder="Catégorie (ex: Dev)"
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+      />
+      <br />
+
+      <button onClick={addSkill} disabled={loading}>
+        {loading ? "Ajout..." : "Ajouter"}
+      </button>
     </div>
   )
 }
