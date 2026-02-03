@@ -1,68 +1,55 @@
-import { createContext, useState, useEffect } from "react"
+import { createContext, useState } from "react"
 import { api } from "../api"
 
 export const AuthContext = createContext()
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(null)
+  const [token, setToken] = useState(localStorage.getItem("token"))
 
-  // 🔁 Charger le token au démarrage
-  useEffect(() => {
-    const storedToken = localStorage.getItem("token")
-    if (storedToken && storedToken !== "undefined" && storedToken !== "[object Object]") {
-      setToken(storedToken)
-    } else {
-      localStorage.removeItem("token")
-    }
-  }, [])
-
-  // 🔐 LOGIN
   const login = async (username, password) => {
     try {
       const data = await api("/login", "POST", { username, password })
-      console.log("DATA LOGIN:", data)
 
-      const realToken =
-        typeof data.access_token === "string"
-          ? data.access_token
-          : data.access_token?.token
+      console.log("LOGIN RESPONSE =", data)
 
-      if (realToken) {
-        localStorage.setItem("token", realToken) // ✅ toujours une STRING
-        setToken(realToken)
-      } else {
-        alert("Erreur récupération token")
+      const receivedToken = data.access_token
+
+      if (!receivedToken) {
+        alert("Identifiants invalides")
+        return
       }
+
+      localStorage.setItem("token", receivedToken) // ✅ string pure
+      setToken(receivedToken)
+
     } catch (err) {
-      console.error("LOGIN ERROR:", err)
-      alert("Identifiants invalides")
+      console.error(err)
+      alert("Erreur connexion")
     }
   }
 
-  // 📝 REGISTER
   const register = async (username, password) => {
     try {
       const data = await api("/register", "POST", { username, password })
-      console.log("DATA REGISTER:", data)
 
-      const realToken =
-        typeof data.access_token === "string"
-          ? data.access_token
-          : data.access_token?.token
+      console.log("REGISTER RESPONSE =", data)
 
-      if (realToken) {
-        localStorage.setItem("token", realToken) // ✅ toujours une STRING
-        setToken(realToken)
-      } else {
-        alert("Erreur récupération token")
+      const receivedToken = data.access_token
+
+      if (!receivedToken) {
+        alert("Erreur inscription")
+        return
       }
+
+      localStorage.setItem("token", receivedToken) // ✅ string pure
+      setToken(receivedToken)
+
     } catch (err) {
-      console.error("REGISTER ERROR:", err)
+      console.error(err)
       alert("Erreur inscription")
     }
   }
 
-  // 🚪 LOGOUT
   const logout = () => {
     localStorage.removeItem("token")
     setToken(null)
