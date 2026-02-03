@@ -1,89 +1,31 @@
 import { useState } from "react"
-
-const API_URL = import.meta.env.VITE_API_URL
+import { api } from "../api"
 
 export default function AddSkill({ token, onSkillAdded }) {
   const [name, setName] = useState("")
   const [level, setLevel] = useState("")
   const [category, setCategory] = useState("")
-  const [loading, setLoading] = useState(false)
 
   const addSkill = async () => {
-    if (!name || !level || !category) {
-      alert("Remplis tous les champs")
-      return
-    }
+    if (!name || !level || !category) return alert("Remplis tous les champs")
 
-    setLoading(true)
+    await api("/skills", "POST", { name, level, category }, token)
 
-    try {
-      const payload = {
-        name: name.trim(),
-        level: level.trim(),
-        category: category.trim(),
-      }
-
-      console.log("ENVOI SKILL JSON =>", JSON.stringify(payload))
-
-      const response = await fetch(`${API_URL}/skills`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)  // ✅ FORCÉ ICI
-      })
-
-      const data = await response.json()
-      console.log("REPONSE BACKEND =>", data)
-
-      if (!response.ok) {
-        throw new Error(JSON.stringify(data))
-      }
-
-      alert("Compétence ajoutée 🚀")
-      setName("")
-      setLevel("")
-      setCategory("")
-      onSkillAdded()
-
-    } catch (err) {
-      console.error("ERREUR AJOUT SKILL :", err)
-      alert("Erreur ajout compétence")
-    }
-
-    setLoading(false)
+    setName("")
+    setLevel("")
+    setCategory("")
+    onSkillAdded()
   }
 
   return (
-    <div style={{ marginTop: "20px" }}>
+    <div>
       <h3>Ajouter une compétence</h3>
-
-      <input
-        placeholder="Nom (ex: Python)"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-      <br />
-
-      <input
-        placeholder="Niveau (ex: Avancé)"
-        value={level}
-        onChange={(e) => setLevel(e.target.value)}
-      />
-      <br />
-
-      <input
-        placeholder="Catégorie (ex: Dev)"
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-      />
-      <br />
-
-      <button onClick={addSkill} disabled={loading}>
-        {loading ? "Ajout..." : "Ajouter"}
-      </button>
+      <input placeholder="Nom" value={name} onChange={e => setName(e.target.value)} />
+      <input placeholder="Niveau" value={level} onChange={e => setLevel(e.target.value)} />
+      <input placeholder="Catégorie" value={category} onChange={e => setCategory(e.target.value)} />
+      <button onClick={addSkill}>Ajouter</button>
     </div>
   )
 }
+
 

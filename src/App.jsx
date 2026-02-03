@@ -1,20 +1,19 @@
-import { useState, useEffect } from "react";
-import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
-import AddSkill from "./components/AddSkill"
+import { useContext } from "react"
+import { AuthProvider, AuthContext } from "./context/AuthContext"
+import Auth from "./components/Auth"
+import Dashboard from "./pages/Dashboard"
+
+function AppContent() {
+  const { token } = useContext(AuthContext)
+  return token ? <Dashboard /> : <Auth />
+}
 
 export default function App() {
-  const [token, setToken] = useState(null);
-
-  useEffect(() => {
-    const savedToken = localStorage.getItem("token");
-    if (savedToken) setToken(savedToken);
-  }, []);
-
-  if (!token) {
-    return <Auth setToken={setToken} />;
-  }
-
-  return <Dashboard token={token} setToken={setToken} />;
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  )
 }
+
 

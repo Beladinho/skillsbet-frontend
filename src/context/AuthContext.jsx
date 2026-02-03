@@ -7,47 +7,15 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token"))
 
   const login = async (username, password) => {
-    try {
-      const data = await api("/login", "POST", { username, password })
-
-      console.log("LOGIN RESPONSE =", data)
-
-      const receivedToken = data.access_token
-
-      if (!receivedToken) {
-        alert("Identifiants invalides")
-        return
-      }
-
-      localStorage.setItem("token", receivedToken) // ✅ string pure
-      setToken(receivedToken)
-
-    } catch (err) {
-      console.error(err)
-      alert("Erreur connexion")
-    }
+    const data = await api("/login", "POST", { username, password })
+    localStorage.setItem("token", data.access_token)
+    setToken(data.access_token)
   }
 
   const register = async (username, password) => {
-    try {
-      const data = await api("/register", "POST", { username, password })
-
-      console.log("REGISTER RESPONSE =", data)
-
-      const receivedToken = data.access_token
-
-      if (!receivedToken) {
-        alert("Erreur inscription")
-        return
-      }
-
-      localStorage.setItem("token", receivedToken) // ✅ string pure
-      setToken(receivedToken)
-
-    } catch (err) {
-      console.error(err)
-      alert("Erreur inscription")
-    }
+    const data = await api("/register", "POST", { username, password })
+    localStorage.setItem("token", data.access_token)
+    setToken(data.access_token)
   }
 
   const logout = () => {
