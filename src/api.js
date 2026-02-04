@@ -9,7 +9,10 @@ export const api = {
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || data.error);
+
+    if (!res.ok) throw new Error(data.detail || "Register failed");
+
+    localStorage.setItem("token", data.token);
     return data;
   },
 
@@ -23,27 +26,15 @@ export const api = {
     const data = await res.json();
     console.log("TOKEN REÇU :", data);
 
-    if (!res.ok || !data.token) {
-      throw new Error(data.error || "Identifiants invalides");
-    }
+    if (!res.ok) throw new Error(data.detail || "Login failed");
 
     localStorage.setItem("token", data.token);
     return data;
   },
 
-  async getProfile() {
-    const token = localStorage.getItem("token");
-    const res = await fetch(`${API_URL}/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!res.ok) throw new Error("Non autorisé");
-    return res.json();
-  },
-
   async addSkill(name, level, category) {
     const token = localStorage.getItem("token");
-    if (!token) throw new Error("Utilisateur non connecté");
+    if (!token) throw new Error("Not logged in");
 
     const res = await fetch(`${API_URL}/skills`, {
       method: "POST",
@@ -51,16 +42,23 @@ export const api = {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({
-        name: name.trim(),
-        level: Number(level),
-        category: category.trim(),
-      }),
+      body: JSON.stringify({ name, level: Number(level), category }),
     });
 
     const data = await res.json();
     if (!res.ok) throw new Error(JSON.stringify(data));
+
     return data;
+  },
+
+  async getSkills() {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(`${API_URL}/skills`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    return res.json();
   },
 };
 
