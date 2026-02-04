@@ -1,34 +1,35 @@
 import { useState } from "react";
 import { api } from "../api";
 
-export default function Login({ setLoggedIn }) {
+export default function Login({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
-    const data = await api.login(username, password);
-
-    if (data.token) {
-      setLoggedIn(true);
-    } else {
-      alert("Erreur login");
+    try {
+      await api.login(username, password);
+      onLogin();
+    } catch (err) {
+      alert(err.message);
     }
   };
 
   return (
     <form onSubmit={handleLogin}>
+      <h2>Connexion</h2>
       <input
         placeholder="Username"
+        value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
       <input
         type="password"
-        placeholder="Password"
+        placeholder="Mot de passe"
+        value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <button type="submit">Login</button>
+      <button type="submit">Se connecter</button>
     </form>
   );
 }
