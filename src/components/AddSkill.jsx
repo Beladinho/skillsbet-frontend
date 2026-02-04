@@ -1,76 +1,42 @@
-import { useState } from "react"
-import { api } from "../api"
+import { useState } from "react";
+import { api } from "../api";
 
-export default function AddSkill({ token, onSkillAdded }) {
-  const [name, setName] = useState("")
-  const [level, setLevel] = useState("")
-  const [category, setCategory] = useState("")
-  const [loading, setLoading] = useState(false)
+export default function AddSkill({ token }) {
+  const [name, setName] = useState("");
+  const [level, setLevel] = useState("");
+  const [category, setCategory] = useState("");
 
-  const addSkill = async () => {
-    if (!name || !level || !category) {
-      alert("Remplis tous les champs")
-      return
-    }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    setLoading(true)
+    await api.addSkill(token, { name, level, category });
 
-    try {
-      await api(
-        "/skills",
-        "POST",
-        {
-          name: name.trim(),
-          level: level.trim(),
-          category: category.trim(),
-        },
-        token
-      )
-
-      alert("Compétence ajoutée 🚀")
-      setName("")
-      setLevel("")
-      setCategory("")
-      onSkillAdded()
-
-    } catch (err) {
-      console.error("ERREUR AJOUT SKILL :", err)
-      alert("Erreur ajout compétence")
-    }
-
-    setLoading(false)
-  }
+    setName("");
+    setLevel("");
+    setCategory("");
+    alert("Skill ajoutée !");
+  };
 
   return (
-    <div style={{ marginTop: "20px" }}>
-      <h3>Ajouter une compétence</h3>
-
+    <form onSubmit={handleSubmit}>
       <input
-        placeholder="Nom (ex: Python)"
+        placeholder="Nom"
         value={name}
         onChange={(e) => setName(e.target.value)}
       />
-      <br />
-
       <input
-        placeholder="Niveau (ex: Avancé)"
+        placeholder="Niveau"
         value={level}
         onChange={(e) => setLevel(e.target.value)}
       />
-      <br />
-
       <input
-        placeholder="Catégorie (ex: Dev)"
+        placeholder="Catégorie"
         value={category}
         onChange={(e) => setCategory(e.target.value)}
       />
-      <br />
-
-      <button onClick={addSkill} disabled={loading}>
-        {loading ? "Ajout..." : "Ajouter"}
-      </button>
-    </div>
-  )
+      <button type="submit">Ajouter</button>
+    </form>
+  );
 }
 
 

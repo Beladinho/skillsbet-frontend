@@ -1,27 +1,40 @@
-const API_URL = import.meta.env.VITE_API_URL
+const API_URL = "https://skillsbet-production-37ae.up.railway.app";
 
-export const api = async (endpoint, method = "GET", body = null, token = null) => {
-  const headers = {
-    "Content-Type": "application/json",
-  }
+export const api = {
+  async register(username, password) {
+    const res = await fetch(`${API_URL}/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }), // ✅ STRINGIFY
+    });
+    return res.json();
+  },
 
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`
-  }
+  async login(username, password) {
+    const res = await fetch(`${API_URL}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }), // ✅ STRINGIFY
+    });
+    return res.json();
+  },
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : null,
-  })
+  async addSkill(token, skill) {
+    const res = await fetch(`${API_URL}/skills`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // ✅ TOKEN DANS HEADER
+      },
+      body: JSON.stringify(skill), // ✅ LE FIX PRINCIPAL ICI
+    });
 
-  const data = await response.json()
+    if (!res.ok) {
+      throw new Error(await res.text());
+    }
 
-  if (!response.ok) {
-    throw new Error(JSON.stringify(data))
-  }
-
-  return data
-}
+    return res.json();
+  },
+};
 
 
