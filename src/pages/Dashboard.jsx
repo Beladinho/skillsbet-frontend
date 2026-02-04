@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
-import { getSkills, addSkill } from "../api";
+import Challenges from "./Challenges";
 
 export default function Dashboard() {
-  const [skills, setSkills] = useState([]);
-  const [xp, setXp] = useState(0);
+  const [skills, setSkills] = useState([
+    { name: "Football", level: 5, category: "Sport" },
+    { name: "React", level: 4, category: "Tech" }
+  ]);
+
+  const [xp, setXp] = useState(90);
   const [level, setLevel] = useState(1);
 
   const [name, setName] = useState("");
@@ -11,51 +15,24 @@ export default function Dashboard() {
   const [category, setCategory] = useState("");
 
   useEffect(() => {
-    loadSkills();
-  }, []);
+    setLevel(Math.floor(xp / 100) + 1);
+  }, [xp]);
 
-  async function loadSkills() {
-    try {
-      const data = await getSkills();
-      setSkills(data);
+  function handleAddSkill() {
+    const newSkill = { name, level: skillLevel, category };
+    const updatedSkills = [...skills, newSkill];
+    setSkills(updatedSkills);
 
-      let totalXp = 0;
-      data.forEach(skill => {
-        totalXp += skill.level * 10;
-      });
+    let totalXp = 0;
+    updatedSkills.forEach(skill => {
+      totalXp += skill.level * 10;
+    });
 
-      setXp(totalXp);
-      setLevel(Math.floor(totalXp / 100) + 1);
+    setXp(totalXp);
 
-    } catch (err) {
-      console.error("Erreur chargement skills", err);
-    }
-  }
-
-  async function handleAddSkill() {
-    try {
-      await addSkill(name, skillLevel, category);
-
-      // Ajout local temporaire (pour voir l'effet même si API bug)
-      const newSkill = { name, level: skillLevel, category };
-      const updatedSkills = [...skills, newSkill];
-      setSkills(updatedSkills);
-
-      let totalXp = 0;
-      updatedSkills.forEach(skill => {
-        totalXp += skill.level * 10;
-      });
-
-      setXp(totalXp);
-      setLevel(Math.floor(totalXp / 100) + 1);
-
-      setName("");
-      setSkillLevel(1);
-      setCategory("");
-
-    } catch (err) {
-      console.error("Erreur ajout skill", err);
-    }
+    setName("");
+    setSkillLevel(1);
+    setCategory("");
   }
 
   return (
@@ -82,7 +59,7 @@ export default function Dashboard() {
       />
 
       <input
-        placeholder="Catégorie (ex: Sport, Tech...)"
+        placeholder="Catégorie"
         value={category}
         onChange={e => setCategory(e.target.value)}
       />
@@ -97,6 +74,8 @@ export default function Dashboard() {
           </li>
         ))}
       </ul>
+
+      <Challenges skills={skills} xp={xp} setXp={setXp} />
     </div>
   );
 }
