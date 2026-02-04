@@ -1,42 +1,20 @@
-import { useEffect, useState } from "react";
-import Login from "./components/Login";
-import AddSkill from "./components/AddSkill";
-import { api } from "./api";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
 
-export default function App() {
-  const [user, setUser] = useState(null);
-
-  const loadProfile = async () => {
-    try {
-      const data = await api.getProfile();
-      setUser(data);
-    } catch {
-      localStorage.removeItem("token");
-      setUser(null);
-    }
-  };
-
-  useEffect(() => {
-    loadProfile();
-  }, []);
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    setUser(null);
-  };
-
-  if (!user) return <Login onLogin={loadProfile} />;
-
+function App() {
   return (
-    <div>
-      <h1>🚀 SkillsBet connecté</h1>
-      <button onClick={logout}>Se déconnecter</button>
-      <p>XP: {user.xp}</p>
-      <p>Niveau: {user.level}</p>
-
-      <AddSkill onSkillAdded={loadProfile} />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
+
+export default App;
 
 
