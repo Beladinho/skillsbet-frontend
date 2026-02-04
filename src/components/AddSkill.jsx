@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { api } from "../api";
 
-export default function AddSkill({ token }) {
+export default function AddSkill() {
   const [name, setName] = useState("");
   const [level, setLevel] = useState("");
   const [category, setCategory] = useState("");
@@ -9,7 +9,7 @@ export default function AddSkill({ token }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await api.addSkill(token, { name, level, category });
+    await api.addSkill({ name, level, category });
 
     setName("");
     setLevel("");

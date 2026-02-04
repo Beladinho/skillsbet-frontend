@@ -5,7 +5,7 @@ export const api = {
     const res = await fetch(`${API_URL}/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }), // ✅ STRINGIFY
+      body: JSON.stringify({ username, password }),
     });
     return res.json();
   },
@@ -14,19 +14,27 @@ export const api = {
     const res = await fetch(`${API_URL}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }), // ✅ STRINGIFY
+      body: JSON.stringify({ username, password }),
     });
-    return res.json();
+
+    const data = await res.json();
+
+    // 🔥 ON STOCKE JUSTE LA STRING
+    localStorage.setItem("token", data.token);
+
+    return data;
   },
 
-  async addSkill(token, skill) {
+  async addSkill(skill) {
+    const token = localStorage.getItem("token"); // ✅ STRING
+
     const res = await fetch(`${API_URL}/skills`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // ✅ TOKEN DANS HEADER
+        Authorization: `Bearer ${token}`, // ✅ BON TOKEN
       },
-      body: JSON.stringify(skill), // ✅ LE FIX PRINCIPAL ICI
+      body: JSON.stringify(skill),
     });
 
     if (!res.ok) {

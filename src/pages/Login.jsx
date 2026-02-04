@@ -1,31 +1,34 @@
-import { useState, useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { useState } from "react";
+import { api } from "../api";
 
-export default function Login() {
-  const { login } = useContext(AuthContext);
+export default function Login({ setLoggedIn }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = async () => {
-    const formData = new URLSearchParams();
-    formData.append("username", username);
-    formData.append("password", password);
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
-      method: "POST",
-      body: formData,
-    });
+    const data = await api.login(username, password);
 
-    const data = await res.json();
-    login(data.access_token);
+    if (data.token) {
+      setLoggedIn(true);
+    } else {
+      alert("Erreur login");
+    }
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      <input placeholder="Username" onChange={e => setUsername(e.target.value)} />
-      <input placeholder="Password" type="password" onChange={e => setPassword(e.target.value)} />
-      <button onClick={handleLogin}>Connexion</button>
-    </div>
+    <form onSubmit={handleLogin}>
+      <input
+        placeholder="Username"
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button type="submit">Login</button>
+    </form>
   );
 }

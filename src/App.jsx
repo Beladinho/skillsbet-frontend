@@ -4,7 +4,8 @@ import Auth from "./components/Auth"
 import Dashboard from "./pages/Dashboard"
 
 function AppContent() {
-  const { token } = useContext(AuthContext)
+  const token = localStorage.getItem("token");
+  
   return token ? <Dashboard /> : <Auth />
 }
 
