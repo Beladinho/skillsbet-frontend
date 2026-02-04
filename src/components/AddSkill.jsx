@@ -9,12 +9,16 @@ export default function AddSkill() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await api.addSkill({ name, level, category });
-
-    setName("");
-    setLevel("");
-    setCategory("");
-    alert("Skill ajoutée !");
+    try {
+      await api.addSkill(name, level, category);
+      alert("Compétence ajoutée !");
+      setName("");
+      setLevel("");
+      setCategory("");
+    } catch (err) {
+      console.error(err);
+      alert("Erreur : " + err.message);
+    }
   };
 
   return (
@@ -26,6 +30,7 @@ export default function AddSkill() {
       />
       <input
         placeholder="Niveau"
+        type="number"
         value={level}
         onChange={(e) => setLevel(e.target.value)}
       />
