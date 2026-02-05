@@ -14,6 +14,12 @@ export default function Dashboard() {
   const [lootMessage, setLootMessage] = useState("")
   const [duelMessage, setDuelMessage] = useState("")
 
+  const [items, setItems] = useState(JSON.parse(localStorage.getItem("items")) || {
+    xpPotion: 0,
+    shield: 0,
+    duelBoost: 0
+  })
+
   const xpNeeded = [0, 100, 250, 500, 1000, 2000]
 
   useEffect(() => {
@@ -24,6 +30,18 @@ export default function Dashboard() {
     generateDailyQuests()
     generateLeaderboard(savedXp)
   }, [])
+
+  const saveItems = (newItems) => {
+    setItems(newItems)
+    localStorage.setItem("items", JSON.stringify(newItems))
+  }
+
+  const buyItem = (type, cost) => {
+    if (xp < cost) return alert("Pas assez d'XP 😢")
+    updateAll(xp - cost)
+    const updated = { ...items, [type]: items[type] + 1 }
+    saveItems(updated)
+  }
 
   const saveClass = (cls) => {
     setPlayerClass(cls)
@@ -38,21 +56,58 @@ export default function Dashboard() {
     return { label: "Légendaire", xp: 300, color: "#facc15" }
   }
 
+  const applyXpBonus = (baseXp) => {
+    let finalXp = baseXp
+    if (items.xpPotion > 0) {
+      finalXp *= 2
+      saveItems({ ...items, xpPotion: items.xpPotion - 1 })
+      alert("⚡ Potion XP utilisée !")
+    }
+    return finalXp
+  }
+
   const addSkill = () => {
     if (!skill) return
     const rarity = rarityRoll()
     let gainedXp = rarity.xp
-
-    if (playerClass === "Hacker") gainedXp = Math.round(gainedXp * 1.1)
+    if (playerClass === "Hacker") gainedXp *= 1.1
+    gainedXp = applyXpBonus(Math.round(gainedXp))
 
     const newSkill = { name: skill, ...rarity }
     const updatedSkills = [...skills, newSkill]
 
     setSkills(updatedSkills)
     localStorage.setItem("skills", JSON.stringify(updatedSkills))
-
     updateAll(xp + gainedXp)
     setSkill("")
+  }
+
+  const startDuel = () => {
+    let playerPower = level * 20 + Math.random() * 50
+    const enemyPower = Math.random() * 120
+
+    if (items.duelBoost > 0) {
+      playerPower += 50
+      saveItems({ ...items, duelBoost: items.duelBoost - 1 })
+      alert("🔥 Boost Duel utilisé !")
+    }
+
+    if (playerClass === "Guerrier") playerPower *= 1.2
+    if (playerClass === "Mage" && Math.random() < 0.2) playerPower *= 2
+
+    if (playerPower > enemyPower) {
+      updateAll(xp + applyXpBonus(100))
+      setDuelMessage("🏆 Victoire ! +100 XP")
+    } else {
+      if (items.shield > 0) {
+        saveItems({ ...items, shield: items.shield - 1 })
+        setDuelMessage("🛡 Bouclier utilisé ! Défaite annulée")
+      } else {
+        setDuelMessage("💀 Défaite…")
+      }
+    }
+
+    setTimeout(() => setDuelMessage(""), 5000)
   }
 
   const openChest = () => {
@@ -65,29 +120,9 @@ export default function Dashboard() {
     else if (roll < 0.75) { reward = 40; message = "📦 Récompense commune +40 XP" }
     else { message = "😢 Coffre vide…" }
 
-    if (reward > 0) updateAll(xp + reward)
+    if (reward > 0) updateAll(xp + applyXpBonus(reward))
     setLootMessage(message)
     setTimeout(() => setLootMessage(""), 4000)
-  }
-
-  const startDuel = () => {
-    let playerPower = level * 20 + Math.random() * 50
-    const enemyPower = Math.random() * 120
-
-    if (playerClass === "Guerrier") playerPower *= 1.2
-    if (playerClass === "Mage" && Math.random() < 0.2) {
-      playerPower *= 2
-      setDuelMessage("✨ Coup critique du Mage !")
-    }
-
-    if (playerPower > enemyPower) {
-      updateAll(xp + 100)
-      setDuelMessage(prev => prev + " 🏆 Victoire ! +100 XP")
-    } else {
-      setDuelMessage("💀 Défaite… Entraîne-toi et reviens !")
-    }
-
-    setTimeout(() => setDuelMessage(""), 5000)
   }
 
   const generateLeaderboard = (playerXp) => {
@@ -119,7 +154,7 @@ export default function Dashboard() {
   const completeQuest = (id) => {
     const updated = quests.map(q => {
       if (q.id === id && !q.done) {
-        updateAll(xp + q.reward)
+        updateAll(xp + applyXpBonus(q.reward))
         return { ...q, done: true }
       }
       return q
@@ -207,6 +242,13 @@ export default function Dashboard() {
           borderRadius: 10
         }} />
       </div>
+
+      <hr />
+
+      <h3>🛒 Boutique</h3>
+      <button onClick={() => buyItem("xpPotion", 150)}>⚡ Potion XP (150 XP)</button> x{items.xpPotion}<br/>
+      <button onClick={() => buyItem("shield", 120)}>🛡 Bouclier (120 XP)</button> x{items.shield}<br/>
+      <button onClick={() => buyItem("duelBoost", 180)}>🔥 Boost Duel (180 XP)</button> x{items.duelBoost}
 
       <hr />
 
