@@ -3,305 +3,73 @@ import { useEffect, useState } from "react"
 export default function Dashboard() {
   const [xp, setXp] = useState(0)
   const [level, setLevel] = useState(1)
-  const [playerClass, setPlayerClass] = useState(localStorage.getItem("class") || "")
-  const [skill, setSkill] = useState("")
-  const [skills, setSkills] = useState([])
-  const [badges, setBadges] = useState([])
-  const [streak, setStreak] = useState(0)
-  const [bonusXp, setBonusXp] = useState(0)
-  const [quests, setQuests] = useState([])
-  const [leaderboard, setLeaderboard] = useState([])
-  const [lootMessage, setLootMessage] = useState("")
-  const [duelMessage, setDuelMessage] = useState("")
+  const [titles, setTitles] = useState([])
+  const [duelsWon, setDuelsWon] = useState(parseInt(localStorage.getItem("duelsWon")) || 0)
+  const [chestsOpened, setChestsOpened] = useState(parseInt(localStorage.getItem("chestsOpened")) || 0)
+  const [legendarySkills, setLegendarySkills] = useState(parseInt(localStorage.getItem("legendarySkills")) || 0)
+  const [streak, setStreak] = useState(parseInt(localStorage.getItem("streak")) || 0)
 
-  const [items, setItems] = useState(JSON.parse(localStorage.getItem("items")) || {
-    xpPotion: 0,
-    shield: 0,
-    duelBoost: 0
-  })
-
-  const xpNeeded = [0, 100, 250, 500, 1000, 2000]
+  const unlockTitle = (title) => {
+    if (!titles.includes(title)) {
+      const updated = [...titles, title]
+      setTitles(updated)
+      localStorage.setItem("titles", JSON.stringify(updated))
+    }
+  }
 
   useEffect(() => {
-    const savedXp = parseInt(localStorage.getItem("xp")) || 0
-    const savedSkills = JSON.parse(localStorage.getItem("skills")) || []
-    setSkills(savedSkills)
-    handleDailyStreak(savedXp)
-    generateDailyQuests()
-    generateLeaderboard(savedXp)
+    setTitles(JSON.parse(localStorage.getItem("titles")) || [])
   }, [])
 
-  const saveItems = (newItems) => {
-    setItems(newItems)
-    localStorage.setItem("items", JSON.stringify(newItems))
-  }
+  useEffect(() => {
+    if (duelsWon >= 5) unlockTitle("🥊 Combattant")
+    if (duelsWon >= 20) unlockTitle("⚔️ Maître des Duels")
+    if (legendarySkills >= 1) unlockTitle("💎 Chasseur de Légendes")
+    if (chestsOpened >= 10) unlockTitle("📦 Pilleur de Coffres")
+    if (streak >= 7) unlockTitle("🔥 Survivant")
+    if (xp >= 2000) unlockTitle("👑 Légende Vivante")
+  }, [duelsWon, legendarySkills, chestsOpened, streak, xp])
 
-  const buyItem = (type, cost) => {
-    if (xp < cost) return alert("Pas assez d'XP 😢")
-    updateAll(xp - cost)
-    const updated = { ...items, [type]: items[type] + 1 }
-    saveItems(updated)
-  }
-
-  const saveClass = (cls) => {
-    setPlayerClass(cls)
-    localStorage.setItem("class", cls)
-  }
-
-  const rarityRoll = () => {
-    const r = Math.random()
-    if (r < 0.5) return { label: "Commune", xp: 40, color: "#aaa" }
-    if (r < 0.8) return { label: "Rare", xp: 80, color: "#3b82f6" }
-    if (r < 0.95) return { label: "Épique", xp: 150, color: "#a855f7" }
-    return { label: "Légendaire", xp: 300, color: "#facc15" }
-  }
-
-  const applyXpBonus = (baseXp) => {
-    let finalXp = baseXp
-    if (items.xpPotion > 0) {
-      finalXp *= 2
-      saveItems({ ...items, xpPotion: items.xpPotion - 1 })
-      alert("⚡ Potion XP utilisée !")
-    }
-    return finalXp
-  }
-
-  const addSkill = () => {
-    if (!skill) return
-    const rarity = rarityRoll()
-    let gainedXp = rarity.xp
-    if (playerClass === "Hacker") gainedXp *= 1.1
-    gainedXp = applyXpBonus(Math.round(gainedXp))
-
-    const newSkill = { name: skill, ...rarity }
-    const updatedSkills = [...skills, newSkill]
-
-    setSkills(updatedSkills)
-    localStorage.setItem("skills", JSON.stringify(updatedSkills))
-    updateAll(xp + gainedXp)
-    setSkill("")
-  }
-
-  const startDuel = () => {
-    let playerPower = level * 20 + Math.random() * 50
-    const enemyPower = Math.random() * 120
-
-    if (items.duelBoost > 0) {
-      playerPower += 50
-      saveItems({ ...items, duelBoost: items.duelBoost - 1 })
-      alert("🔥 Boost Duel utilisé !")
-    }
-
-    if (playerClass === "Guerrier") playerPower *= 1.2
-    if (playerClass === "Mage" && Math.random() < 0.2) playerPower *= 2
-
-    if (playerPower > enemyPower) {
-      updateAll(xp + applyXpBonus(100))
-      setDuelMessage("🏆 Victoire ! +100 XP")
-    } else {
-      if (items.shield > 0) {
-        saveItems({ ...items, shield: items.shield - 1 })
-        setDuelMessage("🛡 Bouclier utilisé ! Défaite annulée")
-      } else {
-        setDuelMessage("💀 Défaite…")
-      }
-    }
-
-    setTimeout(() => setDuelMessage(""), 5000)
+  const winDuel = () => {
+    const wins = duelsWon + 1
+    setDuelsWon(wins)
+    localStorage.setItem("duelsWon", wins)
   }
 
   const openChest = () => {
-    const roll = Math.random()
-    let reward = 0
-    let message = ""
-
-    if (roll < 0.1) { reward = 150; message = "💎 JACKPOT ! +150 XP" }
-    else if (roll < 0.35) { reward = 80; message = "⚡ Boost ! +80 XP" }
-    else if (roll < 0.75) { reward = 40; message = "📦 Récompense commune +40 XP" }
-    else { message = "😢 Coffre vide…" }
-
-    if (reward > 0) updateAll(xp + applyXpBonus(reward))
-    setLootMessage(message)
-    setTimeout(() => setLootMessage(""), 4000)
+    const count = chestsOpened + 1
+    setChestsOpened(count)
+    localStorage.setItem("chestsOpened", count)
   }
 
-  const generateLeaderboard = (playerXp) => {
-    const fakePlayers = [
-      { name: "Alex", xp: 1800 },
-      { name: "Sam", xp: 950 },
-      { name: "Jordan", xp: 600 },
-      { name: "Taylor", xp: 400 }
-    ]
-    setLeaderboard([...fakePlayers, { name: "Toi", xp: playerXp }].sort((a,b)=>b.xp-a.xp))
+  const gainLegendary = () => {
+    const count = legendarySkills + 1
+    setLegendarySkills(count)
+    localStorage.setItem("legendarySkills", count)
   }
-
-  const generateDailyQuests = () => {
-    const today = new Date().toDateString()
-    const savedDate = localStorage.getItem("questDate")
-    if (savedDate === today) {
-      setQuests(JSON.parse(localStorage.getItem("quests")) || [])
-      return
-    }
-    const newQuests = [
-      { id: 1, text: "Ajouter 1 compétence", done: false, reward: 30 },
-      { id: 2, text: "Gagner 1 duel", done: false, reward: 80 }
-    ]
-    localStorage.setItem("quests", JSON.stringify(newQuests))
-    localStorage.setItem("questDate", today)
-    setQuests(newQuests)
-  }
-
-  const completeQuest = (id) => {
-    const updated = quests.map(q => {
-      if (q.id === id && !q.done) {
-        updateAll(xp + applyXpBonus(q.reward))
-        return { ...q, done: true }
-      }
-      return q
-    })
-    setQuests(updated)
-    localStorage.setItem("quests", JSON.stringify(updated))
-  }
-
-  const handleDailyStreak = (currentXp) => {
-    const today = new Date().toDateString()
-    const lastLogin = localStorage.getItem("lastLogin")
-    let currentStreak = parseInt(localStorage.getItem("streak")) || 0
-    let newXp = currentXp
-
-    if (lastLogin !== today) {
-      const yesterday = new Date()
-      yesterday.setDate(yesterday.getDate() - 1)
-
-      if (lastLogin === yesterday.toDateString()) currentStreak += 1
-      else currentStreak = 1
-
-      const bonus = Math.min(currentStreak * 10, 50)
-      newXp += bonus
-
-      localStorage.setItem("streak", currentStreak)
-      localStorage.setItem("lastLogin", today)
-      setBonusXp(bonus)
-    }
-
-    setStreak(currentStreak)
-    updateAll(newXp)
-  }
-
-  const updateAll = (newXp) => {
-    setXp(newXp)
-    localStorage.setItem("xp", newXp)
-    generateLeaderboard(newXp)
-
-    if (newXp >= 2000) setLevel(6)
-    else if (newXp >= 1000) setLevel(5)
-    else if (newXp >= 500) setLevel(4)
-    else if (newXp >= 250) setLevel(3)
-    else if (newXp >= 100) setLevel(2)
-    else setLevel(1)
-
-    const unlocked = []
-    if (newXp >= 100) unlocked.push("🥉 Débutant")
-    if (newXp >= 500) unlocked.push("🥈 Intermédiaire")
-    if (newXp >= 1000) unlocked.push("🥇 Expert")
-    if (newXp >= 2000) unlocked.push("👑 Légende")
-    setBadges(unlocked)
-  }
-
-  const nextLevelXp = xpNeeded[level]
-  const prevLevelXp = xpNeeded[level - 1]
-  const progress = ((xp - prevLevelXp) / (nextLevelXp - prevLevelXp)) * 100
 
   return (
-    <div style={{ padding: 20, fontFamily: "Arial" }}>
-      <h2>🚀 SkillsBet connecté</h2>
-
-      {!playerClass && (
-        <>
-          <h3>Choisis ta classe</h3>
-          <button onClick={() => saveClass("Guerrier")}>🗡 Guerrier</button>
-          <button onClick={() => saveClass("Hacker")}>🧠 Hacker</button>
-          <button onClick={() => saveClass("Mage")}>🧙 Mage</button>
-          <hr />
-        </>
-      )}
-
-      {playerClass && <h3>Classe : {playerClass}</h3>}
-
-      <h3>🔥 Streak : {streak} jour(s)</h3>
-      {bonusXp > 0 && <p>🎁 Bonus quotidien : +{bonusXp} XP</p>}
-
-      <h3>XP : {xp}</h3>
-      <h3>Niveau : {level}</h3>
-
-      <div style={{ background: "#ddd", borderRadius: 10, height: 20 }}>
-        <div style={{
-          width: `${progress}%`,
-          background: "linear-gradient(90deg, #00c6ff, #0072ff)",
-          height: "100%",
-          borderRadius: 10
-        }} />
-      </div>
-
-      <hr />
-
-      <h3>🛒 Boutique</h3>
-      <button onClick={() => buyItem("xpPotion", 150)}>⚡ Potion XP (150 XP)</button> x{items.xpPotion}<br/>
-      <button onClick={() => buyItem("shield", 120)}>🛡 Bouclier (120 XP)</button> x{items.shield}<br/>
-      <button onClick={() => buyItem("duelBoost", 180)}>🔥 Boost Duel (180 XP)</button> x{items.duelBoost}
-
-      <hr />
-
-      <h3>⚔️ Arène de duel</h3>
-      <button onClick={startDuel}>Combattre</button>
-      {duelMessage && <p><strong>{duelMessage}</strong></p>}
-
-      <hr />
-
-      <h3>🏆 Classement</h3>
-      {leaderboard.map((p, i) => (
-        <div key={i}>
-          {i === 0 && "🥇 "}
-          {i === 1 && "🥈 "}
-          {i === 2 && "🥉 "}
-          #{i + 1} — {p.name} : {p.xp} XP
-        </div>
+    <div style={{ padding: 20 }}>
+      <h2>🎖️ Titres débloqués</h2>
+      {titles.length === 0 && <p>Aucun titre pour le moment</p>}
+      {titles.map((t, i) => (
+        <div key={i} style={{ fontWeight: "bold", margin: "4px 0" }}>{t}</div>
       ))}
 
       <hr />
 
-      <h3>🎁 Coffre mystère</h3>
-      <button onClick={openChest}>Ouvrir</button>
-      {lootMessage && <p><strong>{lootMessage}</strong></p>}
+      <h3>🔧 Simulateurs (déclenchement auto via jeu)</h3>
+      <button onClick={winDuel}>Simuler victoire duel</button>
+      <button onClick={openChest}>Simuler coffre</button>
+      <button onClick={gainLegendary}>Simuler compétence légendaire</button>
+      <button onClick={() => setXp(xp + 500)}>+500 XP</button>
 
       <hr />
-
-      <h3>🎯 Quêtes</h3>
-      {quests.map(q => (
-        <div key={q.id}>
-          <button disabled={q.done} onClick={() => completeQuest(q.id)}>
-            {q.done ? "✅" : "🎯"} {q.text} (+{q.reward} XP)
-          </button>
-        </div>
-      ))}
-
-      <hr />
-
-      <h3>🏅 Badges</h3>
-      {badges.map((b, i) => <div key={i}>{b}</div>)}
-
-      <hr />
-
-      <h3>🧬 Compétences</h3>
-      {skills.map((s, i) => (
-        <div key={i} style={{ color: s.color }}>
-          {s.name} — {s.label} (+{s.xp} XP)
-        </div>
-      ))}
-
-      <h3>Ajouter une compétence</h3>
-      <input value={skill} onChange={(e) => setSkill(e.target.value)} />
-      <button onClick={addSkill}>Ajouter</button>
+      <p>Duel gagnés : {duelsWon}</p>
+      <p>Coffres ouverts : {chestsOpened}</p>
+      <p>Compétences légendaires : {legendarySkills}</p>
+      <p>Streak : {streak} jours</p>
+      <p>XP : {xp}</p>
     </div>
   )
 }
