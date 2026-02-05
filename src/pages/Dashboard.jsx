@@ -8,6 +8,7 @@ export default function Dashboard() {
   const [streak, setStreak] = useState(0)
   const [bonusXp, setBonusXp] = useState(0)
   const [quests, setQuests] = useState([])
+  const [leaderboard, setLeaderboard] = useState([])
 
   const xpNeeded = [0, 100, 250, 500, 1000, 2000]
 
@@ -15,7 +16,22 @@ export default function Dashboard() {
     const savedXp = parseInt(localStorage.getItem("xp")) || 0
     handleDailyStreak(savedXp)
     generateDailyQuests()
+    generateLeaderboard(savedXp)
   }, [])
+
+  const generateLeaderboard = (playerXp) => {
+    const fakePlayers = [
+      { name: "Alex", xp: 1800 },
+      { name: "Sam", xp: 950 },
+      { name: "Jordan", xp: 600 },
+      { name: "Taylor", xp: 400 }
+    ]
+
+    const allPlayers = [...fakePlayers, { name: "Toi", xp: playerXp }]
+      .sort((a, b) => b.xp - a.xp)
+
+    setLeaderboard(allPlayers)
+  }
 
   const generateDailyQuests = () => {
     const today = new Date().toDateString()
@@ -77,6 +93,7 @@ export default function Dashboard() {
   const updateAll = (newXp) => {
     setXp(newXp)
     localStorage.setItem("xp", newXp)
+    generateLeaderboard(newXp)
 
     if (newXp >= 2000) setLevel(6)
     else if (newXp >= 1000) setLevel(5)
@@ -141,6 +158,18 @@ export default function Dashboard() {
           borderRadius: 10
         }} />
       </div>
+
+      <hr />
+
+      <h3>🏆 Classement</h3>
+      {leaderboard.map((p, i) => (
+        <div key={i}>
+          {i === 0 && "🥇 "}
+          {i === 1 && "🥈 "}
+          {i === 2 && "🥉 "}
+          #{i + 1} — {p.name} : {p.xp} XP
+        </div>
+      ))}
 
       <hr />
 
