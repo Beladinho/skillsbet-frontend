@@ -1,53 +1,49 @@
-const API_URL = "https://skillsbet-production-37ae.up.railway.app";
+const API_URL = "https://skillsbet-production-37ae.up.railway.app"
 
-export async function login(username, password) {
-  const res = await fetch(`${API_URL}/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }),
-  });
+export const api = {
+  login: async (username, password) => {
+    const res = await fetch(`${API_URL}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    })
+    return res.json()
+  },
 
-  const data = await res.json();
-  console.log("TOKEN REÇU :", data);
+  register: async (username, password) => {
+    const res = await fetch(`${API_URL}/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    })
+    return res.json()
+  },
 
-  if (data.token) {
-    localStorage.setItem("token", data.token);
+  getProfile: async (token) => {
+    const res = await fetch(`${API_URL}/profile`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    return res.json()
+  },
+
+  getChallenges: async () => {
+    const res = await fetch(`${API_URL}/challenges`)
+    return res.json()
+  },
+
+  completeChallenge: async (id, token) => {
+    const res = await fetch(`${API_URL}/challenges/${id}/complete`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    return res.json()
+  },
+
+  getLeaderboard: async () => {
+    const res = await fetch(`${API_URL}/leaderboard`)
+    return res.json()
   }
-
-  return data;
 }
 
-export async function register(username, password) {
-  return fetch(`${API_URL}/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }),
-  });
-}
-
-export async function addSkill(name, level, category) {
-  const token = localStorage.getItem("token");
-
-  return fetch(`${API_URL}/skills`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`,
-    },
-    body: JSON.stringify({ name, level, category }),
-  });
-}
-
-export async function getSkills() {
-  const token = localStorage.getItem("token");
-
-  const res = await fetch(`${API_URL}/skills`, {
-    headers: {
-      "Authorization": `Bearer ${token}`,
-    },
-  });
-
-  return res.json();
-}
 
 
