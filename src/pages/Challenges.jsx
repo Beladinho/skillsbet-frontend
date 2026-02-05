@@ -7,18 +7,42 @@ export default function Challenges() {
   const [challenges, setChallenges] = useState([]);
 
   function createChallenge() {
+    if (!skill || !opponent) return alert("Remplis tous les champs");
+
     const newChallenge = {
       skill,
       betXp,
       opponent,
-      status: "En attente"
+      status: "En attente",
+      result: null
     };
 
     setChallenges([...challenges, newChallenge]);
-
     setSkill("");
     setBetXp(10);
     setOpponent("");
+  }
+
+  function fight(index) {
+    const updated = [...challenges];
+    const challenge = updated[index];
+
+    const playerWins = Math.random() > 0.5;
+
+    challenge.status = "Terminé";
+    challenge.result = playerWins ? "Victoire 🎉" : "Défaite 💀";
+
+    let xp = Number(localStorage.getItem("xp")) || 100;
+
+    if (playerWins) xp += challenge.betXp;
+    else xp = Math.max(0, xp - challenge.betXp);
+
+    localStorage.setItem("xp", xp);
+
+    setChallenges(updated);
+
+    // 🔥 Notifie le Dashboard
+    window.dispatchEvent(new Event("xpUpdate"));
   }
 
   return (
@@ -28,7 +52,7 @@ export default function Challenges() {
       <h3>Créer un défi</h3>
 
       <input
-        placeholder="Compétence utilisée"
+        placeholder="Compétence"
         value={skill}
         onChange={e => setSkill(e.target.value)}
       />
@@ -52,6 +76,10 @@ export default function Challenges() {
         {challenges.map((c, i) => (
           <li key={i}>
             {c.skill} vs {c.opponent} — Mise: {c.betXp} XP — {c.status}
+            {c.status === "En attente" && (
+              <button onClick={() => fight(i)}>⚔️ Combattre</button>
+            )}
+            {c.result && <strong> → {c.result}</strong>}
           </li>
         ))}
       </ul>
