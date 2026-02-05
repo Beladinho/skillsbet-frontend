@@ -1,24 +1,25 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-import Dashboard from "./pages/Dashboard";
-import Challenges from "./pages/Challenges";
-import Leaderboard from "./pages/Leaderboard";
+import { useState } from "react"
+import SkillTree from "./pages/SkillTree"
+import Quests from "./pages/Quests"
+import Duel from "./pages/Duel"
+import Skills from "./pages/Skills"
 
 export default function App() {
+  const [page, setPage] = useState("skilltree")
+
   return (
-    <BrowserRouter>
-      <nav style={{ padding: 20 }}>
-        <Link to="/">Dashboard</Link> |{" "}
-        <Link to="/challenges">Défis</Link> |{" "}
-        <Link to="/leaderboard">Classement</Link>
+    <div style={{ fontFamily: "Arial", padding: 20 }}>
+      <h1>🚀 SkillsBet</h1>
+
+      <nav style={{ marginBottom: 20 }}>
+        <button onClick={() => setPage("skilltree")}>🌳 Arbre</button>{" "}
+        <button onClick={() => setPage("quests")}>🗺️ Quêtes</button>{" "}
+        <button onClick={() => setPage("duel")}>⚔️ Duel</button>{" "}
+        <button onClick={() => setPage("skills")}>🎯 Skills</button>
       </nav>
 
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/challenges" element={<Challenges />} />
-        <Route path="/leaderboard" element={<Leaderboard />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
+      {page === "skilltree" && <SkillTree />}
+      {page === "quests" && <Quests />}
+      {page === "duel" && <Duel
 
 
