@@ -5,19 +5,48 @@ export default function Dashboard() {
   const [level, setLevel] = useState(1)
   const [skill, setSkill] = useState("")
   const [badges, setBadges] = useState([])
+  const [streak, setStreak] = useState(0)
+  const [bonusXp, setBonusXp] = useState(0)
+
+  const xpNeeded = [0, 100, 250, 500, 1000, 2000]
 
   useEffect(() => {
     const savedXp = parseInt(localStorage.getItem("xp")) || 0
-    updateAll(savedXp)
+    handleDailyStreak(savedXp)
   }, [])
 
-  const xpNeeded = [0, 100, 250, 500, 1000, 2000]
+  const handleDailyStreak = (currentXp) => {
+    const today = new Date().toDateString()
+    const lastLogin = localStorage.getItem("lastLogin")
+    let currentStreak = parseInt(localStorage.getItem("streak")) || 0
+    let newXp = currentXp
+
+    if (lastLogin !== today) {
+      const yesterday = new Date()
+      yesterday.setDate(yesterday.getDate() - 1)
+
+      if (lastLogin === yesterday.toDateString()) {
+        currentStreak += 1
+      } else {
+        currentStreak = 1
+      }
+
+      const bonus = Math.min(currentStreak * 10, 50)
+      newXp += bonus
+
+      localStorage.setItem("streak", currentStreak)
+      localStorage.setItem("lastLogin", today)
+      setBonusXp(bonus)
+    }
+
+    setStreak(currentStreak)
+    updateAll(newXp)
+  }
 
   const updateAll = (newXp) => {
     setXp(newXp)
     localStorage.setItem("xp", newXp)
 
-    // NIVEAU
     if (newXp >= 2000) setLevel(6)
     else if (newXp >= 1000) setLevel(5)
     else if (newXp >= 500) setLevel(4)
@@ -25,7 +54,6 @@ export default function Dashboard() {
     else if (newXp >= 100) setLevel(2)
     else setLevel(1)
 
-    // BADGES
     const unlocked = []
     if (newXp >= 100) unlocked.push("🥉 Débutant")
     if (newXp >= 500) unlocked.push("🥈 Intermédiaire")
@@ -56,10 +84,12 @@ export default function Dashboard() {
         Se déconnecter
       </button>
 
+      <h3>🔥 Streak : {streak} jour(s)</h3>
+      {bonusXp > 0 && <p>🎁 Bonus quotidien : +{bonusXp} XP</p>}
+
       <h3>XP : {xp}</h3>
       <h3>Niveau : {level}</h3>
 
-      {/* BARRE XP */}
       <div style={{
         background: "#ddd",
         borderRadius: 10,
