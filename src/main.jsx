@@ -1,17 +1,13 @@
 import React from "react"
 import ReactDOM from "react-dom/client"
-import { AuthProvider } from "./context/AuthContext"
-import Dashboard from "./pages/Dashboard"
-import Auth from "./pages/Auth"
+import App from "./App"
 
-function Root() {
-  const token = localStorage.getItem("token")
-  return token ? <Dashboard /> : <Auth />
-}
+// 🔥 IMPORT GLOBAL DES STYLES DE RARETÉ
+import "./styles/rarity.css"
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <AuthProvider>
-    <Root />
-  </AuthProvider>
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
 )
 
