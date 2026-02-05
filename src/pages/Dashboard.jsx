@@ -4,6 +4,7 @@ export default function Dashboard() {
   const [xp, setXp] = useState(0)
   const [level, setLevel] = useState(1)
   const [skill, setSkill] = useState("")
+  const [skills, setSkills] = useState([])
   const [badges, setBadges] = useState([])
   const [streak, setStreak] = useState(0)
   const [bonusXp, setBonusXp] = useState(0)
@@ -15,10 +16,49 @@ export default function Dashboard() {
 
   useEffect(() => {
     const savedXp = parseInt(localStorage.getItem("xp")) || 0
+    const savedSkills = JSON.parse(localStorage.getItem("skills")) || []
+    setSkills(savedSkills)
     handleDailyStreak(savedXp)
     generateDailyQuests()
     generateLeaderboard(savedXp)
   }, [])
+
+  const rarityRoll = () => {
+    const r = Math.random()
+    if (r < 0.5) return { label: "Commune", xp: 40, color: "#aaa" }
+    if (r < 0.8) return { label: "Rare", xp: 80, color: "#3b82f6" }
+    if (r < 0.95) return { label: "Épique", xp: 150, color: "#a855f7" }
+    return { label: "Légendaire", xp: 300, color: "#facc15" }
+  }
+
+  const addSkill = () => {
+    if (!skill) return
+
+    const rarity = rarityRoll()
+    const newSkill = { name: skill, ...rarity }
+
+    const updatedSkills = [...skills, newSkill]
+    setSkills(updatedSkills)
+    localStorage.setItem("skills", JSON.stringify(updatedSkills))
+
+    updateAll(xp + rarity.xp)
+    setSkill("")
+  }
+
+  const openChest = () => {
+    const roll = Math.random()
+    let reward = 0
+    let message = ""
+
+    if (roll < 0.1) { reward = 150; message = "💎 JACKPOT ! +150 XP" }
+    else if (roll < 0.35) { reward = 80; message = "⚡ Boost ! +80 XP" }
+    else if (roll < 0.75) { reward = 40; message = "📦 Récompense commune +40 XP" }
+    else { message = "😢 Coffre vide…" }
+
+    if (reward > 0) updateAll(xp + reward)
+    setLootMessage(message)
+    setTimeout(() => setLootMessage(""), 4000)
+  }
 
   const generateLeaderboard = (playerXp) => {
     const fakePlayers = [
@@ -31,30 +71,6 @@ export default function Dashboard() {
       .sort((a, b) => b.xp - a.xp)
 
     setLeaderboard(allPlayers)
-  }
-
-  const openChest = () => {
-    const roll = Math.random()
-    let reward = 0
-    let message = ""
-
-    if (roll < 0.1) {
-      reward = 150
-      message = "💎 JACKPOT ! +150 XP"
-    } else if (roll < 0.35) {
-      reward = 80
-      message = "⚡ Boost ! +80 XP"
-    } else if (roll < 0.75) {
-      reward = 40
-      message = "📦 Récompense commune +40 XP"
-    } else {
-      message = "😢 Coffre vide…"
-    }
-
-    if (reward > 0) updateAll(xp + reward)
-    setLootMessage(message)
-
-    setTimeout(() => setLootMessage(""), 4000)
   }
 
   const generateDailyQuests = () => {
@@ -134,12 +150,6 @@ export default function Dashboard() {
     setBadges(unlocked)
   }
 
-  const addSkill = () => {
-    if (!skill) return
-    updateAll(xp + 50)
-    setSkill("")
-  }
-
   const nextLevelXp = xpNeeded[level]
   const prevLevelXp = xpNeeded[level - 1]
   const progress = ((xp - prevLevelXp) / (nextLevelXp - prevLevelXp)) * 100
@@ -198,6 +208,13 @@ export default function Dashboard() {
       {badges.map((b, i) => <div key={i}>{b}</div>)}
 
       <hr />
+
+      <h3>🧬 Mes compétences</h3>
+      {skills.map((s, i) => (
+        <div key={i} style={{ color: s.color }}>
+          {s.name} — {s.label} (+{s.xp} XP)
+        </div>
+      ))}
 
       <h3>Ajouter une compétence</h3>
       <input value={skill} onChange={(e) => setSkill(e.target.value)} />
