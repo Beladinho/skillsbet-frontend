@@ -9,6 +9,7 @@ export default function Dashboard() {
   const [bonusXp, setBonusXp] = useState(0)
   const [quests, setQuests] = useState([])
   const [leaderboard, setLeaderboard] = useState([])
+  const [lootMessage, setLootMessage] = useState("")
 
   const xpNeeded = [0, 100, 250, 500, 1000, 2000]
 
@@ -26,11 +27,34 @@ export default function Dashboard() {
       { name: "Jordan", xp: 600 },
       { name: "Taylor", xp: 400 }
     ]
-
     const allPlayers = [...fakePlayers, { name: "Toi", xp: playerXp }]
       .sort((a, b) => b.xp - a.xp)
 
     setLeaderboard(allPlayers)
+  }
+
+  const openChest = () => {
+    const roll = Math.random()
+    let reward = 0
+    let message = ""
+
+    if (roll < 0.1) {
+      reward = 150
+      message = "💎 JACKPOT ! +150 XP"
+    } else if (roll < 0.35) {
+      reward = 80
+      message = "⚡ Boost ! +80 XP"
+    } else if (roll < 0.75) {
+      reward = 40
+      message = "📦 Récompense commune +40 XP"
+    } else {
+      message = "😢 Coffre vide…"
+    }
+
+    if (reward > 0) updateAll(xp + reward)
+    setLootMessage(message)
+
+    setTimeout(() => setLootMessage(""), 4000)
   }
 
   const generateDailyQuests = () => {
@@ -43,9 +67,8 @@ export default function Dashboard() {
     }
 
     const newQuests = [
-      { id: 1, text: "Ajouter 1 compétence", done: false, reward: 30, type: "add1" },
-      { id: 2, text: "Ajouter 3 compétences", done: false, reward: 80, type: "add3" },
-      { id: 3, text: "Gagner 100 XP aujourd'hui", done: false, reward: 50, type: "xp100" }
+      { id: 1, text: "Ajouter 1 compétence", done: false, reward: 30 },
+      { id: 2, text: "Ouvrir 1 coffre", done: false, reward: 50 }
     ]
 
     localStorage.setItem("quests", JSON.stringify(newQuests))
@@ -113,27 +136,8 @@ export default function Dashboard() {
 
   const addSkill = () => {
     if (!skill) return
-    const newXp = xp + 50
-    updateAll(newXp)
-    checkQuestProgress("add1")
-    checkQuestProgress("add3")
+    updateAll(xp + 50)
     setSkill("")
-  }
-
-  const checkQuestProgress = (type) => {
-    const updated = quests.map(q => {
-      if (q.type === type && !q.done) {
-        if (type === "add1") return { ...q, done: true }
-        if (type === "add3") {
-          const count = parseInt(localStorage.getItem("skillsAdded") || 0) + 1
-          localStorage.setItem("skillsAdded", count)
-          if (count >= 3) return { ...q, done: true }
-        }
-      }
-      return q
-    })
-    setQuests(updated)
-    localStorage.setItem("quests", JSON.stringify(updated))
   }
 
   const nextLevelXp = xpNeeded[level]
@@ -170,6 +174,12 @@ export default function Dashboard() {
           #{i + 1} — {p.name} : {p.xp} XP
         </div>
       ))}
+
+      <hr />
+
+      <h3>🎁 Coffre mystère</h3>
+      <button onClick={openChest}>Ouvrir un coffre</button>
+      {lootMessage && <p><strong>{lootMessage}</strong></p>}
 
       <hr />
 
