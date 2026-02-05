@@ -1,43 +1,57 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
 
 export default function Dashboard() {
-  const [xp, setXp] = useState(Number(localStorage.getItem("xp")) || 100);
+  const [xp, setXp] = useState(0)
+  const [level, setLevel] = useState(1)
+  const [skill, setSkill] = useState("")
 
   useEffect(() => {
-    function updateXp() {
-      setXp(Number(localStorage.getItem("xp")) || 0);
-    }
+    const savedXp = parseInt(localStorage.getItem("xp")) || 0
+    updateLevel(savedXp)
+  }, [])
 
-    window.addEventListener("xpUpdate", updateXp);
-    return () => window.removeEventListener("xpUpdate", updateXp);
-  }, []);
+  const updateLevel = (newXp) => {
+    setXp(newXp)
+    localStorage.setItem("xp", newXp)
 
-  const level = Math.floor(xp / 100) + 1;
-  const xpForNextLevel = level * 100;
-  const progress = Math.min((xp / xpForNextLevel) * 100, 100);
+    if (newXp >= 1000) setLevel(5)
+    else if (newXp >= 500) setLevel(4)
+    else if (newXp >= 250) setLevel(3)
+    else if (newXp >= 100) setLevel(2)
+    else setLevel(1)
+  }
+
+  const addSkill = () => {
+    if (!skill) return
+
+    const gainedXp = xp + 50
+    updateLevel(gainedXp)
+    setSkill("")
+  }
 
   return (
-    <div style={{ padding: "30px" }}>
-      <h1>🚀 SkillsBet connecté</h1>
-
-      <h2>XP : {xp}</h2>
-      <h2>Niveau : {level}</h2>
-
-      <div style={{
-        width: "300px",
-        height: "20px",
-        background: "#ddd",
-        borderRadius: "10px",
-        overflow: "hidden",
-        marginTop: "10px"
+    <div style={{ padding: 20 }}>
+      <h2>🚀 SkillsBet connecté</h2>
+      <button onClick={() => {
+        localStorage.removeItem("token")
+        window.location.reload()
       }}>
-        <div style={{
-          width: `${progress}%`,
-          height: "100%",
-          background: "linear-gradient(90deg, #4facfe, #00f2fe)"
-        }} />
-      </div>
+        Se déconnecter
+      </button>
+
+      <h3>XP : {xp}</h3>
+      <h3>Niveau : {level}</h3>
+
+      <hr />
+
+      <h3>Ajouter une compétence</h3>
+      <input
+        value={skill}
+        onChange={(e) => setSkill(e.target.value)}
+        placeholder="Ex: React, Marketing..."
+      />
+      <button onClick={addSkill}>Ajouter</button>
     </div>
-  );
+  )
 }
 
