@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 export default function Dashboard() {
   const [xp, setXp] = useState(0)
   const [level, setLevel] = useState(1)
+  const [playerClass, setPlayerClass] = useState(localStorage.getItem("class") || "")
   const [skill, setSkill] = useState("")
   const [skills, setSkills] = useState([])
   const [badges, setBadges] = useState([])
@@ -24,7 +25,11 @@ export default function Dashboard() {
     generateLeaderboard(savedXp)
   }, [])
 
-  // 🎲 Rareté
+  const saveClass = (cls) => {
+    setPlayerClass(cls)
+    localStorage.setItem("class", cls)
+  }
+
   const rarityRoll = () => {
     const r = Math.random()
     if (r < 0.5) return { label: "Commune", xp: 40, color: "#aaa" }
@@ -36,17 +41,20 @@ export default function Dashboard() {
   const addSkill = () => {
     if (!skill) return
     const rarity = rarityRoll()
-    const newSkill = { name: skill, ...rarity }
+    let gainedXp = rarity.xp
 
+    if (playerClass === "Hacker") gainedXp = Math.round(gainedXp * 1.1)
+
+    const newSkill = { name: skill, ...rarity }
     const updatedSkills = [...skills, newSkill]
+
     setSkills(updatedSkills)
     localStorage.setItem("skills", JSON.stringify(updatedSkills))
 
-    updateAll(xp + rarity.xp)
+    updateAll(xp + gainedXp)
     setSkill("")
   }
 
-  // 🎁 Coffre
   const openChest = () => {
     const roll = Math.random()
     let reward = 0
@@ -62,17 +70,21 @@ export default function Dashboard() {
     setTimeout(() => setLootMessage(""), 4000)
   }
 
-  // ⚔️ DUEL SYSTEM
   const startDuel = () => {
-    const playerPower = level * 20 + Math.random() * 50
+    let playerPower = level * 20 + Math.random() * 50
     const enemyPower = Math.random() * 120
 
+    if (playerClass === "Guerrier") playerPower *= 1.2
+    if (playerClass === "Mage" && Math.random() < 0.2) {
+      playerPower *= 2
+      setDuelMessage("✨ Coup critique du Mage !")
+    }
+
     if (playerPower > enemyPower) {
-      const reward = 100
-      updateAll(xp + reward)
-      setDuelMessage(`🏆 Victoire ! Tu gagnes ${reward} XP`)
+      updateAll(xp + 100)
+      setDuelMessage(prev => prev + " 🏆 Victoire ! +100 XP")
     } else {
-      setDuelMessage("💀 Défaite… Entraîne-toi et reviens plus fort !")
+      setDuelMessage("💀 Défaite… Entraîne-toi et reviens !")
     }
 
     setTimeout(() => setDuelMessage(""), 5000)
@@ -85,26 +97,20 @@ export default function Dashboard() {
       { name: "Jordan", xp: 600 },
       { name: "Taylor", xp: 400 }
     ]
-    const allPlayers = [...fakePlayers, { name: "Toi", xp: playerXp }]
-      .sort((a, b) => b.xp - a.xp)
-
-    setLeaderboard(allPlayers)
+    setLeaderboard([...fakePlayers, { name: "Toi", xp: playerXp }].sort((a,b)=>b.xp-a.xp))
   }
 
   const generateDailyQuests = () => {
     const today = new Date().toDateString()
     const savedDate = localStorage.getItem("questDate")
-
     if (savedDate === today) {
       setQuests(JSON.parse(localStorage.getItem("quests")) || [])
       return
     }
-
     const newQuests = [
       { id: 1, text: "Ajouter 1 compétence", done: false, reward: 30 },
-      { id: 2, text: "Ouvrir 1 coffre", done: false, reward: 50 }
+      { id: 2, text: "Gagner 1 duel", done: false, reward: 80 }
     ]
-
     localStorage.setItem("quests", JSON.stringify(newQuests))
     localStorage.setItem("questDate", today)
     setQuests(newQuests)
@@ -175,6 +181,18 @@ export default function Dashboard() {
     <div style={{ padding: 20, fontFamily: "Arial" }}>
       <h2>🚀 SkillsBet connecté</h2>
 
+      {!playerClass && (
+        <>
+          <h3>Choisis ta classe</h3>
+          <button onClick={() => saveClass("Guerrier")}>🗡 Guerrier</button>
+          <button onClick={() => saveClass("Hacker")}>🧠 Hacker</button>
+          <button onClick={() => saveClass("Mage")}>🧙 Mage</button>
+          <hr />
+        </>
+      )}
+
+      {playerClass && <h3>Classe : {playerClass}</h3>}
+
       <h3>🔥 Streak : {streak} jour(s)</h3>
       {bonusXp > 0 && <p>🎁 Bonus quotidien : +{bonusXp} XP</p>}
 
@@ -193,7 +211,7 @@ export default function Dashboard() {
       <hr />
 
       <h3>⚔️ Arène de duel</h3>
-      <button onClick={startDuel}>Combattre un adversaire</button>
+      <button onClick={startDuel}>Combattre</button>
       {duelMessage && <p><strong>{duelMessage}</strong></p>}
 
       <hr />
@@ -211,12 +229,12 @@ export default function Dashboard() {
       <hr />
 
       <h3>🎁 Coffre mystère</h3>
-      <button onClick={openChest}>Ouvrir un coffre</button>
+      <button onClick={openChest}>Ouvrir</button>
       {lootMessage && <p><strong>{lootMessage}</strong></p>}
 
       <hr />
 
-      <h3>🎯 Quêtes du jour</h3>
+      <h3>🎯 Quêtes</h3>
       {quests.map(q => (
         <div key={q.id}>
           <button disabled={q.done} onClick={() => completeQuest(q.id)}>
@@ -232,7 +250,7 @@ export default function Dashboard() {
 
       <hr />
 
-      <h3>🧬 Mes compétences</h3>
+      <h3>🧬 Compétences</h3>
       {skills.map((s, i) => (
         <div key={i} style={{ color: s.color }}>
           {s.name} — {s.label} (+{s.xp} XP)
