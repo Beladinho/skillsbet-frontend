@@ -4,30 +4,41 @@ export default function Dashboard() {
   const [xp, setXp] = useState(0)
   const [level, setLevel] = useState(1)
   const [skill, setSkill] = useState("")
+  const [badges, setBadges] = useState([])
 
   useEffect(() => {
     const savedXp = parseInt(localStorage.getItem("xp")) || 0
-    updateLevel(savedXp)
+    updateAll(savedXp)
   }, [])
 
   const xpNeeded = [0, 100, 250, 500, 1000, 2000]
 
-  const updateLevel = (newXp) => {
+  const updateAll = (newXp) => {
     setXp(newXp)
     localStorage.setItem("xp", newXp)
 
+    // NIVEAU
     if (newXp >= 2000) setLevel(6)
     else if (newXp >= 1000) setLevel(5)
     else if (newXp >= 500) setLevel(4)
     else if (newXp >= 250) setLevel(3)
     else if (newXp >= 100) setLevel(2)
     else setLevel(1)
+
+    // BADGES
+    const unlocked = []
+    if (newXp >= 100) unlocked.push("🥉 Débutant")
+    if (newXp >= 500) unlocked.push("🥈 Intermédiaire")
+    if (newXp >= 1000) unlocked.push("🥇 Expert")
+    if (newXp >= 2000) unlocked.push("👑 Légende")
+
+    setBadges(unlocked)
   }
 
   const addSkill = () => {
     if (!skill) return
     const gainedXp = xp + 50
-    updateLevel(gainedXp)
+    updateAll(gainedXp)
     setSkill("")
   }
 
@@ -65,6 +76,16 @@ export default function Dashboard() {
         }} />
       </div>
       <small>{xp} / {nextLevelXp} XP pour le niveau {level + 1}</small>
+
+      <hr />
+
+      <h3>🏅 Badges débloqués</h3>
+      {badges.length === 0 && <p>Aucun badge pour le moment</p>}
+      <div style={{ fontSize: 22 }}>
+        {badges.map((b, i) => (
+          <div key={i}>{b}</div>
+        ))}
+      </div>
 
       <hr />
 
