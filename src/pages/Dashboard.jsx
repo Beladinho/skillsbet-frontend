@@ -11,6 +11,7 @@ export default function Dashboard() {
   const [quests, setQuests] = useState([])
   const [leaderboard, setLeaderboard] = useState([])
   const [lootMessage, setLootMessage] = useState("")
+  const [duelMessage, setDuelMessage] = useState("")
 
   const xpNeeded = [0, 100, 250, 500, 1000, 2000]
 
@@ -23,6 +24,7 @@ export default function Dashboard() {
     generateLeaderboard(savedXp)
   }, [])
 
+  // 🎲 Rareté
   const rarityRoll = () => {
     const r = Math.random()
     if (r < 0.5) return { label: "Commune", xp: 40, color: "#aaa" }
@@ -33,7 +35,6 @@ export default function Dashboard() {
 
   const addSkill = () => {
     if (!skill) return
-
     const rarity = rarityRoll()
     const newSkill = { name: skill, ...rarity }
 
@@ -45,6 +46,7 @@ export default function Dashboard() {
     setSkill("")
   }
 
+  // 🎁 Coffre
   const openChest = () => {
     const roll = Math.random()
     let reward = 0
@@ -58,6 +60,22 @@ export default function Dashboard() {
     if (reward > 0) updateAll(xp + reward)
     setLootMessage(message)
     setTimeout(() => setLootMessage(""), 4000)
+  }
+
+  // ⚔️ DUEL SYSTEM
+  const startDuel = () => {
+    const playerPower = level * 20 + Math.random() * 50
+    const enemyPower = Math.random() * 120
+
+    if (playerPower > enemyPower) {
+      const reward = 100
+      updateAll(xp + reward)
+      setDuelMessage(`🏆 Victoire ! Tu gagnes ${reward} XP`)
+    } else {
+      setDuelMessage("💀 Défaite… Entraîne-toi et reviens plus fort !")
+    }
+
+    setTimeout(() => setDuelMessage(""), 5000)
   }
 
   const generateLeaderboard = (playerXp) => {
@@ -146,7 +164,6 @@ export default function Dashboard() {
     if (newXp >= 500) unlocked.push("🥈 Intermédiaire")
     if (newXp >= 1000) unlocked.push("🥇 Expert")
     if (newXp >= 2000) unlocked.push("👑 Légende")
-
     setBadges(unlocked)
   }
 
@@ -172,6 +189,12 @@ export default function Dashboard() {
           borderRadius: 10
         }} />
       </div>
+
+      <hr />
+
+      <h3>⚔️ Arène de duel</h3>
+      <button onClick={startDuel}>Combattre un adversaire</button>
+      {duelMessage && <p><strong>{duelMessage}</strong></p>}
 
       <hr />
 
