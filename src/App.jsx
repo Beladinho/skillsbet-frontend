@@ -1,13 +1,12 @@
-import DailyReward from "./pages/DailyReward"
-import Chest from "./pages/Chest"
-import Shop from "./pages/Shop"
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import BattlePass from "./pages/BattlePass";
 
 export default function App() {
   return (
-    <>
-      <DailyReward />
-      <Chest />
-      <Shop />
-    </>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/battle-pass" element={<BattlePass />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
