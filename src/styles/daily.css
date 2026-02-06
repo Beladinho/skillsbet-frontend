@@ -1,0 +1,24 @@
+.daily-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.day-box {
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+  opacity: 0.4;
+  transition: 0.3s;
+}
+
+.day-box.claimed {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.rarity-common { background: #e0e0e0; }
+.rarity-rare { background: #4da6ff; }
+.rarity-epic { background: #b84dff; }
+.rarity-legendary { background: gold; }
