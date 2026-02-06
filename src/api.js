@@ -1,14 +1,10 @@
-import axios from "axios";
+export const safePost = async (url, data) => {
+  if (!data || typeof data !== "object") {
+    throw new Error("Invalid payload");
+  }
 
-export const api = axios.create({
-  baseURL: "https://skillsbet-production-37ae.up.railway.app",
-});
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+  return api.post(url, data);
+};
 
 
 
