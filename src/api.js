@@ -1,9 +1,7 @@
 import axios from "axios";
 
-const API_URL = "https://skillsbet-production-37ae.up.railway.app";
-
 export const api = axios.create({
-  baseURL: API_URL,
+  baseURL: "https://skillsbet-production-37ae.up.railway.app",
 });
 
 api.interceptors.request.use((config) => {
@@ -14,9 +12,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// =====================
-// AUTH
-// =====================
+/* AUTH */
 export const login = async (email, password) => {
   const res = await api.post("/login", { email, password });
   return res.data;
@@ -27,12 +23,56 @@ export const register = async (email, password) => {
   return res.data;
 };
 
-// =====================
-// BATTLE PASS
-// =====================
-export const getBattlePass = async () => {
-  const res = await api.get("/battle-pass");
+/* USER */
+export const getMe = async () => {
+  const res = await api.get("/me");
   return res.data;
+};
+
+/* SKILLS */
+export const addSkill = async (name) => {
+  const res = await api.post("/skills", { name });
+  return res.data;
+};
+
+/* XP */
+export const addXP = async (amount) => {
+  const res = await api.post("/xp", { amount });
+  return res.data;
+};
+
+/* QUESTS */
+export const getQuests = async () => {
+  const res = await api.get("/quests");
+  return res.data;
+};
+
+/* CHESTS */
+export const openChest = async () => {
+  const res = await api.post("/chests/open");
+  return res.data;
+};
+
+/* SHOP */
+export const getShop = async () => {
+  const res = await api.get("/shop");
+  return res.data;
+};
+
+/* LEADERBOARD */
+export const getLeaderboard = async () => {
+  const res = await api.get("/leaderboard");
+  return res.data;
+};
+
+/* 🔔 NOTIFICATIONS */
+export const getNotifications = async () => {
+  const res = await api.get("/notifications");
+  return res.data;
+};
+
+export const readNotification = async (id) => {
+  await api.post(`/notifications/${id}/read`);
 };
 
 

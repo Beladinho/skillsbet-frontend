@@ -1,0 +1,17 @@
+.notif-box {
+  background: #0f0f0f;
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.notif {
+  padding: 8px;
+  margin-bottom: 6px;
+  background: #1c1c1c;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.notif.read {
+  opacity: 0.5;
+}
