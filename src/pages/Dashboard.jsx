@@ -1,33 +1,21 @@
 import { useEffect, useState } from "react";
-import { getMe } from "../api";
-import Notifications from "../components/Notifications";
+import { api } from "../api";
 
 export default function Dashboard() {
-  const [user, setUser] = useState(null);
+  const [data, setData] = useState(null);
 
   useEffect(() => {
-    getMe().then(setUser);
+    api.get("/dashboard").then(res => setData(res.data));
   }, []);
 
-  if (!user) return <p>Chargement...</p>;
+  if (!data) return <div>Chargement...</div>;
 
   return (
     <div>
       <h1>🚀 SkillsBet connecté</h1>
-
-      <button
-        onClick={() => {
-          localStorage.clear();
-          window.location.reload();
-        }}
-      >
-        Se déconnecter
-      </button>
-
-      <p>XP : {user.xp}</p>
-      <p>Niveau : {user.level}</p>
-
-      <Notifications />
+      <p>XP : {data.xp}</p>
+      <p>Niveau : {data.level}</p>
+      <p>Premium : {data.premium ? "⭐" : "❌"}</p>
     </div>
   );
 }
