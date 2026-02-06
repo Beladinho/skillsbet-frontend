@@ -1,10 +1,8 @@
-export const safePost = async (url, data) => {
-  if (!data || typeof data !== "object") {
-    throw new Error("Invalid payload");
-  }
+import axios from "axios";
 
-  return api.post(url, data);
-};
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+});
 
 
 

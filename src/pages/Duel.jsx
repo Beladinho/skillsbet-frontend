@@ -1,25 +1,46 @@
-import { useState } from "react"
+import { useState } from "react";
+import { api } from "../api";
 
 export default function Duel() {
-  const [result, setResult] = useState(null)
+  const [duelId, setDuelId] = useState(null);
+  const [state, setState] = useState(null);
 
-  const startDuel = () => {
-    const specialization = localStorage.getItem("specialization")
-    let winChance = 0.5
-
-    if (specialization === "⚔️ Guerrier") {
-      winChance += 0.1
+  const join = async () => {
+    const res = await api.post("/duel/queue");
+    if (res.data.match) {
+      setDuelId(res.data.duel_id);
+      connectWS(res.data.duel_id);
     }
+  };
 
-    const win = Math.random() < winChance
-    setResult(win ? "Victoire !" : "Défaite…")
-  }
+  const connectWS = (id) => {
+    const userId = 1; // demo
+    const ws = new WebSocket(
+      `${import.meta.env.VITE_WS_URL}/ws/duel/${id}/${userId}`
+    );
+
+    ws.onmessage = (e) => {
+      setState(JSON.parse(e.data));
+    };
+
+    window.ws = ws;
+  };
+
+  const attack = () => {
+    window.ws.send(JSON.stringify({ action: "attack" }));
+  };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>⚔️ Duel</h2>
-      <button onClick={startDuel}>Lancer un duel</button>
-      {result && <p>Résultat : {result}</p>}
+    <div>
+      {!duelId && <button onClick={join}>Lancer un duel</button>}
+
+      {state && (
+        <>
+          <p>❤️ HP: {JSON.stringify(state.hp)}</p>
+          <button onClick={attack}>⚔️ Attaquer</button>
+          {state.finished && <h2>🏆 Duel terminé</h2>}
+        </>
+      )}
     </div>
-  )
+  );
 }
