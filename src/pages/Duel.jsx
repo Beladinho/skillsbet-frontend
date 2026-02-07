@@ -11,16 +11,25 @@ export default function Duel() {
     ws.send(JSON.stringify({ type: "attack" }));
   };
 
-  const skill = () => {
+  const skill1 = () => {
     ws.send(JSON.stringify({ type: "skill", skill_id: 1 }));
+  };
+
+  const skill3 = () => {
+    ws.send(JSON.stringify({ type: "skill", skill_id: 3 }));
   };
 
   return (
     <div>
-      <button onClick={attack}>⚔️ Attaquer</button>
-      <button onClick={skill}>🔥 Skill</button>
+      <h2>⚔️ Duel</h2>
 
-      {state && <pre>{JSON.stringify(state, null, 2)}</pre>}
+      <button onClick={attack}>Attaque</button>
+      <button onClick={skill1}>Coup puissant</button>
+      <button onClick={skill3}>Poison</button>
+
+      {state && (
+        <pre>{JSON.stringify(state, null, 2)}</pre>
+      )}
     </div>
   );
 }
