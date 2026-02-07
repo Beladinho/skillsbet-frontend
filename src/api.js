@@ -1,54 +1,41 @@
-const API = import.meta.env.VITE_API_URL;
+const BASE_URL = "https://skillsbet-production-37ae.up.railway.app";
 
 export const api = {
-  async init(userId) {
-    const res = await fetch(`${API}/init`, {
+  async login(email, password) {
+    const res = await fetch(`${BASE_URL}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id: userId })
+      body: JSON.stringify({ email, password }),
     });
     return res.json();
   },
 
-  async getPlayer(userId) {
-    const res = await fetch(`${API}/player/${userId}`);
-    return res.json();
-  },
-
-  async fight(userId) {
-    const res = await fetch(`${API}/fight`, {
+  async register(email, password) {
+    const res = await fetch(`${BASE_URL}/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id: userId })
+      body: JSON.stringify({ email, password }),
     });
     return res.json();
   },
 
-  async getShop() {
-    const res = await fetch(`${API}/shop`);
+  async addSkill(token, name) {
+    const res = await fetch(`${BASE_URL}/skills`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name }), // ✅ CORRECTION ICI
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text);
+    }
+
     return res.json();
   },
-
-  async buy(userId, itemId) {
-    const res = await fetch(`${API}/buy`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        user_id: userId,
-        item_id: itemId
-      })
-    });
-    return res.json();
-  },
-
-  async openChest(userId) {
-    const res = await fetch(`${API}/chest/open`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id: userId })
-    });
-    return res.json();
-  }
 };
 
 
