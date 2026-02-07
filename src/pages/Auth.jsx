@@ -4,20 +4,36 @@ import { api } from "../api";
 export default function Auth({ setToken }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleRegister = async () => {
-    await api.register(email, password);
-    alert("Compte créé, connecte-toi");
+    setError("");
+    try {
+      await api.register(email, password);
+      alert("Compte créé. Connecte-toi.");
+    } catch (e) {
+      setError("Erreur lors de l'inscription");
+    }
   };
 
   const handleLogin = async () => {
-    const data = await api.login(email, password);
+    setError("");
+    try {
+      const data = await api.login(email, password);
 
-    // IMPORTANT : récupérer la string du token
-    const token = data.access_token;
+      // Vérification du token
+      if (!data.access_token) {
+        setError("Identifiants invalides");
+        return;
+      }
 
-    localStorage.setItem("token", token);
-    setToken(token);
+      const token = data.access_token;
+
+      localStorage.setItem("token", token);
+      setToken(token);
+    } catch (e) {
+      setError("Erreur de connexion");
+    }
   };
 
   return (
@@ -42,6 +58,8 @@ export default function Auth({ setToken }) {
         <button onClick={handleLogin}>Connexion</button>
         <button onClick={handleRegister}>Inscription</button>
       </div>
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );
 }
