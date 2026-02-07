@@ -21,13 +21,12 @@ export default function Auth({ setToken }) {
     try {
       const data = await api.login(email, password);
 
-      // Vérification du token
-      if (!data.access_token) {
-        setError("Identifiants invalides");
-        return;
-      }
+if (!data.token) {
+  setError("Identifiants invalides");
+  return;
+}
 
-      const token = data.access_token;
+const token = data.token;
 
       localStorage.setItem("token", token);
       setToken(token);
