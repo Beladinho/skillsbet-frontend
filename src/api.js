@@ -19,6 +19,11 @@ export const api = {
     return res.json();
   },
 
+  async getPlayer(userId) {
+    const res = await fetch(`${BASE_URL}/player/${userId}`);
+    return res.json();
+  },
+
   async addSkill(token, name) {
     const res = await fetch(`${BASE_URL}/skills`, {
       method: "POST",
@@ -26,7 +31,7 @@ export const api = {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ name }), // ✅ CORRECTION ICI
+      body: JSON.stringify({ name }),
     });
 
     if (!res.ok) {
@@ -36,7 +41,13 @@ export const api = {
 
     return res.json();
   },
+
+  async getSkills() {
+    const res = await fetch(`${BASE_URL}/skills`);
+    return res.json();
+  },
 };
+
 
 
 
