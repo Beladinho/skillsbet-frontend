@@ -1,13 +1,26 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
 
-export default function Dashboard({ token }) {
-  const [player, setPlayer] = useState(null);
-  const [skill, setSkill] = useState("");
+export default function Dashboard() {
+  const [skills, setSkills] = useState([]);
+  const [skillName, setSkillName] = useState("");
+  const [skillLevel, setSkillLevel] = useState("");
+  const [skillCategory, setSkillCategory] = useState("");
+  const [token, setToken] = useState("");
+
+  // ⚠️ temp — token manuel pour test
+  useEffect(() => {
+    const t = localStorage.getItem("token");
+    if (t) setToken(t);
+  }, []);
 
   const load = async () => {
-    const data = await api.getPlayer(token);
-    setPlayer(data);
+    try {
+      const data = await api.getSkills();
+      setSkills(data);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   useEffect(() => {
@@ -15,43 +28,58 @@ export default function Dashboard({ token }) {
   }, []);
 
   const handleAddSkill = async () => {
-    if (!skill) return;
+    if (!skillName || !skillLevel || !skillCategory) {
+      alert("Remplis tous les champs");
+      return;
+    }
 
     try {
-      await api.addSkill(token, skill);
-      setSkill("");
+      await api.addSkill(token, skillName, skillLevel, skillCategory);
+      setSkillName("");
+      setSkillLevel("");
+      setSkillCategory("");
       load();
     } catch (err) {
       console.error(err);
-      alert("Erreur lors de l'ajout de la skill");
+      alert("Erreur ajout skill");
     }
   };
 
-  if (!player) return <div>Chargement...</div>;
-
   return (
     <div>
-      <h1>🚀 SkillsBet connecté</h1>
+      <h2>Dashboard</h2>
 
-      <h2>Joueur</h2>
-      <p>XP: {player.xp}</p>
-      <p>Niveau: {player.level}</p>
+      <h3>Ajouter une skill</h3>
 
-      <h2>Ajouter une skill</h2>
       <input
-        type="text"
-        placeholder="Nom de la skill"
-        value={skill}
-        onChange={(e) => setSkill(e.target.value)}
+        placeholder="Nom"
+        value={skillName}
+        onChange={(e) => setSkillName(e.target.value)}
       />
+
+      <input
+        placeholder="Level"
+        value={skillLevel}
+        onChange={(e) => setSkillLevel(e.target.value)}
+      />
+
+      <input
+        placeholder="Catégorie"
+        value={skillCategory}
+        onChange={(e) => setSkillCategory(e.target.value)}
+      />
+
       <button onClick={handleAddSkill}>
-        Ajouter une skill
+        Ajouter
       </button>
 
-      <h2>Liste des skills</h2>
+      <h3>Liste des skills</h3>
+
       <ul>
-        {player.skills.map((s, i) => (
-          <li key={i}>{s.name}</li>
+        {skills?.map((s, i) => (
+          <li key={i}>
+            {s.name} — lvl {s.level} — {s.category}
+          </li>
         ))}
       </ul>
     </div>

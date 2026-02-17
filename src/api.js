@@ -7,7 +7,9 @@ export const api = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
     });
-    return res.json();
+    const data = await res.json();
+    if (data.token) localStorage.setItem("token", data.token);
+    return data;
   },
 
   async register(username, password) {
@@ -16,11 +18,6 @@ export const api = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
     });
-    return res.json();
-  },
-
-  async getPlayer(userId) {
-    const res = await fetch(`${BASE_URL}/player/${userId}`);
     return res.json();
   },
 
@@ -34,13 +31,13 @@ export const api = {
       body: JSON.stringify({
         name,
         level,
-        category
+        category,
       }),
     });
 
     if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text);
+      const t = await res.text();
+      throw new Error(t);
     }
 
     return res.json();
@@ -49,6 +46,7 @@ export const api = {
   async getSkills() {
     const res = await fetch(`${BASE_URL}/skills`);
     return res.json();
-  }
+  },
 };
+
 
