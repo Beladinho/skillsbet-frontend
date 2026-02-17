@@ -24,23 +24,27 @@ export const api = {
     return res.json();
   },
 
-  async addSkill(token, name) {
-    const res = await fetch(`${BASE_URL}/skills`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ name }),
-    });
+  async addSkill(token, name, level, category) {
+  const res = await fetch(`${BASE_URL}/skills`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      name,
+      level,
+      category
+    }),
+  });
 
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text);
-    }
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text);
+  }
 
-    return res.json();
-  },
+  return res.json();
+}
 
   async getSkills() {
     const res = await fetch(`${BASE_URL}/skills`);
