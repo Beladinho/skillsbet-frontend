@@ -1,4 +1,4 @@
-const BASE_URL = "https://skillsbet-production-37ae.up.railway.app";
+const BASE_URL = "https://skillsbet-production-37ae.up.railway.app"
 
 export const api = {
 
