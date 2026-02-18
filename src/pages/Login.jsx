@@ -1,28 +1,39 @@
 import { useState } from "react";
-import { login } from "../api";
-import { useNavigate } from "react-router-dom";
+import { api } from "../api";
 
-export default function Login() {
-  const [username, setUsername] = useState("");
+export default function Login({ onLogin }) {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
 
-  const handleLogin = async () => {
-    const res = await login(username, password);
+  const submit = async () => {
+    const data = await api.login(email, password);
 
-    if (res.token) {
-      navigate("/dashboard");
+    if (data.access_token) {
+      localStorage.setItem("token", data.access_token);
+      onLogin(data.access_token);
     } else {
-      alert("Erreur login");
+      alert("login failed");
     }
   };
 
   return (
     <div>
-      <h1>🔐 SkillsBet</h1>
-      <input placeholder="Username" onChange={e => setUsername(e.target.value)} />
-      <input placeholder="Password" type="password" onChange={e => setPassword(e.target.value)} />
-      <button onClick={handleLogin}>Se connecter</button>
+      <h2>Connexion</h2>
+
+      <input
+        placeholder="email"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+      />
+
+      <input
+        placeholder="password"
+        type="password"
+        value={password}
+        onChange={e => setPassword(e.target.value)}
+      />
+
+      <button onClick={submit}>Login</button>
     </div>
   );
 }

@@ -1,120 +1,79 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
 
-export default function Dashboard() {
+export default function Dashboard({ token }) {
   const [skills, setSkills] = useState([]);
-  const [loading, setLoading] = useState(true);
-
   const [name, setName] = useState("");
   const [level, setLevel] = useState("");
   const [category, setCategory] = useState("");
 
-  // =========================
-  // LOAD SKILLS
-  // =========================
-  const loadSkills = async () => {
+  const load = async () => {
     try {
-      setLoading(true);
       const data = await api.getSkills();
-
-      // sécurité anti-crash
-      if (Array.isArray(data)) {
-        setSkills(data);
-      } else {
-        console.error("Skills non valides:", data);
-        setSkills([]);
-      }
-    } catch (err) {
-      console.error("Erreur load skills:", err);
+      if (Array.isArray(data)) setSkills(data);
+      else setSkills([]);
+    } catch (e) {
+      console.error(e);
       setSkills([]);
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadSkills();
+    load();
   }, []);
 
-  // =========================
-  // ADD SKILL
-  // =========================
-  const handleAddSkill = async () => {
-    if (!name) {
-      alert("Nom requis");
-      return;
-    }
+  const add = async () => {
+    if (!name) return;
 
-    try {
-      await api.addSkill(
-        "dev-token", // token temporaire
-        name,
-        parseInt(level) || 1,
-        category || "general"
-      );
+    await api.addSkill(token, {
+      name,
+      level: Number(level),
+      category,
+    });
 
-      setName("");
-      setLevel("");
-      setCategory("");
-
-      await loadSkills();
-    } catch (err) {
-      console.error(err);
-      alert("Erreur ajout skill");
-    }
+    setName("");
+    setLevel("");
+    setCategory("");
+    load();
   };
-
-  // =========================
-  // UI
-  // =========================
-  if (loading) {
-    return <div>Chargement...</div>;
-  }
 
   return (
     <div>
-      <h1>🚀 SkillsBet Dashboard</h1>
+      <h2>🚀 Tableau de bord SkillsBet</h2>
 
-      {/* ================= ADD ================= */}
-      <h2>Ajouter une skill</h2>
+      <h3>Ajouter une compétence</h3>
 
       <input
         placeholder="Nom"
         value={name}
-        onChange={(e) => setName(e.target.value)}
+        onChange={e => setName(e.target.value)}
       />
 
       <input
-        placeholder="Level"
-        type="number"
+        placeholder="Niveau"
         value={level}
-        onChange={(e) => setLevel(e.target.value)}
+        onChange={e => setLevel(e.target.value)}
       />
 
       <input
         placeholder="Catégorie"
         value={category}
-        onChange={(e) => setCategory(e.target.value)}
+        onChange={e => setCategory(e.target.value)}
       />
 
-      <button onClick={handleAddSkill}>
-        Ajouter
-      </button>
+      <button onClick={add}>Ajouter</button>
 
-      {/* ================= LIST ================= */}
-      <h2>Liste des skills</h2>
+      <h3>Liste des compétences</h3>
 
-      {skills.length === 0 ? (
-        <p>Aucune skill</p>
-      ) : (
-        <ul>
-          {skills.map((s) => (
-            <li key={s.id}>
-              {s.name} — lvl {s.level} — {s.category}
-            </li>
-          ))}
-        </ul>
-      )}
+      {skills.length === 0 && <p>Aucune compétence</p>}
+
+      <ul>
+        {skills.map(s => (
+          <li key={s.id}>
+            {s.name} — lvl {s.level} — {s.category}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
