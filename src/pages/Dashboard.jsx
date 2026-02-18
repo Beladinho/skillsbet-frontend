@@ -3,85 +3,118 @@ import { api } from "../api";
 
 export default function Dashboard() {
   const [skills, setSkills] = useState([]);
-  const [skillName, setSkillName] = useState("");
-  const [skillLevel, setSkillLevel] = useState("");
-  const [skillCategory, setSkillCategory] = useState("");
-  const [token, setToken] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // ⚠️ temp — token manuel pour test
-  useEffect(() => {
-    const t = localStorage.getItem("token");
-    if (t) setToken(t);
-  }, []);
+  const [name, setName] = useState("");
+  const [level, setLevel] = useState("");
+  const [category, setCategory] = useState("");
 
-  const load = async () => {
+  // =========================
+  // LOAD SKILLS
+  // =========================
+  const loadSkills = async () => {
     try {
+      setLoading(true);
       const data = await api.getSkills();
-      setSkills(data);
-    } catch (e) {
-      console.error(e);
+
+      // sécurité anti-crash
+      if (Array.isArray(data)) {
+        setSkills(data);
+      } else {
+        console.error("Skills non valides:", data);
+        setSkills([]);
+      }
+    } catch (err) {
+      console.error("Erreur load skills:", err);
+      setSkills([]);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    load();
+    loadSkills();
   }, []);
 
+  // =========================
+  // ADD SKILL
+  // =========================
   const handleAddSkill = async () => {
-    if (!skillName || !skillLevel || !skillCategory) {
-      alert("Remplis tous les champs");
+    if (!name) {
+      alert("Nom requis");
       return;
     }
 
     try {
-      await api.addSkill(token, skillName, skillLevel, skillCategory);
-      setSkillName("");
-      setSkillLevel("");
-      setSkillCategory("");
-      load();
+      await api.addSkill(
+        "dev-token", // token temporaire
+        name,
+        parseInt(level) || 1,
+        category || "general"
+      );
+
+      setName("");
+      setLevel("");
+      setCategory("");
+
+      await loadSkills();
     } catch (err) {
       console.error(err);
       alert("Erreur ajout skill");
     }
   };
 
+  // =========================
+  // UI
+  // =========================
+  if (loading) {
+    return <div>Chargement...</div>;
+  }
+
   return (
     <div>
-      <h2>Dashboard</h2>
+      <h1>🚀 SkillsBet Dashboard</h1>
 
-      <h3>Ajouter une skill</h3>
+      {/* ================= ADD ================= */}
+      <h2>Ajouter une skill</h2>
 
       <input
         placeholder="Nom"
-        value={skillName}
-        onChange={(e) => setSkillName(e.target.value)}
+        value={name}
+        onChange={(e) => setName(e.target.value)}
       />
 
       <input
         placeholder="Level"
-        value={skillLevel}
-        onChange={(e) => setSkillLevel(e.target.value)}
+        type="number"
+        value={level}
+        onChange={(e) => setLevel(e.target.value)}
       />
 
       <input
         placeholder="Catégorie"
-        value={skillCategory}
-        onChange={(e) => setSkillCategory(e.target.value)}
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
       />
 
       <button onClick={handleAddSkill}>
         Ajouter
       </button>
 
-      <h3>Liste des skills</h3>
+      {/* ================= LIST ================= */}
+      <h2>Liste des skills</h2>
 
-      <ul>
-        {skills?.map((s, i) => (
-          <li key={i}>
-            {s.name} — lvl {s.level} — {s.category}
-          </li>
-        ))}
-      </ul>
+      {skills.length === 0 ? (
+        <p>Aucune skill</p>
+      ) : (
+        <ul>
+          {skills.map((s) => (
+            <li key={s.id}>
+              {s.name} — lvl {s.level} — {s.category}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
