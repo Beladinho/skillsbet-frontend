@@ -1,6 +1,6 @@
 import { useState } from "react";
-import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
 
 export default function App() {
   const [token, setToken] = useState(
@@ -13,15 +13,7 @@ export default function App() {
 
   return (
     <div style={{ padding: 20 }}>
-      <button
-        onClick={() => {
-          localStorage.removeItem("token");
-          setToken(null);
-        }}
-      >
-        Logout
-      </button>
-
+      <h1>🚀 SkillsBet</h1>
       <Dashboard token={token} />
     </div>
   );

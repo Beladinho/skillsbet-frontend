@@ -6,11 +6,10 @@ export default function Login({ onLogin }) {
   const [password, setPassword] = useState("");
 
   const submit = async () => {
-    const data = await api.login(email, password);
-
-    if (data.access_token) {
-      localStorage.setItem("token", data.access_token);
-      onLogin(data.access_token);
+    const r = await api.login(email, password);
+    if (r.token) {
+      localStorage.setItem("token", r.token);
+      onLogin(r.token);
     } else {
       alert("login failed");
     }
@@ -19,21 +18,19 @@ export default function Login({ onLogin }) {
   return (
     <div>
       <h2>Connexion</h2>
-
       <input
         placeholder="email"
         value={email}
         onChange={e => setEmail(e.target.value)}
       />
-
       <input
         placeholder="password"
         type="password"
         value={password}
         onChange={e => setPassword(e.target.value)}
       />
-
       <button onClick={submit}>Login</button>
     </div>
   );
 }
+
