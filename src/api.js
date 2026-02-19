@@ -37,17 +37,17 @@ export const api = {
   },
 
   // GET SKILLS
-  async getSkills() {
-    const res = await fetch(BASE_URL + "/skills", {
-      method: "GET",
-      headers: {
-        "Authorization": "Bearer " + localStorage.getItem("token")
-      }
-    });
+async getSkills() {
+  const res = await fetch(BASE_URL + "/skills/", {
+    method: "GET",
+    headers: {
+      "Authorization": "Bearer " + localStorage.getItem("token")
+    }
+  });
 
-    if (!res.ok) throw new Error("getSkills failed");
-    return res.json();
-  },
+  if (!res.ok) throw new Error("getSkills failed");
+  return res.json();
+}
 
   // ADD SKILL
   async addSkill(name, level, category) {
