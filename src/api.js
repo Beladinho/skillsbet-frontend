@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL;
+const BASE_URL = import.meta.env.VITE_API_URL || "https://skillsbet-production-37ae.up.railway.app";
 
 function getToken() {
   return localStorage.getItem("token");
