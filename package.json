@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "build:prod": "VITE_API_URL=https://skillsbet-production-37ae.up.railway.app vite build"
+    "build:prod": "VITE_API_URL=https://skillsbet-production-37ae.up.railway.app vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
     "react": "^18.3.1",
