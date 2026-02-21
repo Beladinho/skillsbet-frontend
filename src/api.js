@@ -62,7 +62,7 @@ const api = {
 
   // SKILLS
   getSkills() {
-    return safeFetch(`${BASE_URL}/skills/`, {
+    return safeFetch(`${BASE_URL}/skills`, {
       headers: authHeaders()
     });
   },
