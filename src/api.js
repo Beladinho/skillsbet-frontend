@@ -1,3 +1,5 @@
+// frontend/src/api.js
+
 const BASE_URL = "https://skillsbet-production-37ae.up.railway.app";
 
 function authHeaders() {

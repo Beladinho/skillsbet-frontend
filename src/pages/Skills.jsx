@@ -1,20 +1,17 @@
-import { useState } from "react"
+// frontend/src/pages/Skills.jsx
+import { useState } from "react";
 
 export default function Skills() {
-  const [level, setLevel] = useState(Number(localStorage.getItem("skillLevel") || 1))
+  const [level, setLevel] = useState(Number(localStorage.getItem("skillLevel") || 1));
 
   const train = () => {
-    const specialization = localStorage.getItem("specialization")
-    let gain = 1
+    const specialization = localStorage.getItem("specialization");
+    let gain = specialization === "🎯 Expert" ? 2 : 1;
 
-    if (specialization === "🎯 Expert") {
-      gain = 2
-    }
-
-    const newLevel = level + gain
-    setLevel(newLevel)
-    localStorage.setItem("skillLevel", newLevel)
-  }
+    const newLevel = level + gain;
+    setLevel(newLevel);
+    localStorage.setItem("skillLevel", newLevel);
+  };
 
   return (
     <div style={{ padding: 20 }}>
@@ -22,5 +19,5 @@ export default function Skills() {
       <p>Niveau compétence : {level}</p>
       <button onClick={train}>S'entraîner</button>
     </div>
-  )
+  );
 }

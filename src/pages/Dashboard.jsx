@@ -1,3 +1,4 @@
+// frontend/src/pages/Dashboard.jsx
 import { useEffect, useState } from "react";
 import api from "../api";
 
@@ -46,7 +47,9 @@ export default function Dashboard() {
       <button onClick={add}>Ajouter</button>
 
       <h3>Liste des compétences</h3>
-      {skills.length === 0 ? <p>Aucune compétence</p> : (
+      {skills.length === 0 ? (
+        <p>Aucune compétence</p>
+      ) : (
         <ul>
           {skills.map(s => (
             <li key={s.id}>{s.name} — lvl {s.level} — {s.category}</li>
