@@ -1,25 +1,18 @@
 {
   "name": "skillsbet-frontend",
-  "version": "1.0.0",
   "private": true,
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:prod": "VITE_API_URL=https://web-production-d4ff4.up.railway.app vite build"
-    "preview": "vite preview",
-    "start": "serve -s dist -l 8080"
+    "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "axios": "^1.13.4",
-    "react-router-dom": "^7.13.0",
-    "socket.io-client": "^4.8.3",
-    "serve": "^14.2.5"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "vite": "^5.4.21",
-    "@vitejs/plugin-react": "^4.3.4"
+    "vite": "^5.0.0"
   }
 }
