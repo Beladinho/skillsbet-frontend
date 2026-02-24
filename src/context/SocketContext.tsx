@@ -33,7 +33,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     // Production : Railway
     const BACKEND_URL =
       import.meta.env.MODE === "production"
-        ? "https://skillsbet-production.up.railway.app"
+        ? "https://web-production-d4ff4.up.railway.app"
         : "http://localhost:5050";
 
     const s = io(BACKEND_URL, {

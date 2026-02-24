@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:prod": "VITE_API_URL=https://skillsbet-production-37ae.up.railway.app vite build",
+    "build:prod": "VITE_API_URL=https://web-production-d4ff4.up.railway.app vite build"
     "preview": "vite preview",
     "start": "serve -s dist -l 8080"
   },
