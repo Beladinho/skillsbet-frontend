@@ -1,93 +1,87 @@
-const BASE_URL = import.meta.env.VITE_API_URL || "https://web-production-d4ff4.up.railway.app";
+// src/api.js
 
+const BASE_URL = import.meta.env.VITE_API_URL
+
+// ===============================
+// Helper: récupération du token
+// ===============================
 function getToken() {
-  return localStorage.getItem("token");
+  const stored = localStorage.getItem("token")
+  if (!stored) return null
+
+  try {
+    const parsed = JSON.parse(stored)
+    return parsed.access_token
+  } catch (e) {
+    console.error("Token parse error:", e)
+    return null
+  }
 }
 
-function authHeaders() {
-  const token = getToken();
+// ===============================
+// Helper: fetch sécurisé
+// ===============================
+async function safeFetch(url, options = {}) {
+  const token = getToken()
 
   const headers = {
-    "Content-Type": "application/json"
-  };
-
-  if (token && token !== "undefined" && token !== "null") {
-    headers.Authorization = `Bearer ${token}`;
+    "Content-Type": "application/json",
+    ...options.headers,
   }
 
-  return headers;
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`
+  }
+
+  const response = await fetch(url, {
+    ...options,
+    headers,
+  })
+
+  if (!response.ok) {
+    const text = await response.text()
+    throw new Error(text)
+  }
+
+  return response.json()
 }
 
-async function safeFetch(url, options = {}) {
-  const res = await fetch(url, options);
+// ===============================
+// AUTH
+// ===============================
 
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`${res.status} ${text}`);
+export async function login(email, password) {
+  const response = await fetch(`${BASE_URL}/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, password }),
+  })
+
+  if (!response.ok) {
+    throw new Error("Login failed")
   }
 
-  return res.json();
+  const data = await response.json()
+
+  // 🔥 IMPORTANT : on stocke tout l'objet
+  localStorage.setItem("token", JSON.stringify(data))
+
+  return data
 }
 
-const api = {
+// ===============================
+// SKILLS
+// ===============================
 
-  // REGISTER
-  register(username, password) {
-    return safeFetch(`${BASE_URL}/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password })
-    });
-  },
+export function fetchSkills() {
+  return safeFetch(`${BASE_URL}/skills`)
+}
 
-  // LOGIN
-  async login(username, password) {
-    const data = await safeFetch(`${BASE_URL}/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password })
-    });
-
-    if (data.token) {
-      localStorage.setItem("token", data.token);
-    }
-
-    return data;
-  },
-
-  // LOGOUT
-  logout() {
-    localStorage.removeItem("token");
-  },
-
-  // SKILLS
-  getSkills() {
-    return safeFetch(`${BASE_URL}/skills`, {
-      headers: authHeaders()
-    });
-  },
-
-  addSkill(skill) {
-    return safeFetch(`${BASE_URL}/skills/`, {
-      method: "POST",
-      headers: authHeaders(),
-      body: JSON.stringify(skill)
-    });
-  },
-
-  // STATS
-  getStats() {
-    return safeFetch(`${BASE_URL}/stats/`, {
-      headers: authHeaders()
-    });
-  },
-
-  // BADGES
-  getBadges() {
-    return safeFetch(`${BASE_URL}/badges/`, {
-      headers: authHeaders()
-    });
-  }
-};
-
-export default api;
+export function addSkill(skill) {
+  return safeFetch(`${BASE_URL}/skills`, {
+    method: "POST",
+    body: JSON.stringify(skill),
+  })
+}
