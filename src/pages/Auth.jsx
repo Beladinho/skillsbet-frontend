@@ -1,5 +1,5 @@
 import { useState } from "react";
-import api from "../api";
+import { login } from "../api"
 
 export default function Auth({ setToken }) {
   const [email, setEmail] = useState("");
@@ -19,7 +19,7 @@ export default function Auth({ setToken }) {
   const handleLogin = async () => {
     setError("");
     try {
-      const data = await api.login(email, password);
+      const data = await login(email, password);
 
 if (!data.token) {
   setError("Identifiants invalides");
