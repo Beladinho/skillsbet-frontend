@@ -1,10 +1,5 @@
-// src/api.js
-
 const BASE_URL = import.meta.env.VITE_API_URL
 
-// ===============================
-// Helper: récupération du token
-// ===============================
 function getToken() {
   const stored = localStorage.getItem("token")
   if (!stored) return null
@@ -18,9 +13,6 @@ function getToken() {
   }
 }
 
-// ===============================
-// Helper: fetch sécurisé
-// ===============================
 async function safeFetch(url, options = {}) {
   const token = getToken()
 
@@ -46,10 +38,6 @@ async function safeFetch(url, options = {}) {
   return response.json()
 }
 
-// ===============================
-// AUTH
-// ===============================
-
 export async function login(email, password) {
   const response = await fetch(`${BASE_URL}/login`, {
     method: "POST",
@@ -65,15 +53,10 @@ export async function login(email, password) {
 
   const data = await response.json()
 
-  // 🔥 IMPORTANT : on stocke tout l'objet
   localStorage.setItem("token", JSON.stringify(data))
 
   return data
 }
-
-// ===============================
-// SKILLS
-// ===============================
 
 export function fetchSkills() {
   return safeFetch(`${BASE_URL}/skills`)
