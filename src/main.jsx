@@ -1,21 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import ReactDOM from "react-dom/client";
-import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
-
-function Root() {
-  const [token, setToken] = useState(localStorage.getItem("token"));
-
-  if (!token) {
-    return <Auth setToken={setToken} />;
-  }
-
-  return <Dashboard token={token} />;
-}
+import App from "./App";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <Root />
+    <App />
   </React.StrictMode>
 );
-
