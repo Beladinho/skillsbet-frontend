@@ -1,29 +1,22 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { login } from "../utils/api";
-import { useNavigate } from "react-router-dom";
 
-function Login() {
+export default function Login({ onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
       const data = await login(email, password);
-
-      // Ton backend actuel renvoie { message: "Login successful" }
-      // Donc il n’y a PAS de access_token pour l’instant
-      // On stocke juste un flag temporaire
-      localStorage.setItem("isLoggedIn", "true");
-
-      navigate("/dashboard");
+      onLogin(data.access_token);
     } catch (error) {
-      alert(error.message);
+      alert("Login failed");
+      console.error(error);
     }
   };
 
   return (
-    <div style={{ padding: 50 }}>
+    <div style={{ padding: 20 }}>
       <h2>Login</h2>
 
       <input
@@ -32,6 +25,7 @@ function Login() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
+
       <br /><br />
 
       <input
@@ -40,14 +34,11 @@ function Login() {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
+
       <br /><br />
 
-      <button onClick={handleLogin}>
-        Login
-      </button>
+      <button onClick={handleLogin}>Login</button>
     </div>
   );
 }
-
-export default Login;
 
