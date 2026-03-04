@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react"
 import { fetchSkills, addSkill } from "../api"
+import { useNavigate } from "react-router-dom"
 
 export default function Dashboard() {
+  const navigate = useNavigate()
+
   const [skills, setSkills] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -13,20 +16,31 @@ export default function Dashboard() {
   })
 
   // ===============================
-  // Charger les skills
+  // Vérification Auth + Charger skills
   // ===============================
   useEffect(() => {
-    loadSkills()
+    const token = localStorage.getItem("token")
+
+    if (!token) {
+      navigate("/")
+      return
+    }
+
+    loadSkills(token)
   }, [])
 
-  async function loadSkills() {
+  async function loadSkills(token) {
     try {
       setLoading(true)
-      const data = await fetchSkills()
+      const data = await fetchSkills(token)
       setSkills(data)
     } catch (e) {
       console.error("Fetch skills failed:", e)
       setError("Impossible de charger les skills")
+
+      // Si token invalide → retour login
+      localStorage.removeItem("token")
+      navigate("/")
     } finally {
       setLoading(false)
     }
@@ -38,27 +52,35 @@ export default function Dashboard() {
   async function handleAddSkill(e) {
     e.preventDefault()
 
+    const token = localStorage.getItem("token")
+
     if (!newSkill.name || !newSkill.level || !newSkill.category) {
       alert("Tous les champs sont obligatoires")
       return
     }
 
     try {
-      await addSkill(newSkill)
+      await addSkill(newSkill, token)
 
-      // Reset formulaire
       setNewSkill({
         name: "",
         level: "",
         category: "",
       })
 
-      // Reload skills
-      await loadSkills()
+      await loadSkills(token)
     } catch (e) {
       console.error("Add skill failed:", e)
       alert("Erreur lors de l'ajout de la skill")
     }
+  }
+
+  // ===============================
+  // Logout
+  // ===============================
+  function handleLogout() {
+    localStorage.removeItem("token")
+    navigate("/")
   }
 
   // ===============================
@@ -67,6 +89,10 @@ export default function Dashboard() {
   return (
     <div style={{ padding: "40px", maxWidth: "600px", margin: "0 auto" }}>
       <h1>Dashboard</h1>
+
+      <button onClick={handleLogout} style={{ marginBottom: "20px" }}>
+        Logout
+      </button>
 
       {/* LOADING */}
       {loading && <p>Chargement...</p>}
