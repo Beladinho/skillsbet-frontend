@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { api } from "../utils/api";
+import { login } from "../utils/api";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
@@ -9,9 +9,12 @@ function Login() {
 
   const handleLogin = async () => {
     try {
-      const data = await api.login(email, password);
+      const data = await login(email, password);
 
-      localStorage.setItem("token", data.access_token);
+      // Ton backend actuel renvoie { message: "Login successful" }
+      // Donc il n’y a PAS de access_token pour l’instant
+      // On stocke juste un flag temporaire
+      localStorage.setItem("isLoggedIn", "true");
 
       navigate("/dashboard");
     } catch (error) {
@@ -26,6 +29,7 @@ function Login() {
       <input
         type="email"
         placeholder="Email"
+        value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
       <br /><br />
@@ -33,6 +37,7 @@ function Login() {
       <input
         type="password"
         placeholder="Password"
+        value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
       <br /><br />

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { fetchSkills, addSkill } from "../api"
+import { fetchSkills, addSkill } from "../utils/api"
 import { useNavigate } from "react-router-dom"
 
 export default function Dashboard() {
