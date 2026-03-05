@@ -1,28 +1,80 @@
-import { useState, useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { useState } from "react";
 
-export default function Register() {
-  const { login } = useContext(AuthContext);
-  const [username, setUsername] = useState("");
+export default function Register({ onRegister }) {
+
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const handleRegister = async () => {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
+  const handleRegister = async (e) => {
+    e.preventDefault();
 
-    const data = await res.json();
-    login(data.access_token);
+    try {
+
+      const response = await fetch(
+        "https://web-production-d4ff4.up.railway.app/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Registration failed");
+      }
+
+      alert("Compte créé ! Connectez-vous.");
+
+      onRegister();
+
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
     <div>
-      <h2>Register</h2>
-      <input placeholder="Username" onChange={e => setUsername(e.target.value)} />
-      <input placeholder="Password" type="password" onChange={e => setPassword(e.target.value)} />
-      <button onClick={handleRegister}>Créer un compte</button>
+
+      <h2>Créer un compte</h2>
+
+      <form onSubmit={handleRegister}>
+
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+
+        <br /><br />
+
+        <input
+          type="password"
+          placeholder="Mot de passe"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+
+        <br /><br />
+
+        <button type="submit">
+          S'inscrire
+        </button>
+
+      </form>
+
+      {error && <p>{error}</p>}
+
     </div>
   );
 }

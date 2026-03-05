@@ -1,46 +1,51 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 export default function App() {
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const savedToken = localStorage.getItem("token");
+  const [token, setToken] = useState(
+    localStorage.getItem("token")
+  );
 
-    if (savedToken && savedToken !== "undefined" && savedToken !== "null") {
-      setToken(savedToken);
-    }
-
-    setLoading(false);
-  }, []);
-
-  const handleLogin = (newToken) => {
-    if (!newToken) return;
-
-    localStorage.setItem("token", newToken);
-    setToken(newToken);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setToken(null);
-  };
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  const [page, setPage] = useState("login");
 
   if (!token) {
-    return <Login onLogin={handleLogin} />;
+
+    if (page === "register") {
+      return (
+        <Register
+          onRegister={() => setPage("login")}
+        />
+      );
+    }
+
+    return (
+      <Login
+        onLogin={setToken}
+        goToRegister={() => setPage("register")}
+      />
+    );
   }
 
   return (
     <div style={{ padding: 20 }}>
+
       <h1>🚀 SkillsBet</h1>
-      <button onClick={handleLogout}>Logout</button>
+
+      <button
+        onClick={() => {
+          localStorage.removeItem("token");
+          setToken(null);
+        }}
+      >
+        Déconnexion
+      </button>
+
       <Dashboard token={token} />
+
     </div>
   );
 }
