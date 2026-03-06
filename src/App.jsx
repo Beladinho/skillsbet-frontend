@@ -1,51 +1,38 @@
-import { useState } from "react";
+import { useState } from "react"
 
-import Dashboard from "./pages/Dashboard";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard"
+import Profile from "./pages/Profile"
+import Leaderboard from "./pages/Leaderboard"
 
 export default function App() {
 
-  const [token, setToken] = useState(
-    localStorage.getItem("token")
-  );
-
-  const [page, setPage] = useState("login");
-
-  if (!token) {
-
-    if (page === "register") {
-      return (
-        <Register
-          onRegister={() => setPage("login")}
-        />
-      );
-    }
-
-    return (
-      <Login
-        onLogin={setToken}
-        goToRegister={() => setPage("register")}
-      />
-    );
-  }
+  const [page, setPage] = useState("dashboard")
 
   return (
-    <div style={{ padding: 20 }}>
+    <div>
 
       <h1>🚀 SkillsBet</h1>
 
-      <button
-        onClick={() => {
-          localStorage.removeItem("token");
-          setToken(null);
-        }}
-      >
-        Déconnexion
-      </button>
+      <nav style={{ marginBottom: 20 }}>
 
-      <Dashboard token={token} />
+        <button onClick={() => setPage("dashboard")}>
+          Dashboard
+        </button>
+
+        <button onClick={() => setPage("profile")}>
+          Profile
+        </button>
+
+        <button onClick={() => setPage("leaderboard")}>
+          Leaderboard
+        </button>
+
+      </nav>
+
+      {page === "dashboard" && <Dashboard />}
+      {page === "profile" && <Profile />}
+      {page === "leaderboard" && <Leaderboard />}
 
     </div>
-  );
+  )
 }
