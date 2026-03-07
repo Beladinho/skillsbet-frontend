@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { apiFetch } from "../api"
+import { apiFetch } from "../utils/api";
 
 export default function Profile() {
   const [profile, setProfile] = useState(null)

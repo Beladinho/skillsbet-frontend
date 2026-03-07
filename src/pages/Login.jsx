@@ -30,14 +30,13 @@ export default function Login({ onLogin }) {
         alert(data.detail || "Erreur");
         return;
       }
-
+      
       if (!isRegister) {
-        localStorage.setItem("token", data.access_token);
-        onLogin(data.access_token);
-      } else {
-        alert("Compte créé, vous pouvez vous connecter");
-        setIsRegister(false);
-      }
+  alert("Connexion réussie");
+} else {
+  alert("Compte créé, vous pouvez vous connecter");
+  setIsRegister(false);
+}
     } catch (error) {
       console.error(error);
       alert("Erreur serveur");
