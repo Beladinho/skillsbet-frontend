@@ -1,48 +1,25 @@
-import { useEffect, useState } from "react"
-import { apiFetch } from "../api"
+import { useEffect, useState } from "react";
+import { apiFetch } from "../utils/api";
 
 export default function Leaderboard() {
 
-  const [players, setPlayers] = useState([])
+  const [players, setPlayers] = useState([]);
 
   useEffect(() => {
-    loadLeaderboard()
-  }, [])
-
-  const loadLeaderboard = async () => {
-    const data = await apiFetch("/leaderboard")
-    setPlayers(data)
-  }
+    apiFetch("/leaderboard").then((data) => {
+      setPlayers(data.players);
+    });
+  }, []);
 
   return (
-    <div style={{ padding: 20 }}>
+    <div>
+      <h2>Leaderboard</h2>
 
-      <h1>🏆 Leaderboard SkillsBet</h1>
-
-      {players.map((player, index) => (
-
-        <div
-          key={index}
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            borderBottom: "1px solid #ddd",
-            padding: 10
-          }}
-        >
-
-          <span>
-            #{index + 1} {player.avatar} {player.username}
-          </span>
-
-          <span>
-            Level {player.level} — {player.xp} XP
-          </span>
-
+      {players.map((p, i) => (
+        <div key={i}>
+          {p.name} — {p.xp} XP
         </div>
-
       ))}
-
     </div>
-  )
+  );
 }
