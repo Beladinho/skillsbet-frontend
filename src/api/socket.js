@@ -1,5 +1,5 @@
 function normalizeBaseHttpUrl() {
-  return import.meta.env.VITE_API_URL || "http://127.0.0.1:8001";
+  return import.meta.env.VITE_API_URL;
 }
 
 function buildWsUrl(path) {
@@ -13,7 +13,7 @@ function buildWsUrl(path) {
     return httpBase.replace("http://", "ws://") + path;
   }
 
-  return `${import.meta.env.VITE_WS_URL || "ws://127.0.0.1:8001"}${path}`;
+  return `${import.meta.env.VITE_API_URL.replace(/^http/, "ws")}${path}`;
 }
 
 let duelSocket = null;

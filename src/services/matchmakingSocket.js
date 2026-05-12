@@ -12,7 +12,7 @@ export function connectMatchmaking({
 }) {
   currentSession = { playerId, game, stake, elo };
 
-  socket = new WebSocket("ws://127.0.0.1:8001/ws/matchmaking");
+  socket = new WebSocket(import.meta.env.VITE_API_URL.replace(/^http/, "ws") + "/ws/matchmaking");
 
   socket.onopen = () => {
     socket.send(

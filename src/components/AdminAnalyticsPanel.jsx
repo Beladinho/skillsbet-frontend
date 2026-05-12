@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getAdminAnalytics } from "../api/skillsbetApi";
 import { useNotifications } from "../context/NotificationContext";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8001";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function AdminAnalyticsPanel() {
   const { notifyError, notifySuccess } = useNotifications();

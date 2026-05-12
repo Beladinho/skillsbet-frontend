@@ -8,7 +8,7 @@ export function connectNotifications(playerId, onMessage) {
   }
 
   socket = new WebSocket(
-    `${import.meta.env.VITE_WS_URL || "ws://127.0.0.1:8001"}/ws/notifications/${encodeURIComponent(playerId)}`
+    `${import.meta.env.VITE_API_URL.replace(/^http/, "ws")}/ws/notifications/${encodeURIComponent(playerId)}`
   );
 
   socket.onopen = () => {

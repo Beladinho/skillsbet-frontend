@@ -1,7 +1,7 @@
 import { apiRequest } from "./http";
 
 function buildApiUrl(path) {
-  const baseUrl = import.meta.env.VITE_API_URL || "http://127.0.0.1:8001";
+  const baseUrl = import.meta.env.VITE_API_URL;
   return `${baseUrl}${path}`;
 }
 
@@ -551,7 +551,7 @@ export async function getFinancialAudit(period = "all") {
 }
 
 export function exportFinancialAudit(period = "all") {
-  const base = import.meta.env.VITE_API_URL || "http://127.0.0.1:8001";
+  const base = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("skillsbet_token");
 
   const url =
@@ -1094,7 +1094,7 @@ export async function claimMission(missionId, playerId) {
 }
 
 export function downloadAdminCsvExport(path, filename) {
-  const base = import.meta.env.VITE_API_URL || "http://127.0.0.1:8001";
+  const base = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("skillsbet_token");
 
   fetch(`${base}${path}`, {
