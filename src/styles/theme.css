@@ -1,0 +1,43 @@
+body.theme-dark {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+body.theme-light {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+body.theme-dark input,
+body.theme-dark select,
+body.theme-dark textarea,
+body.theme-dark button {
+  background: #111827;
+  color: #f9fafb;
+  border: 1px solid #374151;
+}
+
+body.theme-light input,
+body.theme-light select,
+body.theme-light textarea,
+body.theme-light button {
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid #cbd5e1;
+}
+
+body.theme-dark .card,
+body.theme-dark .panel,
+body.theme-dark .box {
+  background: #111827;
+  color: #f9fafb;
+  border: 1px solid #374151;
+}
+
+body.theme-light .card,
+body.theme-light .panel,
+body.theme-light .box {
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid #cbd5e1;
+}

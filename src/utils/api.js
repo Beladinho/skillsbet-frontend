@@ -1,16 +1,2 @@
-const API_URL = "https://web-production-d4ff4.up.railway.app";
-
-export async function apiFetch(endpoint) {
-
-  const res = await fetch(API_URL + endpoint, {
-    headers: {
-      "Content-Type": "application/json"
-    }
-  });
-
-  if (!res.ok) {
-    throw new Error("API error");
-  }
-
-  return await res.json();
-}
+export { loginUser as login, registerUser as register } from "../api/authApi";
+export { getLeaderboard } from "../api/skillsbetApi";

@@ -1,80 +1,42 @@
 import { useState } from "react";
+import { registerUser } from "../api/authApi";
 
-export default function Register({ onRegister }) {
-
+export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [status, setStatus] = useState("");
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-
+  async function handleRegister() {
     try {
-
-      const response = await fetch(
-        "https://web-production-d4ff4.up.railway.app/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email,
-            password
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.detail || "Registration failed");
-      }
-
-      alert("Compte créé ! Connectez-vous.");
-
-      onRegister();
-
+      const data = await registerUser(email, password);
+      setStatus(`Compte créé : ${data.player_id}`);
     } catch (err) {
-      setError(err.message);
+      setStatus(err.message || "Erreur lors de l'inscription");
     }
-  };
+  }
 
   return (
-    <div>
-
+    <div style={{ maxWidth: 360, margin: "0 auto", padding: 24 }}>
       <h2>Créer un compte</h2>
 
-      <form onSubmit={handleRegister}>
+      <input
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        style={{ display: "block", width: "100%", marginBottom: 8 }}
+      />
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+      <input
+        type="password"
+        placeholder="Mot de passe"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        style={{ display: "block", width: "100%", marginBottom: 12 }}
+      />
 
-        <br /><br />
+      <button onClick={handleRegister}>S'inscrire</button>
 
-        <input
-          type="password"
-          placeholder="Mot de passe"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-
-        <br /><br />
-
-        <button type="submit">
-          S'inscrire
-        </button>
-
-      </form>
-
-      {error && <p>{error}</p>}
-
+      {status && <p style={{ marginTop: 12 }}>{status}</p>}
     </div>
   );
 }

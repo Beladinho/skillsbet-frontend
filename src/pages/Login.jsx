@@ -1,88 +1,142 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { PlayerContext } from "../context/PlayerContext";
+import { useAppSettings } from "../context/AppSettingsContext";
+import { useNotifications } from "../context/NotificationContext";
+import { useSounds } from "../context/SoundContext";
+import { registerUser, loginUser } from "../api/authApi";
 
-export default function Login({ onLogin }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isRegister, setIsRegister] = useState(false);
+export default function Login() {
+  const { loginPlayer } = useContext(PlayerContext);
+  const { tr } = useAppSettings();
+  const { notifySuccess, notifyError, notifyInfo } = useNotifications();
+  const { playClick } = useSounds();
 
-  const API_URL = "https://web-production-d4ff4.up.railway.app";
+  const [email, setEmail] = useState("Player 1");
+  const [password, setPassword] = useState("1234");
+  const [referralCode, setReferralCode] = useState("");
+  const [status, setStatus] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  function validateForm() {
+    if (!String(email || "").trim()) {
+      throw new Error(tr("enterIdentifier"));
+    }
 
-    const endpoint = isRegister ? "/register" : "/login";
+    if (!String(password || "").trim()) {
+      throw new Error(tr("enterPassword"));
+    }
+  }
 
+  async function handleRegister() {
     try {
-      const response = await fetch(API_URL + endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
-      });
+      playClick();
+      validateForm();
 
-      const data = await response.json();
+      setLoading(true);
+      setStatus(tr("creatingAccount"));
 
-      if (!response.ok) {
-        alert(data.detail || "Erreur");
-        return;
-      }
-      
-      if (!isRegister) {
-  alert("Connexion réussie");
-} else {
-  alert("Compte créé, vous pouvez vous connecter");
-  setIsRegister(false);
-}
+      const data = await registerUser(email, password, referralCode);
+
+      setStatus(`${tr("accountCreated")} : ${data.player_id} (${data.role})`);
+      notifySuccess(tr("accountCreated"), `${data.player_id} (${data.role})`);
+
+      setReferralCode("");
     } catch (error) {
       console.error(error);
-      alert("Erreur serveur");
+      setStatus(error.message);
+      notifyError(tr("registerError"), error.message || tr("registerError"));
+    } finally {
+      setLoading(false);
     }
-  };
+  }
+
+  async function handleLogin() {
+    try {
+      playClick();
+      validateForm();
+
+      setLoading(true);
+      setStatus(tr("connecting"));
+
+      const data = await loginUser(email, password);
+
+      loginPlayer(data.player_id, data.access_token, data.role);
+
+      setStatus(`${tr("loginSuccess")} : ${data.player_id} (${data.role})`);
+      notifyInfo(tr("loginSuccess"), `${data.player_id} (${data.role})`);
+    } catch (error) {
+      console.error(error);
+      setStatus(error.message);
+      notifyError(tr("loginError"), error.message || tr("loginError"));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    handleLogin();
+  }
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>{isRegister ? "Créer un compte" : "Se connecter"}</h2>
+    <div style={{ padding: "24px", maxWidth: "420px", margin: "0 auto" }}>
+      <div className="card" style={{ padding: "20px" }}>
+        <h1>{tr("appName")}</h1>
+        <h2>{tr("loginTitle")}</h2>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+        <form onSubmit={handleSubmit}>
+          {/* EMAIL */}
+          <div style={{ marginBottom: "12px" }}>
+            <label>{tr("emailOrPlayerId")}</label>
+            <br />
+            <input
+              type="text"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={{ width: "100%" }}
+              autoComplete="username"
+            />
+          </div>
 
-        <br />
-        <br />
+          {/* PASSWORD */}
+          <div style={{ marginBottom: "12px" }}>
+            <label>{tr("password")}</label>
+            <br />
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{ width: "100%" }}
+              autoComplete="current-password"
+            />
+          </div>
 
-        <input
-          type="password"
-          placeholder="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+          {/* 🔴 NOUVEAU CHAMP REFERRAL */}
+          <div style={{ marginBottom: "12px" }}>
+            <label>Referral code (optional)</label>
+            <br />
+            <input
+              type="text"
+              value={referralCode}
+              onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+              style={{ width: "100%" }}
+              placeholder="Enter referral code"
+            />
+          </div>
 
-        <br />
-        <br />
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+            <button type="button" onClick={handleRegister} disabled={loading}>
+              {loading ? tr("loading") : tr("registerButton")}
+            </button>
 
-        <button type="submit">
-          {isRegister ? "Créer un compte" : "Se connecter"}
-        </button>
-      </form>
+            <button type="submit" disabled={loading}>
+              {loading ? tr("loading") : tr("loginButton")}
+            </button>
+          </div>
+        </form>
 
-      <br />
-
-      <button onClick={() => setIsRegister(!isRegister)}>
-        {isRegister
-          ? "Déjà un compte ? Se connecter"
-          : "Créer un compte"}
-      </button>
+        {status ? <p style={{ marginTop: "16px" }}>{status}</p> : null}
+      </div>
     </div>
   );
 }
-

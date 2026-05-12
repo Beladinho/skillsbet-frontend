@@ -1,74 +1,159 @@
 import { useEffect, useState } from "react";
-import { apiFetch } from "../utils/api";
+import { getProfile, updateProfile } from "../api/profileApi";
+import { useAppSettings } from "../context/AppSettingsContext";
+import { useNotifications } from "../context/NotificationContext";
+import { useSounds } from "../context/SoundContext";
 
 export default function Profile() {
+  const { tr } = useAppSettings();
+  const { notifySuccess, notifyError } = useNotifications();
+  const { playClick } = useSounds();
+
   const [profile, setProfile] = useState(null);
-  const [bio, setBio] = useState("");
-  const [avatar, setAvatar] = useState("🧠");
+  const [form, setForm] = useState({
+    display_name: "",
+    bio: "",
+  });
+  const [error, setError] = useState("");
+  const [status, setStatus] = useState("");
 
   useEffect(() => {
-    loadProfile();
-  }, []);
-
-  const loadProfile = async () => {
-    try {
-      const data = await apiFetch("/me");
-      setProfile(data);
-      setBio(data.bio || "");
-      setAvatar(data.avatar || "🧠");
-    } catch (err) {
-      console.error(err);
+    async function loadProfile() {
+      try {
+        setError("");
+        const data = await getProfile();
+        setProfile(data);
+        setForm({
+          display_name: data.display_name ?? "",
+          bio: data.bio ?? "",
+        });
+      } catch (err) {
+        console.error(err);
+        const msg = err.message || "Failed to load profile";
+        setError(msg);
+        notifyError("Erreur profil", msg);
+      }
     }
-  };
 
-  const saveProfile = async () => {
+    loadProfile();
+  }, [notifyError]);
+
+  function handleChange(e) {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+
     try {
-      await apiFetch("/me", {
-        method: "PUT",
-        body: JSON.stringify({
-          bio,
-          avatar
-        })
+      setError("");
+      setStatus("");
+
+      const updated = await updateProfile({
+        display_name: form.display_name,
+        bio: form.bio,
       });
 
-      alert("Profil mis à jour");
+      setProfile(updated);
+      setForm({
+        display_name: updated.display_name ?? "",
+        bio: updated.bio ?? "",
+      });
+
+      setStatus("saved");
+      notifySuccess("Profil sauvegardé", "Les informations du profil ont été mises à jour.");
     } catch (err) {
       console.error(err);
-      alert("Erreur lors de la sauvegarde");
+      const msg = err.message || "Failed to save profile";
+      setError(msg);
+      notifyError("Erreur profil", msg);
     }
-  };
+  }
 
-  if (!profile) {
-    return <p>Chargement...</p>;
+  if (!profile && !error) {
+    return (
+      <div className="card" style={{ padding: 16, marginTop: 16 }}>
+        <h2>{tr("userProfile")}</h2>
+        <p>{tr("loading")}</p>
+      </div>
+    );
   }
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>{avatar} {profile.username}</h1>
+    <div className="card" style={{ padding: 16, marginTop: 16 }}>
+      <h2>{tr("userProfile")}</h2>
 
-      <p>
-        Niveau {profile.level} — {profile.xp} XP
-      </p>
+      {error ? (
+        <p style={{ color: "red" }}>
+          {tr("error")} : {error}
+        </p>
+      ) : null}
 
-      <h3>Modifier le profil</h3>
+      {profile ? (
+        <>
+          <p>
+            <strong>{tr("email")} :</strong> {profile.email}
+          </p>
+          <p>
+            <strong>{tr("role")} :</strong> {profile.role}
+          </p>
+          <p>
+            <strong>{tr("balance")} :</strong> {profile.balance}
+          </p>
+          <p>
+            <strong>Anti-cheat :</strong> {profile.risk_level || "clean"}
+          </p>
+          <p>
+            <strong>{tr("globalElo")} :</strong> {profile.elo}
+          </p>
+          <p>
+            <strong>{tr("wins")} :</strong> {profile.wins}
+          </p>
+          <p>
+            <strong>{tr("losses")} :</strong> {profile.losses}
+          </p>
+          <p>
+            <strong>{tr("gamesPlayed")} :</strong> {profile.games_played}
+          </p>
+        </>
+      ) : null}
 
-      <input
-        value={avatar}
-        onChange={(e) => setAvatar(e.target.value)}
-      />
+      {status === "saved" ? <p>✅ {tr("saveProfile")}</p> : null}
 
-      <br /><br />
+      <form
+        onSubmit={(e) => {
+          playClick();
+          handleSubmit(e);
+        }}
+      >
+        <div style={{ marginBottom: 12 }}>
+          <label>{tr("displayName")}</label>
+          <br />
+          <input
+            type="text"
+            name="display_name"
+            value={form.display_name}
+            onChange={handleChange}
+          />
+        </div>
 
-      <textarea
-        value={bio}
-        onChange={(e) => setBio(e.target.value)}
-      />
+        <div style={{ marginBottom: 12 }}>
+          <label>{tr("bio")}</label>
+          <br />
+          <textarea
+            name="bio"
+            value={form.bio}
+            onChange={handleChange}
+            rows={4}
+          />
+        </div>
 
-      <br /><br />
-
-      <button onClick={saveProfile}>
-        Sauvegarder
-      </button>
+        <button type="submit">{tr("saveProfile")}</button>
+      </form>
     </div>
   );
 }

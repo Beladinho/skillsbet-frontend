@@ -1,0 +1,1 @@
+export { getMatchHistory } from "./skillsbetApi";
