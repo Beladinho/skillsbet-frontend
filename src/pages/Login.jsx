@@ -18,31 +18,21 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   function validateForm() {
-    if (!String(email || "").trim()) {
-      throw new Error(tr("enterIdentifier"));
-    }
-
-    if (!String(password || "").trim()) {
-      throw new Error(tr("enterPassword"));
-    }
+    if (!String(email || "").trim()) throw new Error(tr("enterIdentifier"));
+    if (!String(password || "").trim()) throw new Error(tr("enterPassword"));
   }
 
   async function handleRegister() {
     try {
       playClick();
       validateForm();
-
       setLoading(true);
       setStatus(tr("creatingAccount"));
-
       const data = await registerUser(email, password, referralCode);
-
       setStatus(`${tr("accountCreated")} : ${data.player_id} (${data.role})`);
       notifySuccess(tr("accountCreated"), `${data.player_id} (${data.role})`);
-
       setReferralCode("");
     } catch (error) {
-      console.error(error);
       setStatus(error.message);
       notifyError(tr("registerError"), error.message || tr("registerError"));
     } finally {
@@ -54,18 +44,13 @@ export default function Login() {
     try {
       playClick();
       validateForm();
-
       setLoading(true);
       setStatus(tr("connecting"));
-
       const data = await loginUser(email, password);
-
       loginPlayer(data.player_id, data.access_token, data.role);
-
       setStatus(`${tr("loginSuccess")} : ${data.player_id} (${data.role})`);
       notifyInfo(tr("loginSuccess"), `${data.player_id} (${data.role})`);
     } catch (error) {
-      console.error(error);
       setStatus(error.message);
       notifyError(tr("loginError"), error.message || tr("loginError"));
     } finally {
@@ -79,63 +64,70 @@ export default function Login() {
   }
 
   return (
-    <div style={{ padding: "24px", maxWidth: "420px", margin: "0 auto" }}>
-      <div className="card" style={{ padding: "20px" }}>
-        <h1>{tr("appName")}</h1>
-        <h2>{tr("loginTitle")}</h2>
+    <div className="login-page">
+      <div className="login-card">
+        <div className="login-brand">
+          <div className="login-brand__title">
+            SKILLS<span>BET</span>
+          </div>
+          <div className="login-brand__sub">COMPETE · WIN · DOMINATE</div>
+        </div>
+
+        <div className="login-divider">ACCÈS JOUEUR</div>
 
         <form onSubmit={handleSubmit}>
-          {/* EMAIL */}
-          <div style={{ marginBottom: "12px" }}>
-            <label>{tr("emailOrPlayerId")}</label>
-            <br />
+          <div className="login-form-group">
+            <label htmlFor="sb-email">{tr("emailOrPlayerId")}</label>
             <input
+              id="sb-email"
               type="text"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={{ width: "100%" }}
               autoComplete="username"
+              placeholder="Identifiant ou email"
             />
           </div>
 
-          {/* PASSWORD */}
-          <div style={{ marginBottom: "12px" }}>
-            <label>{tr("password")}</label>
-            <br />
+          <div className="login-form-group">
+            <label htmlFor="sb-password">{tr("password")}</label>
             <input
+              id="sb-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{ width: "100%" }}
               autoComplete="current-password"
+              placeholder="••••••••"
             />
           </div>
 
-          {/* 🔴 NOUVEAU CHAMP REFERRAL */}
-          <div style={{ marginBottom: "12px" }}>
-            <label>Referral code (optional)</label>
-            <br />
+          <div className="login-form-group">
+            <label htmlFor="sb-referral">Code Referral (optionnel)</label>
             <input
+              id="sb-referral"
               type="text"
               value={referralCode}
               onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-              style={{ width: "100%" }}
-              placeholder="Enter referral code"
+              placeholder="XXXXXXXX"
             />
           </div>
 
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-            <button type="button" onClick={handleRegister} disabled={loading}>
-              {loading ? tr("loading") : tr("registerButton")}
+          <div className="login-actions">
+            <button
+              type="button"
+              className="btn-ghost btn-lg"
+              onClick={handleRegister}
+              disabled={loading}
+            >
+              {loading ? "..." : tr("registerButton")}
             </button>
 
-            <button type="submit" disabled={loading}>
-              {loading ? tr("loading") : tr("loginButton")}
+            <button type="submit" className="btn-lg" disabled={loading}>
+              {loading ? "..." : tr("loginButton")}
             </button>
           </div>
         </form>
 
-        {status ? <p style={{ marginTop: "16px" }}>{status}</p> : null}
+        {status && <div className="login-status">{status}</div>}
       </div>
     </div>
   );

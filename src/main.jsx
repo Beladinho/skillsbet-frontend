@@ -6,6 +6,7 @@ import { AppSettingsProvider } from "./context/AppSettingsContext";
 import { SoundProvider } from "./context/SoundContext";
 import { MusicProvider } from "./context/MusicContext";
 import { NotificationProvider } from "./context/NotificationContext";
+import "./index.css";
 import "./styles/theme.css";
 import "./styles/global.css";
 

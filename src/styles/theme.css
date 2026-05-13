@@ -1,43 +1,51 @@
+/* ── Dark theme (COD Black Ops 6) ── */
 body.theme-dark {
-  background: #0f172a;
-  color: #e5e7eb;
-}
-
-body.theme-light {
-  background: #f8fafc;
-  color: #0f172a;
+  background-color: var(--clr-bg);
+  color: var(--clr-text);
 }
 
 body.theme-dark input,
 body.theme-dark select,
-body.theme-dark textarea,
-body.theme-dark button {
-  background: #111827;
-  color: #f9fafb;
-  border: 1px solid #374151;
-}
-
-body.theme-light input,
-body.theme-light select,
-body.theme-light textarea,
-body.theme-light button {
-  background: #ffffff;
-  color: #111827;
-  border: 1px solid #cbd5e1;
+body.theme-dark textarea {
+  background: var(--clr-surface-2);
+  color: var(--clr-text);
+  border-color: var(--clr-border-bright);
 }
 
 body.theme-dark .card,
 body.theme-dark .panel,
 body.theme-dark .box {
-  background: #111827;
-  color: #f9fafb;
-  border: 1px solid #374151;
+  background: var(--clr-surface-1);
+  color: var(--clr-text);
+  border-color: var(--clr-border);
+}
+
+/* ── Light theme ── */
+body.theme-light {
+  --clr-bg:        #F0F0F0;
+  --clr-surface-1: #FFFFFF;
+  --clr-surface-2: #F5F5F5;
+  --clr-surface-3: #EBEBEB;
+  --clr-surface-4: #E0E0E0;
+  --clr-border:        #D0D0D0;
+  --clr-border-bright: #B8B8B8;
+  --clr-text:       #111111;
+  --clr-text-dim:   #444444;
+  --clr-text-muted: #888888;
+}
+
+body.theme-light input,
+body.theme-light select,
+body.theme-light textarea {
+  background: var(--clr-surface-2);
+  color: var(--clr-text);
+  border-color: var(--clr-border-bright);
 }
 
 body.theme-light .card,
 body.theme-light .panel,
 body.theme-light .box {
-  background: #ffffff;
-  color: #111827;
-  border: 1px solid #cbd5e1;
+  background: var(--clr-surface-1);
+  color: var(--clr-text);
+  border-color: var(--clr-border);
 }

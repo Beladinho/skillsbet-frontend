@@ -1,17 +1,28 @@
 .notif-box {
-  background: #0f0f0f;
-  padding: 12px;
-  border-radius: 12px;
+  background: var(--clr-surface-2);
+  border: 1px solid var(--clr-border);
+  border-left: 3px solid var(--clr-orange);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
 }
 
 .notif {
-  padding: 8px;
-  margin-bottom: 6px;
-  background: #1c1c1c;
-  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: var(--clr-surface-3);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md);
   cursor: pointer;
+  font-size: 0.88rem;
+  color: var(--clr-text-dim);
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.notif:hover {
+  border-color: var(--clr-border-bright);
+  color: var(--clr-text);
 }
 
 .notif.read {
-  opacity: 0.5;
+  opacity: 0.4;
 }

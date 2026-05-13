@@ -1,24 +1,35 @@
 .daily-calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 10px;
-  margin-top: 20px;
+  gap: 8px;
+  margin-top: 16px;
 }
 
 .day-box {
-  padding: 10px;
-  border-radius: 10px;
+  padding: 12px 8px;
+  border-radius: var(--radius-md);
   text-align: center;
-  opacity: 0.4;
-  transition: 0.3s;
+  background: var(--clr-surface-3);
+  border: 1px solid var(--clr-border);
+  opacity: 0.45;
+  transition: opacity 0.25s, transform 0.25s, border-color 0.25s;
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--clr-text-dim);
 }
 
 .day-box.claimed {
   opacity: 1;
-  transform: scale(1.05);
+  transform: scale(1.04);
+  border-color: var(--clr-orange);
+  background: rgba(255, 107, 0, 0.08);
+  color: var(--clr-orange-bright);
 }
 
-.rarity-common { background: #e0e0e0; }
-.rarity-rare { background: #4da6ff; }
-.rarity-epic { background: #b84dff; }
-.rarity-legendary { background: gold; }
+.rarity-common    { background: rgba(160,160,160,0.1); border-color: #888; }
+.rarity-rare      { background: rgba(77,166,255,0.1);  border-color: #4da6ff; }
+.rarity-epic      { background: rgba(184,77,255,0.1);  border-color: #b84dff; }
+.rarity-legendary { background: rgba(255,215,0,0.1);   border-color: gold; }
