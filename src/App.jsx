@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { PlayerContext } from "./context/PlayerContext";
 import { useAppSettings } from "./context/AppSettingsContext";
 import NotificationCenter from "./components/NotificationCenter";
+import FloatingMusicPlayer from "./components/FloatingMusicPlayer";
 import Login from "./pages/Login";
 import Lobby from "./pages/Lobby";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -20,6 +21,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <NotificationCenter />
+      <FloatingMusicPlayer />
       <Routes>
         <Route
           path="/login"

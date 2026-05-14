@@ -106,6 +106,18 @@ export function MusicProvider({ children }) {
     setSettings((prev) => ({ ...prev, music_volume: clamped }));
   }, [setSettings]);
 
+  const nextTrack = useCallback(() => {
+    const idx = MUSIC_TRACKS.findIndex((t) => t.id === currentStyle);
+    const next = MUSIC_TRACKS[(idx + 1) % MUSIC_TRACKS.length];
+    setMusicStyle(next.id);
+  }, [currentStyle, setMusicStyle]);
+
+  const prevTrack = useCallback(() => {
+    const idx = MUSIC_TRACKS.findIndex((t) => t.id === currentStyle);
+    const prev = MUSIC_TRACKS[(idx - 1 + MUSIC_TRACKS.length) % MUSIC_TRACKS.length];
+    setMusicStyle(prev.id);
+  }, [currentStyle, setMusicStyle]);
+
   const value = useMemo(() => ({
     startLobbyMusic,
     stopLobbyMusic,
@@ -115,6 +127,8 @@ export function MusicProvider({ children }) {
     currentVolume,
     setMusicStyle,
     setMusicVolume,
+    nextTrack,
+    prevTrack,
     startPreview,
     stopPreview,
     previewTrackId,
@@ -122,7 +136,7 @@ export function MusicProvider({ children }) {
   }), [
     startLobbyMusic, stopLobbyMusic, isPlaying, musicEnabled,
     currentStyle, currentVolume, setMusicStyle, setMusicVolume,
-    startPreview, stopPreview, previewTrackId,
+    nextTrack, prevTrack, startPreview, stopPreview, previewTrackId,
   ]);
 
   return (
