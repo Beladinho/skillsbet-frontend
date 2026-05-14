@@ -44,6 +44,10 @@ export default function SessionBar() {
           {unreadCount > 0 ? `${unreadCount} NOTIF` : "0 NOTIF"}
         </div>
 
+        <Link to="/creator" className="session-bar__creator">
+          🎮 CRÉATEUR
+        </Link>
+
         {role === "admin" && (
           <Link to="/admin" className="session-bar__admin">
             ⚙ ADMIN

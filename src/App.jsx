@@ -8,7 +8,9 @@ import Login from "./pages/Login";
 import Lobby from "./pages/Lobby";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-const AdminHub = lazy(() => import("./pages/AdminHub"));
+const AdminHub          = lazy(() => import("./pages/AdminHub"));
+const CreatorDashboard  = lazy(() => import("./pages/CreatorDashboard"));
+const CreatorGamePage   = lazy(() => import("./pages/CreatorGamePage"));
 
 export default function App() {
   const { playerId } = useContext(PlayerContext);
@@ -41,6 +43,26 @@ export default function App() {
             <ProtectedRoute adminOnly>
               <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
                 <AdminHub />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/creator"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                <CreatorDashboard />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/creator/game/:id"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                <CreatorGamePage />
               </Suspense>
             </ProtectedRoute>
           }

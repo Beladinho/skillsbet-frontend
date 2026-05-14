@@ -104,6 +104,7 @@ import {
   disconnectGlobalSocket,
   sendDuelSocketMessage,
 } from "../api/socket";
+import { getApprovedGames } from "../api/creatorApi";
 
 export default function Lobby() {
   const { playerId, role } = useContext(PlayerContext);
@@ -126,6 +127,8 @@ export default function Lobby() {
   const [soloGame, setSoloGame] = useState("lineup4");
   const [soloDifficulty, setSoloDifficulty] = useState("medium");
   const [soloConfig, setSoloConfig] = useState(null);
+
+  const [creatorGames, setCreatorGames] = useState([]);
 
   const [statsGame, setStatsGame] = useState("snake");
   const [leaderboardGame, setLeaderboardGame] = useState("global");
@@ -193,6 +196,8 @@ export default function Lobby() {
   }
 
   useEffect(() => { loadAllLobbyData(); }, [loadAllLobbyData]);
+
+  useEffect(() => { setCreatorGames(getApprovedGames()); }, []);
 
   useEffect(() => {
     if (!playerId) return;
@@ -556,6 +561,86 @@ export default function Lobby() {
       <div style={{ marginTop: "24px" }}>
         <Wallet />
       </div>
+
+      {/* Creator Games */}
+      <SectionCard
+        title="Jeux Créateurs"
+        right={
+          <Link
+            to="/creator"
+            style={{ fontSize: "0.75rem", color: "var(--clr-orange)", textDecoration: "none", fontWeight: 700 }}
+          >
+            Espace Créateur →
+          </Link>
+        }
+      >
+        {creatorGames.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "28px 16px" }}>
+            <div style={{ fontSize: "1.8rem", marginBottom: "10px" }}>🎮</div>
+            <p style={{ color: "var(--clr-text-muted)", fontSize: "0.85rem", marginBottom: "14px" }}>
+              Aucun jeu créateur disponible pour l'instant.
+            </p>
+            <Link
+              to="/creator"
+              style={{
+                display: "inline-block", padding: "9px 20px",
+                background: "rgba(255,107,0,0.1)", border: "1px solid rgba(255,107,0,0.35)",
+                borderRadius: "8px", color: "var(--clr-orange)", textDecoration: "none",
+                fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: "0.78rem",
+                textTransform: "uppercase", letterSpacing: "0.08em",
+              }}
+            >
+              Soumettre un jeu
+            </Link>
+          </div>
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "12px" }}>
+            {creatorGames.map((game) => {
+              const freeUntil = game.free_until ? new Date(game.free_until) : null;
+              const isFree    = freeUntil && freeUntil > new Date();
+              return (
+                <Link
+                  key={game.id}
+                  to={`/creator/game/${game.id}`}
+                  style={{ textDecoration: "none" }}
+                >
+                  <div style={{
+                    background: "var(--clr-surface-1)",
+                    border: "1px solid var(--clr-border)",
+                    borderRadius: "10px",
+                    overflow: "hidden",
+                    transition: "border-color 0.2s, box-shadow 0.2s",
+                    cursor: "pointer",
+                  }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(255,107,0,0.5)"; e.currentTarget.style.boxShadow = "0 0 18px rgba(255,107,0,0.1)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--clr-border)"; e.currentTarget.style.boxShadow = "none"; }}
+                  >
+                    {game.screenshot ? (
+                      <img src={game.screenshot} alt={game.name} style={{ width: "100%", height: "100px", objectFit: "cover", display: "block" }} />
+                    ) : (
+                      <div style={{ width: "100%", height: "100px", background: "rgba(255,107,0,0.05)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2rem" }}>🎮</div>
+                    )}
+                    <div style={{ padding: "12px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "6px" }}>
+                        <span style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: "0.88rem", textTransform: "uppercase", color: "var(--clr-text)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {game.name}
+                        </span>
+                        <span style={{ padding: "2px 8px", background: isFree ? "rgba(34,197,94,0.1)" : "rgba(168,85,247,0.1)", border: `1px solid ${isFree ? "rgba(34,197,94,0.3)" : "rgba(168,85,247,0.3)"}`, borderRadius: "20px", fontSize: "0.62rem", fontWeight: 800, color: isFree ? "#22c55e" : "#a855f7", textTransform: "uppercase", flexShrink: 0 }}>
+                          {isFree ? "Free" : "Premium"}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: "0.72rem", color: "var(--clr-text-muted)" }}>
+                        par <strong style={{ color: "var(--clr-text)" }}>{game.creator_id}</strong>
+                        {" · "}{game.plays || 0} parties
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </SectionCard>
 
       {/* Leaderboard */}
       <SectionCard title={leaderboardMode === "season" ? "Classement Saison" : tr("leaderboard")}>

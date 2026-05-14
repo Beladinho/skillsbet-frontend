@@ -613,6 +613,27 @@ hr {
   font-weight: 400;
 }
 
+.session-bar__creator {
+  font-family: var(--font-heading);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #00b4d8;
+  background: rgba(0,180,216,0.07);
+  border: 1px solid rgba(0,180,216,0.3);
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.session-bar__creator:hover {
+  background: rgba(0,180,216,0.16);
+  box-shadow: 0 0 10px rgba(0,180,216,0.25);
+  color: #38d9f5;
+}
+
 .session-bar__admin {
   font-family: var(--font-heading);
   font-size: 0.78rem;
