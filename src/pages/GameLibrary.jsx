@@ -40,6 +40,10 @@ export default function GameLibrary({ startGame }) {
 
         <GameCard title="ColorBlitz" play={() => startGame("uno")} />
 
+        <GameCard title="LineUp4" play={() => startGame("lineup4")} />
+
+        <GameCard title="XO Battle" play={() => startGame("xobattle")} />
+
       </div>
 
     </div>

@@ -12,6 +12,8 @@ const GAMES = {
   chess: lazy(() => import("./games/ChessGame")),
   dames: lazy(() => import("./games/DamesGame")),
   uno: lazy(() => import("./games/UNOGame")),
+  lineup4: lazy(() => import("./games/LineUp4Game")),
+  xobattle: lazy(() => import("./games/XOBattleGame")),
 };
 
 export default function GameScreen({ duel, playerId, socketState, liveScores, onGameFinished }) {

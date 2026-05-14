@@ -72,6 +72,8 @@ export const translations = {
     chess: "KingSlayer",
     uno: "ColorBlitz",
     dames: "DraughtWar",
+    lineup4: "LineUp4",
+    xobattle: "XO Battle",
 
     user: "utilisateur",
     admin: "admin",
@@ -283,6 +285,8 @@ queueStatus: "État de la file",
     chess: "KingSlayer",
     uno: "ColorBlitz",
     dames: "DraughtWar",
+    lineup4: "LineUp4",
+    xobattle: "XO Battle",
 
     user: "user",
     admin: "admin",
@@ -437,6 +441,8 @@ export function gameLabel(lang, game) {
     chess: t(lang, "chess"),
     uno: t(lang, "uno"),
     dames: t(lang, "dames"),
+    lineup4: t(lang, "lineup4"),
+    xobattle: t(lang, "xobattle"),
   };
 
   return map[game] || game;

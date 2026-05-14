@@ -75,7 +75,7 @@ export default function Lobby() {
   const [socketState, setSocketState] = useState("disconnected");
   const [liveScores, setLiveScores] = useState({});
 
-  const GAMES = ["snake", "reflex", "memory", "tetris", "checkers", "chess", "dames", "uno"];
+  const GAMES = ["snake", "reflex", "memory", "tetris", "checkers", "chess", "dames", "uno", "lineup4", "xobattle"];
 
   const loadLeaderboardData = useCallback(async () => {
     try {
