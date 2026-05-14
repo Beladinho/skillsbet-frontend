@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   createInitialBoard,
   getValidMoves,
@@ -6,13 +6,12 @@ import {
   countPieces,
   getAllMovesForPlayer,
 } from "../../utils/checkersHelpers";
+import { useParticles } from "./ParticleEffect";
 
 const DIFFICULTY_LABELS = { easy: "Facile", medium: "Moyen", hard: "Difficile", expert: "Expert" };
 const BOT_DELAY = { easy: 500, medium: 600, hard: 800, expert: 900 };
 const P1 = "#ff6600";
 const P2 = "#00b4d8";
-
-// ─── Minimax for checkers ─────────────────────────────────────────────────────
 
 function scoreBoard(board) {
   let score = 0;
@@ -56,7 +55,21 @@ function getBotMove(board, difficulty) {
   }
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+function CheckerGhost({ player, king }) {
+  const color = player === "human" ? P1 : P2;
+  return (
+    <div style={{
+      width: 40, height: 40, borderRadius: "50%",
+      background: color,
+      border: king ? "3px solid #f9ca24" : `2px solid ${player === "human" ? "rgba(255,102,0,0.4)" : "rgba(0,180,216,0.4)"}`,
+      boxShadow: player === "human" ? "0 0 12px rgba(255,102,0,0.6)" : "0 0 12px rgba(0,180,216,0.6)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontSize: "14px", color: "#fff", fontWeight: 900,
+    }}>
+      {king ? "♛" : ""}
+    </div>
+  );
+}
 
 export default function DraughtWarBotGame({ difficulty, playerId, onExit }) {
   const [board, setBoard] = useState(createInitialBoard);
@@ -66,12 +79,29 @@ export default function DraughtWarBotGame({ difficulty, playerId, onExit }) {
   const [winner, setWinner] = useState(null);
   const [thinking, setThinking] = useState(false);
   const [score, setScore] = useState({ player: 0, bot: 0 });
+  const [dynamicMode, setDynamicMode] = useState(false);
+  const dmRef = useRef(false);
+  dmRef.current = dynamicMode;
+
+  const { triggerAt, addGhost, ParticleLayer } = useParticles();
+
+  function fireCheckersCapture(b, move) {
+    const captured = b[move.capturedRow][move.capturedCol];
+    if (!captured) return;
+    addGhost(
+      move.capturedRow, move.capturedCol,
+      <CheckerGhost player={captured.player} king={captured.king} />,
+      "eject"
+    );
+    triggerAt(move.capturedRow, move.capturedCol, captured.king ? "epic" : "normal");
+  }
 
   const botTurn = useCallback((b) => {
     setThinking(true);
     setTimeout(() => {
       const move = getBotMove(b, difficulty);
       if (!move) { setWinner("human"); setThinking(false); return; }
+      if (dmRef.current && move.type === "capture") fireCheckersCapture(b, move);
       const nb = applyMove(b, move);
       setBoard(nb);
       const counts = countPieces(nb);
@@ -83,11 +113,11 @@ export default function DraughtWarBotGame({ difficulty, playerId, onExit }) {
       }
       setThinking(false);
     }, BOT_DELAY[difficulty] ?? 700);
-  }, [difficulty]);
+  }, [difficulty]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (turn === "bot" && !winner) botTurn(board);
-  }, [turn, winner]);
+  }, [turn, winner]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleCell(row, col) {
     if (winner || turn !== "human" || thinking) return;
@@ -102,6 +132,7 @@ export default function DraughtWarBotGame({ difficulty, playerId, onExit }) {
     if (selected) {
       const move = validMoves.find(m => m.toRow === row && m.toCol === col);
       if (!move) { setSelected(null); setValidMoves([]); return; }
+      if (dynamicMode && move.type === "capture") fireCheckersCapture(board, move);
       const nb = applyMove(board, move);
       setBoard(nb);
       setSelected(null);
@@ -137,6 +168,19 @@ export default function DraughtWarBotGame({ difficulty, playerId, onExit }) {
         <span style={{ background: "rgba(255,102,0,0.12)", border: "1px solid rgba(255,102,0,0.4)", color: "#ff8833", padding: "3px 10px", borderRadius: "4px", fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase" }}>
           Solo · {DIFFICULTY_LABELS[difficulty]}
         </span>
+        <button
+          onClick={() => setDynamicMode(d => !d)}
+          style={{
+            background: dynamicMode ? "rgba(255,102,0,0.18)" : "transparent",
+            border: `1px solid ${dynamicMode ? "#ff6600" : "#333"}`,
+            color: dynamicMode ? "#ff6600" : "#555",
+            borderRadius: "4px", padding: "3px 12px",
+            cursor: "pointer", fontSize: "0.72rem", fontWeight: 700,
+            letterSpacing: "0.08em", transition: "all 0.2s", fontFamily: "inherit",
+          }}
+        >
+          ⚡ DYN {dynamicMode ? "ON" : "OFF"}
+        </button>
       </div>
 
       <div style={{ display: "flex", justifyContent: "center", gap: "32px", marginBottom: "14px" }}>
@@ -181,6 +225,7 @@ export default function DraughtWarBotGame({ difficulty, playerId, onExit }) {
               return (
                 <div
                   key={`${row}-${col}`}
+                  data-cell={`${row}-${col}`}
                   onClick={() => handleCell(row, col)}
                   style={{
                     width: 58, height: 58,
@@ -197,9 +242,7 @@ export default function DraughtWarBotGame({ difficulty, playerId, onExit }) {
                       width: 40, height: 40, borderRadius: "50%",
                       background: cell.player === "human" ? P1 : P2,
                       border: cell.king ? "3px solid #f9ca24" : `2px solid ${cell.player === "human" ? "rgba(255,102,0,0.4)" : "rgba(0,180,216,0.4)"}`,
-                      boxShadow: cell.player === "human"
-                        ? `0 0 12px rgba(255,102,0,0.6)`
-                        : `0 0 12px rgba(0,180,216,0.6)`,
+                      boxShadow: cell.player === "human" ? "0 0 12px rgba(255,102,0,0.6)" : "0 0 12px rgba(0,180,216,0.6)",
                       display: "flex", alignItems: "center", justifyContent: "center",
                       fontSize: "14px", color: "#fff", fontWeight: 900,
                     }}>
@@ -228,6 +271,8 @@ export default function DraughtWarBotGame({ difficulty, playerId, onExit }) {
           <button onClick={onExit} className="btn-ghost" style={{ padding: "8px 20px", fontSize: "0.82rem" }}>← Quitter</button>
         </div>
       )}
+
+      <ParticleLayer />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   createInitialChessBoard,
   getValidChessMoves,
@@ -6,6 +6,7 @@ import {
   getAllChessMovesForPlayer,
   findKings,
 } from "../../utils/chessHelpers";
+import { useParticles } from "./ParticleEffect";
 
 const DIFFICULTY_LABELS = { easy: "Facile", medium: "Moyen", hard: "Difficile", expert: "Expert" };
 const BOT_DELAY = { easy: 400, medium: 600, hard: 800, expert: 1000 };
@@ -18,8 +19,6 @@ const PIECE_SYMBOLS = {
 };
 
 const PIECE_VALUES = { pawn: 10, knight: 30, bishop: 33, rook: 50, queen: 90, king: 900 };
-
-// ─── Minimax for chess ────────────────────────────────────────────────────────
 
 function evalBoard(board) {
   let score = 0;
@@ -58,8 +57,6 @@ function getBotMove(board, difficulty) {
   const moves = getAllChessMovesForPlayer(board, "bot");
   if (!moves.length) return null;
   if (difficulty === "easy") return moves[Math.floor(Math.random() * moves.length)];
-
-  // Prefer captures
   const captures = moves.filter(m => m.type === "capture");
   if (difficulty === "medium" && captures.length > 0) {
     return captures.sort((a, b) => {
@@ -69,7 +66,6 @@ function getBotMove(board, difficulty) {
     })[0];
   }
   if (difficulty === "medium") return moves[Math.floor(Math.random() * moves.length)];
-
   const depth = difficulty === "hard" ? 2 : 3;
   try {
     const { move } = minimaxChess(board, depth, -Infinity, Infinity, true);
@@ -79,8 +75,6 @@ function getBotMove(board, difficulty) {
   }
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export default function KingSlayerBotGame({ difficulty, playerId, onExit }) {
   const [board, setBoard] = useState(createInitialChessBoard);
   const [selected, setSelected] = useState(null);
@@ -89,12 +83,36 @@ export default function KingSlayerBotGame({ difficulty, playerId, onExit }) {
   const [winner, setWinner] = useState(null);
   const [thinking, setThinking] = useState(false);
   const [score, setScore] = useState({ player: 0, bot: 0 });
+  const [dynamicMode, setDynamicMode] = useState(false);
+  const dmRef = useRef(false);
+  dmRef.current = dynamicMode;
+
+  const { triggerAt, addGhost, ParticleLayer } = useParticles();
+
+  function fireChessCapture(b, move) {
+    const captured = b[move.toRow][move.toCol];
+    if (!captured) return;
+    const isEpic = ["queen", "rook"].includes(captured.type);
+    addGhost(
+      move.toRow, move.toCol,
+      <span style={{
+        color: captured.player === "human" ? P1 : P2,
+        filter: `drop-shadow(0 0 8px ${captured.player === "human" ? "rgba(255,102,0,0.9)" : "rgba(0,180,216,0.9)"})`,
+        fontSize: captured.type === "pawn" ? "28px" : "32px",
+      }}>
+        {PIECE_SYMBOLS[captured.player][captured.type]}
+      </span>,
+      "shake"
+    );
+    triggerAt(move.toRow, move.toCol, isEpic ? "epic" : "normal");
+  }
 
   const botTurn = useCallback((b) => {
     setThinking(true);
     setTimeout(() => {
       const move = getBotMove(b, difficulty);
       if (!move) { setWinner("human"); setThinking(false); return; }
+      if (dmRef.current && move.type === "capture") fireChessCapture(b, move);
       const nb = applyChessMove(b, move);
       setBoard(nb);
       const kings = findKings(nb);
@@ -106,11 +124,11 @@ export default function KingSlayerBotGame({ difficulty, playerId, onExit }) {
       }
       setThinking(false);
     }, BOT_DELAY[difficulty] ?? 700);
-  }, [difficulty]);
+  }, [difficulty]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (turn === "bot" && !winner) botTurn(board);
-  }, [turn, winner]);
+  }, [turn, winner]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleCell(row, col) {
     if (winner || turn !== "human" || thinking) return;
@@ -125,6 +143,7 @@ export default function KingSlayerBotGame({ difficulty, playerId, onExit }) {
     if (selected) {
       const move = validMoves.find(m => m.toRow === row && m.toCol === col);
       if (!move) { setSelected(null); setValidMoves([]); return; }
+      if (dynamicMode && move.type === "capture") fireChessCapture(board, move);
       const nb = applyChessMove(board, move);
       setBoard(nb);
       setSelected(null);
@@ -160,6 +179,19 @@ export default function KingSlayerBotGame({ difficulty, playerId, onExit }) {
         <span style={{ background: "rgba(255,102,0,0.12)", border: "1px solid rgba(255,102,0,0.4)", color: "#ff8833", padding: "3px 10px", borderRadius: "4px", fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase" }}>
           Solo · {DIFFICULTY_LABELS[difficulty]}
         </span>
+        <button
+          onClick={() => setDynamicMode(d => !d)}
+          style={{
+            background: dynamicMode ? "rgba(255,102,0,0.18)" : "transparent",
+            border: `1px solid ${dynamicMode ? "#ff6600" : "#333"}`,
+            color: dynamicMode ? "#ff6600" : "#555",
+            borderRadius: "4px", padding: "3px 12px",
+            cursor: "pointer", fontSize: "0.72rem", fontWeight: 700,
+            letterSpacing: "0.08em", transition: "all 0.2s", fontFamily: "inherit",
+          }}
+        >
+          ⚡ DYN {dynamicMode ? "ON" : "OFF"}
+        </button>
       </div>
 
       <div style={{ display: "flex", justifyContent: "center", gap: "32px", marginBottom: "14px" }}>
@@ -195,14 +227,12 @@ export default function KingSlayerBotGame({ difficulty, playerId, onExit }) {
         boxShadow: `0 0 24px rgba(${isHumanTurn ? "255,102,0" : thinking ? "0,180,216" : "0,0,0"},0.25)`,
         transition: "border-color 0.3s, box-shadow 0.3s",
       }}>
-        {/* Column labels */}
         <div style={{ display: "flex", paddingLeft: "20px", marginBottom: "2px" }}>
           {"abcdefgh".split("").map(c => (
             <div key={c} style={{ width: 58, textAlign: "center", fontSize: "0.65rem", color: "#333", fontWeight: 700 }}>{c}</div>
           ))}
         </div>
         <div style={{ display: "flex" }}>
-          {/* Row labels */}
           <div style={{ display: "flex", flexDirection: "column" }}>
             {"87654321".split("").map(n => (
               <div key={n} style={{ height: 58, width: 20, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.65rem", color: "#333", fontWeight: 700 }}>{n}</div>
@@ -218,6 +248,7 @@ export default function KingSlayerBotGame({ difficulty, playerId, onExit }) {
                 return (
                   <div
                     key={`${row}-${col}`}
+                    data-cell={`${row}-${col}`}
                     onClick={() => handleCell(row, col)}
                     style={{
                       width: 58, height: 58,
@@ -265,6 +296,8 @@ export default function KingSlayerBotGame({ difficulty, playerId, onExit }) {
           <button onClick={onExit} className="btn-ghost" style={{ padding: "8px 20px", fontSize: "0.82rem" }}>← Quitter</button>
         </div>
       )}
+
+      <ParticleLayer />
     </div>
   );
 }
