@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useParticles } from "./ParticleEffect";
 
 const EMOJIS = ["🍎","🍌","🍒","🍇","🍉","🍓","🥝","🍍","🫐","🍑","🍋","🍊"];
 const GRID_CONFIG = { easy: 4, medium: 4, hard: 5, expert: 6 };
@@ -28,13 +29,18 @@ export default function FlipMatchSoloGame({ difficulty, playerId, onExit }) {
   const [matched, setMatched] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [best, setBest] = useState(null);
+  const [dynamicMode, setDynamicMode] = useState(false);
+
+  const dmRef = useRef(false);
+  dmRef.current = dynamicMode;
+
+  const { triggerAt, ParticleLayer } = useParticles();
 
   const score = useMemo(() => Math.max(0, totalPairs * 50 - moves * 5), [matched, moves, totalPairs]);
 
   function handleClick(card) {
     if (locked || gameOver || card.flipped || card.matched) return;
     if (selected.length === 2) return;
-
     const updated = cards.map(c => c.id === card.id ? { ...c, flipped: true } : c);
     const newSel = [...selected, card.id];
     setCards(updated);
@@ -53,6 +59,10 @@ export default function FlipMatchSoloGame({ difficulty, playerId, onExit }) {
         setMatched(m => m + 1);
         setSelected([]);
         setLocked(false);
+        if (dmRef.current) {
+          triggerAt(`flip-${a.id}`, "normal");
+          setTimeout(() => triggerAt(`flip-${b.id}`, "epic"), 80);
+        }
       }, 480);
     } else {
       setTimeout(() => {
@@ -61,12 +71,21 @@ export default function FlipMatchSoloGame({ difficulty, playerId, onExit }) {
         setLocked(false);
       }, 850);
     }
-  }, [selected]);
+  }, [selected]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { if (matched === totalPairs) setGameOver(true); }, [matched]);
+
   useEffect(() => {
     if (gameOver) setBest(b => b === null || score > b ? score : b);
-  }, [gameOver]);
+    if (gameOver && dynamicMode) {
+      // staggered epic bursts across random matched cards
+      const allIds = cards.filter(c => c.matched).map(c => c.id);
+      const sample = allIds.sort(() => Math.random() - 0.5).slice(0, 6);
+      sample.forEach((id, i) => {
+        setTimeout(() => triggerAt(`flip-${id}`, i < 2 ? "epic" : "normal"), i * 130);
+      });
+    }
+  }, [gameOver]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function replay() {
     setCards(buildDeck(cols));
@@ -88,6 +107,19 @@ export default function FlipMatchSoloGame({ difficulty, playerId, onExit }) {
         <span style={{ background: "rgba(255,102,0,0.12)", border: "1px solid rgba(255,102,0,0.4)", color: "#ff8833", padding: "3px 10px", borderRadius: "4px", fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase" }}>
           Solo · {DIFFICULTY_LABELS[difficulty]}
         </span>
+        <button
+          onClick={() => setDynamicMode(d => !d)}
+          style={{
+            background: dynamicMode ? "rgba(255,102,0,0.18)" : "transparent",
+            border: `1px solid ${dynamicMode ? "#ff6600" : "#333"}`,
+            color: dynamicMode ? "#ff6600" : "#555",
+            borderRadius: "4px", padding: "3px 12px",
+            cursor: "pointer", fontSize: "0.72rem", fontWeight: 700,
+            letterSpacing: "0.08em", transition: "all 0.2s", fontFamily: "inherit",
+          }}
+        >
+          ⚡ DYN {dynamicMode ? "ON" : "OFF"}
+        </button>
       </div>
 
       <div style={{ display: "flex", justifyContent: "center", gap: "32px", marginBottom: "14px" }}>
@@ -115,6 +147,7 @@ export default function FlipMatchSoloGame({ difficulty, playerId, onExit }) {
           return (
             <button
               key={card.id}
+              data-cell={`flip-${card.id}`}
               onClick={() => handleClick(card)}
               disabled={locked || card.matched}
               style={{
@@ -160,6 +193,8 @@ export default function FlipMatchSoloGame({ difficulty, playerId, onExit }) {
           <button onClick={onExit} className="btn-ghost" style={{ padding: "8px 20px", fontSize: "0.82rem" }}>← Quitter</button>
         </div>
       )}
+
+      <ParticleLayer />
     </div>
   );
 }

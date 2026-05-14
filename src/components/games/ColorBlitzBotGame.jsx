@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useParticles } from "./ParticleEffect";
 
 // ColorBlitz solo — player vs bot, UNO-inspired color/number card game
-// Each round: both draw a card, player must match color or number to the top card
-// Bot plays automatically with variable skill
 
 const COLORS = ["red", "blue", "green", "yellow"];
 const NUMBERS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -33,16 +32,12 @@ function canPlay(card, top) {
 
 function drawHand(n) { return Array.from({ length: n }, randCard); }
 
-// Bot strategy: easy=random, medium=prefers matching color, hard/expert=optimal
 function botChooseCard(hand, top, difficulty) {
   const playable = hand.filter(c => canPlay(c, top));
   if (!playable.length) return null;
   if (difficulty === "easy") return playable[Math.floor(Math.random() * playable.length)];
-  // prefer special cards on hard/expert
   const specials = playable.filter(c => typeof c.value === "string");
-  if ((difficulty === "hard" || difficulty === "expert") && specials.length)
-    return specials[0];
-  // prefer same color
+  if ((difficulty === "hard" || difficulty === "expert") && specials.length) return specials[0];
   const sameColor = playable.filter(c => c.color === top.color);
   if (sameColor.length) return sameColor[0];
   return playable[0];
@@ -89,16 +84,25 @@ export default function ColorBlitzBotGame({ difficulty, playerId, onExit }) {
   const [playerHand, setPlayerHand] = useState(() => drawHand(5));
   const [botHand, setBotHand] = useState(() => drawHand(5));
   const [score, setScore] = useState({ player: 0, bot: 0 });
-  const [turn, setTurn] = useState("player"); // player | bot | result
-  const [phase, setPhase] = useState("playing"); // playing | roundOver | gameOver
+  const [turn, setTurn] = useState("player");
+  const [phase, setPhase] = useState("playing");
   const [roundMsg, setRoundMsg] = useState(null);
-  const [skipNext, setSkipNext] = useState(null); // "player" | "bot" | null
+  const [skipNext, setSkipNext] = useState(null);
   const [botThinking, setBotThinking] = useState(false);
   const [winner, setWinner] = useState(null);
   const [selectedCard, setSelectedCard] = useState(null);
   const [drawPending, setDrawPending] = useState(false);
+  const [dynamicMode, setDynamicMode] = useState(false);
 
   const pendingRef = useRef(false);
+  const dmRef = useRef(false);
+  dmRef.current = dynamicMode;
+
+  const { triggerAt, ParticleLayer } = useParticles();
+
+  function isSpecial(card) {
+    return typeof card.value === "string";
+  }
 
   function applySpecial(value, nextTurn) {
     let skip = null;
@@ -116,7 +120,8 @@ export default function ColorBlitzBotGame({ difficulty, playerId, onExit }) {
     setTopCard(card);
     setSelectedCard(null);
 
-    // +2: bot draws 2
+    if (dynamicMode) triggerAt("cb-topcard", isSpecial(card) ? "epic" : "normal");
+
     if (card.value === "+2") {
       setBotHand(h => [...h, randCard(), randCard()]);
       setSkipNext("bot");
@@ -130,7 +135,7 @@ export default function ColorBlitzBotGame({ difficulty, playerId, onExit }) {
     const skip = applySpecial(card.value, "bot");
     if (skip === "bot") {
       setSkipNext("bot");
-      setTurn("bot"); // will auto-skip
+      setTurn("bot");
     } else {
       setTurn("bot");
     }
@@ -148,7 +153,6 @@ export default function ColorBlitzBotGame({ difficulty, playerId, onExit }) {
     }, 500);
   }
 
-  // Bot turn
   useEffect(() => {
     if (turn !== "bot" || phase !== "playing" || pendingRef.current) return;
     pendingRef.current = true;
@@ -156,7 +160,6 @@ export default function ColorBlitzBotGame({ difficulty, playerId, onExit }) {
 
     const delay = BOT_THINK_MS[difficulty] ?? 800;
     const timer = setTimeout(() => {
-      // skip?
       if (skipNext === "bot") {
         setSkipNext(null);
         setBotThinking(false);
@@ -167,7 +170,6 @@ export default function ColorBlitzBotGame({ difficulty, playerId, onExit }) {
 
       const card = botChooseCard(botHand, topCard, difficulty);
       if (!card) {
-        // bot draws
         setBotHand(h => [...h, randCard()]);
         setBotThinking(false);
         setTurn("player");
@@ -178,6 +180,8 @@ export default function ColorBlitzBotGame({ difficulty, playerId, onExit }) {
       const newHand = botHand.filter(c => c !== card);
       setBotHand(newHand);
       setTopCard(card);
+
+      if (dmRef.current) triggerAt("cb-topcard", isSpecial(card) ? "epic" : "normal");
 
       if (card.value === "+2") {
         setPlayerHand(h => [...h, randCard(), randCard()]);
@@ -196,7 +200,7 @@ export default function ColorBlitzBotGame({ difficulty, playerId, onExit }) {
       pendingRef.current = false;
       if (skip === "player") {
         setSkipNext("player");
-        setTurn("player"); // will check skipNext on next render
+        setTurn("player");
       } else {
         setTurn("player");
       }
@@ -205,7 +209,6 @@ export default function ColorBlitzBotGame({ difficulty, playerId, onExit }) {
     return () => { clearTimeout(timer); pendingRef.current = false; };
   }, [turn, phase]);
 
-  // Handle skip for player
   useEffect(() => {
     if (turn === "player" && skipNext === "player" && phase === "playing") {
       setSkipNext(null);
@@ -218,6 +221,12 @@ export default function ColorBlitzBotGame({ difficulty, playerId, onExit }) {
     setScore(newScore);
     const msg = roundWinner === "player" ? `${playerId} remporte la manche !` : "Le BOT remporte la manche !";
     setRoundMsg(msg);
+
+    if (dynamicMode) {
+      // staggered bursts for round end
+      triggerAt("cb-topcard", "epic");
+      setTimeout(() => triggerAt("cb-topcard", "normal"), 200);
+    }
 
     if (newScore.player >= target) {
       setWinner("player");
@@ -256,7 +265,6 @@ export default function ColorBlitzBotGame({ difficulty, playerId, onExit }) {
 
   return (
     <div style={{ textAlign: "center", marginTop: "16px", fontFamily: "'Rajdhani','Arial Narrow',sans-serif", userSelect: "none" }}>
-      {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "14px", marginBottom: "6px" }}>
         <h2 style={{ color: P1, fontSize: "2rem", letterSpacing: "4px", textTransform: "uppercase", margin: 0, textShadow: "0 0 16px rgba(255,102,0,0.5)" }}>
           ColorBlitz
@@ -264,16 +272,27 @@ export default function ColorBlitzBotGame({ difficulty, playerId, onExit }) {
         <span style={{ background: "rgba(255,102,0,0.12)", border: "1px solid rgba(255,102,0,0.4)", color: "#ff8833", padding: "3px 10px", borderRadius: "4px", fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase" }}>
           Solo · {DIFFICULTY_LABELS[difficulty]}
         </span>
+        <button
+          onClick={() => setDynamicMode(d => !d)}
+          style={{
+            background: dynamicMode ? "rgba(255,102,0,0.18)" : "transparent",
+            border: `1px solid ${dynamicMode ? "#ff6600" : "#333"}`,
+            color: dynamicMode ? "#ff6600" : "#555",
+            borderRadius: "4px", padding: "3px 12px",
+            cursor: "pointer", fontSize: "0.72rem", fontWeight: 700,
+            letterSpacing: "0.08em", transition: "all 0.2s", fontFamily: "inherit",
+          }}
+        >
+          ⚡ DYN {dynamicMode ? "ON" : "OFF"}
+        </button>
       </div>
 
-      {/* Score */}
       <div style={{ display: "flex", justifyContent: "center", gap: "28px", marginBottom: "12px" }}>
         <span style={{ fontSize: "1.3rem", fontWeight: 800, color: P1 }}>{playerId} <span style={{ color: "#fff" }}>{score.player}</span></span>
         <span style={{ color: "#555", fontSize: "0.85rem", alignSelf: "center" }}>/ {target} pts</span>
         <span style={{ fontSize: "1.3rem", fontWeight: 800, color: P2 }}>BOT <span style={{ color: "#fff" }}>{score.bot}</span></span>
       </div>
 
-      {/* Game area */}
       <div style={{
         display: "inline-block",
         background: "#0a1628",
@@ -315,7 +334,9 @@ export default function ColorBlitzBotGame({ difficulty, playerId, onExit }) {
           </div>
           <div>
             <div style={{ fontSize: "0.6rem", color: "#555", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "6px" }}>Carte du dessus</div>
-            <CardView card={topCard} />
+            <div data-cell="cb-topcard" style={{ display: "inline-block" }}>
+              <CardView card={topCard} />
+            </div>
           </div>
         </div>
 
@@ -349,7 +370,7 @@ export default function ColorBlitzBotGame({ difficulty, playerId, onExit }) {
           </div>
         </div>
 
-        {/* Round over */}
+        {/* Round/game over */}
         {(phase === "roundOver" || phase === "gameOver") && (
           <div style={{ marginTop: "18px", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "16px" }}>
             {roundMsg && (
@@ -385,7 +406,6 @@ export default function ColorBlitzBotGame({ difficulty, playerId, onExit }) {
         )}
       </div>
 
-      {/* Color legend */}
       <div style={{ display: "flex", justifyContent: "center", gap: "16px", marginTop: "16px" }}>
         {COLORS.map(c => (
           <div key={c} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -400,6 +420,8 @@ export default function ColorBlitzBotGame({ difficulty, playerId, onExit }) {
           <button onClick={onExit} className="btn-ghost" style={{ padding: "8px 20px", fontSize: "0.82rem" }}>← Quitter</button>
         </div>
       )}
+
+      <ParticleLayer />
     </div>
   );
 }

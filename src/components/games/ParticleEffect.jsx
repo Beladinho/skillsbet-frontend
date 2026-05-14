@@ -40,8 +40,9 @@ const FIRE_COLORS = ["#ff6600", "#ff3300", "#ffaa00", "#ffff00", "#ff8800", "#ff
 let _pid = 0;
 let _gid = 0;
 
-function getCellRect(row, col) {
-  const el = document.querySelector(`[data-cell="${row}-${col}"]`);
+function getCellRect(rowOrKey, col) {
+  const key = col !== undefined ? `${rowOrKey}-${col}` : String(rowOrKey);
+  const el = document.querySelector(`[data-cell="${key}"]`);
   return el ? el.getBoundingClientRect() : null;
 }
 
@@ -113,9 +114,15 @@ export function useParticles() {
   const [bursts, setBursts] = useState([]);
   const [ghosts, setGhosts] = useState([]);
 
-  const triggerAt = useCallback((row, col, intensity = "normal") => {
-    const rect = getCellRect(row, col);
+  // triggerAt(row, col, intensity) — grid cells
+  // triggerAt(key, intensity)       — named elements via data-cell="key"
+  const triggerAt = useCallback((rowOrKey, colOrIntensity, maybeIntensity) => {
+    const isGrid = typeof colOrIntensity === "number";
+    const rect = isGrid
+      ? getCellRect(rowOrKey, colOrIntensity)
+      : getCellRect(rowOrKey);
     if (!rect) return;
+    const intensity = isGrid ? (maybeIntensity ?? "normal") : (colOrIntensity ?? "normal");
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
     const id = ++_pid;
