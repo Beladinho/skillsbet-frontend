@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { getSettings, updateSettings } from "../api/settingsApi";
+import MusicStylePicker from "../components/MusicStylePicker";
 import { useAppSettings } from "../context/AppSettingsContext";
+import { useMusic } from "../context/MusicContext";
 import { useNotifications } from "../context/NotificationContext";
 import { useSounds } from "../context/SoundContext";
 
@@ -8,6 +10,7 @@ export default function Settings() {
   const { settings, applyRemoteSettings, tr } = useAppSettings();
   const { notifySuccess, notifyError, notifyInfo } = useNotifications();
   const { playClick } = useSounds();
+  const { currentStyle, currentVolume, stopPreview } = useMusic();
 
   const [form, setForm] = useState({
     language: "fr",
@@ -15,6 +18,8 @@ export default function Settings() {
     sound_enabled: true,
     music_enabled: true,
     notifications_enabled: true,
+    music_style: "gaming-electro",
+    music_volume: 0.4,
   });
 
   const [status, setStatus] = useState("");
@@ -32,6 +37,8 @@ export default function Settings() {
           sound_enabled: data.sound_enabled ?? true,
           music_enabled: data.music_enabled ?? true,
           notifications_enabled: data.notifications_enabled ?? true,
+          music_style: data.music_style ?? "gaming-electro",
+          music_volume: data.music_volume ?? 0.4,
         };
 
         setForm(normalized);
@@ -47,9 +54,13 @@ export default function Settings() {
     loadSettings();
   }, [applyRemoteSettings, notifyError]);
 
+  // Keep local form in sync with live music context changes (style picker updates settings directly)
+  useEffect(() => {
+    setForm((prev) => ({ ...prev, music_style: currentStyle, music_volume: currentVolume }));
+  }, [currentStyle, currentVolume]);
+
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
-
     setForm((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
@@ -58,6 +69,7 @@ export default function Settings() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    stopPreview();
 
     try {
       setError("");
@@ -69,6 +81,8 @@ export default function Settings() {
         sound_enabled: form.sound_enabled,
         music_enabled: form.music_enabled,
         notifications_enabled: form.notifications_enabled,
+        music_style: currentStyle,
+        music_volume: currentVolume,
       };
 
       const updated = await updateSettings(payload);
@@ -78,8 +92,9 @@ export default function Settings() {
         theme: updated.theme ?? form.theme,
         sound_enabled: updated.sound_enabled ?? form.sound_enabled,
         music_enabled: updated.music_enabled ?? form.music_enabled,
-        notifications_enabled:
-          updated.notifications_enabled ?? form.notifications_enabled,
+        notifications_enabled: updated.notifications_enabled ?? form.notifications_enabled,
+        music_style: updated.music_style ?? currentStyle,
+        music_volume: updated.music_volume ?? currentVolume,
       };
 
       setForm(normalized);
@@ -165,6 +180,15 @@ export default function Settings() {
             {tr("enableMusic")}
           </label>
         </div>
+
+        {form.music_enabled && (
+          <div
+            className="section-card"
+            style={{ margin: "12px 0 16px", padding: "16px 18px" }}
+          >
+            <MusicStylePicker />
+          </div>
+        )}
 
         <div style={{ marginBottom: 12 }}>
           <label>

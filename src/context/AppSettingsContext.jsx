@@ -9,6 +9,8 @@ const defaultSettings = {
   sound_enabled: true,
   music_enabled: true,
   notifications_enabled: true,
+  music_style: "gaming-electro",
+  music_volume: 0.4,
 };
 
 function areSettingsEqual(a, b) {
@@ -17,7 +19,9 @@ function areSettingsEqual(a, b) {
     a.theme === b.theme &&
     a.sound_enabled === b.sound_enabled &&
     a.music_enabled === b.music_enabled &&
-    a.notifications_enabled === b.notifications_enabled
+    a.notifications_enabled === b.notifications_enabled &&
+    a.music_style === b.music_style &&
+    a.music_volume === b.music_volume
   );
 }
 

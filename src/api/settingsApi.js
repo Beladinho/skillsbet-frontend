@@ -10,6 +10,8 @@ export async function updateSettings({
   sound_enabled,
   music_enabled,
   notifications_enabled,
+  music_style,
+  music_volume,
 }) {
   return apiRequest("/settings", {
     method: "POST",
@@ -22,6 +24,8 @@ export async function updateSettings({
       sound_enabled,
       music_enabled,
       notifications_enabled,
+      music_style,
+      music_volume,
     },
   });
 }

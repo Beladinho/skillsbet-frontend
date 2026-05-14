@@ -1,170 +1,129 @@
-import { createContext, useContext, useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useAppSettings } from "./AppSettingsContext";
 
 const MusicContext = createContext(null);
 
+export const MUSIC_TRACKS = [
+  { id: "gaming-electro", label: "Electro Gaming",   icon: "⚡", file: "/music/gaming-electro.mp3" },
+  { id: "lofi-chill",     label: "Lofi Chill",        icon: "🎧", file: "/music/lofi-chill.mp3" },
+  { id: "hip-hop-trap",   label: "Hip-Hop / Trap",    icon: "🔥", file: "/music/hip-hop-trap.mp3" },
+  { id: "rock-intense",   label: "Rock Intense",      icon: "🎸", file: "/music/rock-intense.mp3" },
+  { id: "ambient-space",  label: "Ambient Space",     icon: "🌌", file: "/music/ambient-space.mp3" },
+  { id: "jazz-smooth",    label: "Jazz Smooth",       icon: "🎷", file: "/music/jazz-smooth.mp3" },
+  { id: "orchestral-epic",label: "Orchestral Epic",   icon: "🎻", file: "/music/orchestral-epic.mp3" },
+  { id: "synthwave-retro",label: "Synthwave Rétro",   icon: "🌆", file: "/music/synthwave-retro.mp3" },
+];
+
+function getTrackFile(styleId) {
+  return MUSIC_TRACKS.find((t) => t.id === styleId)?.file ?? MUSIC_TRACKS[0].file;
+}
+
 export function MusicProvider({ children }) {
-  const { settings } = useAppSettings();
+  const { settings, setSettings } = useAppSettings();
 
-  const audioContextRef = useRef(null);
-  const gainRef = useRef(null);
-  const oscillatorsRef = useRef([]);
-  const timerRef = useRef(null);
+  const audioRef = useRef(null);
+  const previewAudioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [previewTrackId, setPreviewTrackId] = useState(null);
 
-  function getAudioContext() {
-    if (typeof window === "undefined") return null;
+  const currentStyle = settings?.music_style ?? "gaming-electro";
+  const currentVolume = settings?.music_volume ?? 0.4;
+  const musicEnabled = settings?.music_enabled !== false;
 
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    if (!AudioCtx) return null;
+  // Sync volume on both audio elements whenever settings change
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.volume = currentVolume;
+    if (previewAudioRef.current) previewAudioRef.current.volume = currentVolume;
+  }, [currentVolume]);
 
-    if (!audioContextRef.current) {
-      audioContextRef.current = new AudioCtx();
+  const stopPreview = useCallback(() => {
+    if (previewAudioRef.current) {
+      previewAudioRef.current.pause();
+      previewAudioRef.current = null;
     }
+    setPreviewTrackId(null);
+  }, []);
 
-    return audioContextRef.current;
-  }
-
-  async function ensureAudioReady() {
-    const ctx = getAudioContext();
-    if (!ctx) return null;
-
-    if (ctx.state === "suspended") {
-      try {
-        await ctx.resume();
-      } catch (err) {
-        console.error("Audio resume failed:", err);
-        return null;
-      }
+  const stopLobbyMusic = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
     }
-
-    return ctx;
-  }
-
-  function stopLobbyMusic() {
-    if (timerRef.current) {
-      window.clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-
-    oscillatorsRef.current.forEach((osc) => {
-      try {
-        osc.stop();
-      } catch {
-        // ignore
-      }
-
-      try {
-        osc.disconnect();
-      } catch {
-        // ignore
-      }
-    });
-
-    oscillatorsRef.current = [];
-
-    if (gainRef.current) {
-      try {
-        gainRef.current.disconnect();
-      } catch {
-        // ignore
-      }
-      gainRef.current = null;
-    }
-
     setIsPlaying(false);
-  }
+  }, []);
 
-  async function startLobbyMusic() {
-    if (settings?.music_enabled === false) {
+  const startLobbyMusic = useCallback(async () => {
+    if (!musicEnabled) {
       stopLobbyMusic();
       return;
     }
 
-    if (isPlaying) return;
-
-    const ctx = await ensureAudioReady();
-    if (!ctx) return;
-
-    stopLobbyMusic();
-
-    const masterGain = ctx.createGain();
-    masterGain.gain.setValueAtTime(0.018, ctx.currentTime);
-    masterGain.connect(ctx.destination);
-    gainRef.current = masterGain;
-
-    const osc1 = ctx.createOscillator();
-    const osc2 = ctx.createOscillator();
-    const osc3 = ctx.createOscillator();
-
-    osc1.type = "sine";
-    osc2.type = "triangle";
-    osc3.type = "sine";
-
-    osc1.frequency.setValueAtTime(261.63, ctx.currentTime);
-    osc2.frequency.setValueAtTime(329.63, ctx.currentTime);
-    osc3.frequency.setValueAtTime(392.0, ctx.currentTime);
-
-    osc1.connect(masterGain);
-    osc2.connect(masterGain);
-    osc3.connect(masterGain);
-
-    osc1.start();
-    osc2.start();
-    osc3.start();
-
-    oscillatorsRef.current = [osc1, osc2, osc3];
-    setIsPlaying(true);
-
-    let step = 0;
-    const progression = [
-      [261.63, 329.63, 392.0],
-      [293.66, 369.99, 440.0],
-      [329.63, 415.3, 493.88],
-      [261.63, 329.63, 392.0],
-    ];
-
-    function cycle() {
-      if (!audioContextRef.current || oscillatorsRef.current.length === 0) {
-        return;
-      }
-
-      const now = audioContextRef.current.currentTime;
-      const chord = progression[step % progression.length];
-
-      try {
-        oscillatorsRef.current[0].frequency.linearRampToValueAtTime(
-          chord[0],
-          now + 0.8
-        );
-        oscillatorsRef.current[1].frequency.linearRampToValueAtTime(
-          chord[1],
-          now + 0.8
-        );
-        oscillatorsRef.current[2].frequency.linearRampToValueAtTime(
-          chord[2],
-          now + 0.8
-        );
-      } catch {
-        return;
-      }
-
-      step += 1;
-      timerRef.current = window.setTimeout(cycle, 1800);
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+      audioRef.current.loop = true;
+      audioRef.current.volume = currentVolume;
     }
 
-    cycle();
-  }
+    const src = getTrackFile(currentStyle);
+    if (audioRef.current.dataset.style !== currentStyle) {
+      audioRef.current.src = src;
+      audioRef.current.dataset.style = currentStyle;
+      audioRef.current.load();
+    }
 
-  const value = useMemo(
-    () => ({
-      startLobbyMusic,
-      stopLobbyMusic,
-      isPlaying,
-      musicEnabled: settings?.music_enabled !== false,
-    }),
-    [isPlaying, settings?.music_enabled]
-  );
+    try {
+      await audioRef.current.play();
+      setIsPlaying(true);
+    } catch {
+      // Autoplay blocked — will start on next user interaction
+    }
+  }, [musicEnabled, currentStyle, currentVolume, stopLobbyMusic]);
+
+  const startPreview = useCallback((trackId) => {
+    stopPreview();
+
+    const track = MUSIC_TRACKS.find((t) => t.id === trackId);
+    if (!track) return;
+
+    const audio = new Audio(track.file);
+    audio.volume = currentVolume;
+    audio.play().catch(() => {});
+    previewAudioRef.current = audio;
+    setPreviewTrackId(trackId);
+
+    audio.addEventListener("ended", () => {
+      previewAudioRef.current = null;
+      setPreviewTrackId(null);
+    });
+  }, [currentVolume, stopPreview]);
+
+  const setMusicStyle = useCallback((styleId) => {
+    stopPreview();
+    setSettings((prev) => ({ ...prev, music_style: styleId }));
+  }, [setSettings, stopPreview]);
+
+  const setMusicVolume = useCallback((vol) => {
+    const clamped = Math.max(0, Math.min(1, vol));
+    setSettings((prev) => ({ ...prev, music_volume: clamped }));
+  }, [setSettings]);
+
+  const value = useMemo(() => ({
+    startLobbyMusic,
+    stopLobbyMusic,
+    isPlaying,
+    musicEnabled,
+    currentStyle,
+    currentVolume,
+    setMusicStyle,
+    setMusicVolume,
+    startPreview,
+    stopPreview,
+    previewTrackId,
+    tracks: MUSIC_TRACKS,
+  }), [
+    startLobbyMusic, stopLobbyMusic, isPlaying, musicEnabled,
+    currentStyle, currentVolume, setMusicStyle, setMusicVolume,
+    startPreview, stopPreview, previewTrackId,
+  ]);
 
   return (
     <MusicContext.Provider value={value}>
@@ -175,10 +134,6 @@ export function MusicProvider({ children }) {
 
 export function useMusic() {
   const ctx = useContext(MusicContext);
-
-  if (!ctx) {
-    throw new Error("useMusic must be used inside MusicProvider");
-  }
-
+  if (!ctx) throw new Error("useMusic must be used inside MusicProvider");
   return ctx;
 }
