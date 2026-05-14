@@ -16,7 +16,7 @@ const GAMES = {
   xobattle: lazy(() => import("./games/XOBattleGame")),
 };
 
-export default function GameScreen({ duel, playerId, socketState, liveScores, onGameFinished }) {
+export default function GameScreen({ duel, playerId, socketState, liveScores, chatMessages, onSendChat, onGameFinished }) {
   const { tr } = useAppSettings();
   const GameComponent = GAMES[duel?.game];
 
@@ -32,6 +32,8 @@ export default function GameScreen({ duel, playerId, socketState, liveScores, on
         socketState={socketState}
         liveScores={liveScores}
         playerId={playerId}
+        chatMessages={chatMessages}
+        onSendChat={onSendChat}
       />
       {GameComponent ? (
         <Suspense fallback={<p>Chargement du jeu…</p>}>

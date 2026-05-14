@@ -1,11 +1,14 @@
 import { useAppSettings } from "../context/AppSettingsContext";
 import { gameLabel } from "../i18n";
+import DuelChat from "./DuelChat";
 
 export default function DuelHUD({
   duel,
   socketState,
   liveScores,
   playerId,
+  chatMessages = [],
+  onSendChat,
 }) {
   const { tr, settings } = useAppSettings();
 
@@ -133,6 +136,14 @@ export default function DuelHUD({
       >
         ⚔️ {tr("against")} : {opponent}
       </div>
+
+      {onSendChat && (
+        <DuelChat
+          messages={chatMessages}
+          playerId={playerId}
+          onSendMessage={onSendChat}
+        />
+      )}
     </div>
   );
 }

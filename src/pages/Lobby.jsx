@@ -102,6 +102,7 @@ import {
   disconnectDuelSocket,
   connectGlobalSocket,
   disconnectGlobalSocket,
+  sendDuelSocketMessage,
 } from "../api/socket";
 
 export default function Lobby() {
@@ -132,6 +133,7 @@ export default function Lobby() {
 
   const [socketState, setSocketState] = useState("disconnected");
   const [liveScores, setLiveScores] = useState({});
+  const [chatMessages, setChatMessages] = useState([]);
 
   const GAMES = ["snake", "reflex", "memory", "tetris", "checkers", "chess", "dames", "uno", "lineup4", "xobattle"];
 
@@ -173,7 +175,14 @@ export default function Lobby() {
     await Promise.all([loadLeaderboardData(), loadLobbyCoreData()]);
   }, [loadLeaderboardData, loadLobbyCoreData]);
 
+  function handleSendChat(message, kind) {
+    const msg = { type: "chat", player_id: playerId, message, kind };
+    setChatMessages((prev) => [...prev, msg]);
+    sendDuelSocketMessage(msg);
+  }
+
   function handleMatchFound(matchData) {
+    setChatMessages([]);
     setLiveScores({});
     playMatchFound();
     notifySuccess("Match trouvé", `${matchData.players[0]} vs ${matchData.players[1]} — ${gameLabel(settings.language, matchData.game)}`);
@@ -207,6 +216,9 @@ export default function Lobby() {
       currentDuel.duel_id,
       (data) => {
         if (data.type === "score_update" && data.scores) setLiveScores(data.scores);
+        if (data.type === "chat" && data.player_id !== playerId) {
+          setChatMessages((prev) => [...prev, data]);
+        }
         if (data.type === "duel_finished" && data.result) {
           setResult(data.result);
           setCurrentDuel(null);
@@ -258,6 +270,8 @@ export default function Lobby() {
         playerId={playerId}
         socketState={socketState}
         liveScores={liveScores}
+        chatMessages={chatMessages}
+        onSendChat={handleSendChat}
         onGameFinished={handleDuelFinished}
       />
     );
