@@ -227,6 +227,13 @@ export default function CreatorDashboard() {
   );
 }`}</pre>
             </div>
+
+            <button
+              onClick={() => { setActiveTab("submit"); playClick(); }}
+              style={{ marginTop: "24px", width: "100%", padding: "14px", fontSize: "0.95rem" }}
+            >
+              Soumettre mon jeu
+            </button>
           </SectionCard>
         </>
       )}
