@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState, lazy, Suspense } from "react";
 import { PlayerContext } from "../context/PlayerContext";
 import { useAppSettings } from "../context/AppSettingsContext";
 import { useNotifications } from "../context/NotificationContext";
@@ -28,6 +28,31 @@ import PromoCodePanel from "../components/PromoCodePanel";
 import ReferralPanel from "../components/ReferralPanel";
 import VipBenefitsPanel from "../components/VipBenefitsPanel";
 import GameScreen from "../components/GameScreen";
+
+const LineUp4BotGame  = lazy(() => import("../components/games/LineUp4BotGame"));
+const XOBattleBotGame = lazy(() => import("../components/games/XOBattleBotGame"));
+const ViperSoloGame   = lazy(() => import("../components/games/ViperSoloGame"));
+
+const SOLO_GAMES = [
+  { key: "snake",    label: "Viper"     },
+  { key: "lineup4",  label: "LineUp4"   },
+  { key: "xobattle", label: "XO Battle" },
+];
+
+const DIFFICULTIES = {
+  default: [
+    { key: "easy",   label: "Facile",    desc: "Joue aléatoirement" },
+    { key: "medium", label: "Moyen",     desc: "Bloque et attaque" },
+    { key: "hard",   label: "Difficile", desc: "Minimax profondeur 5" },
+    { key: "expert", label: "Expert",    desc: "Minimax profondeur 7" },
+  ],
+  snake: [
+    { key: "easy",   label: "Facile",    desc: "Vitesse lente" },
+    { key: "medium", label: "Moyen",     desc: "Vitesse normale" },
+    { key: "hard",   label: "Difficile", desc: "Vitesse rapide" },
+    { key: "expert", label: "Expert",    desc: "Vitesse extrême" },
+  ],
+};
 
 import MatchResult from "../pages/MatchResult";
 import Tournaments from "../pages/Tournaments";
@@ -67,6 +92,11 @@ export default function Lobby() {
 
   const [stake, setStake] = useState(10);
   const [selectedGame, setSelectedGame] = useState("snake");
+
+  const [showSoloModal, setShowSoloModal] = useState(false);
+  const [soloGame, setSoloGame] = useState("lineup4");
+  const [soloDifficulty, setSoloDifficulty] = useState("medium");
+  const [soloConfig, setSoloConfig] = useState(null);
 
   const [statsGame, setStatsGame] = useState("snake");
   const [leaderboardGame, setLeaderboardGame] = useState("global");
@@ -205,6 +235,37 @@ export default function Lobby() {
     );
   }
 
+  if (soloConfig) {
+    return (
+      <div className="app-shell">
+        <SessionBar />
+        <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+          {soloConfig.game === "lineup4" && (
+            <LineUp4BotGame
+              difficulty={soloConfig.difficulty}
+              playerId={playerId}
+              onExit={() => setSoloConfig(null)}
+            />
+          )}
+          {soloConfig.game === "xobattle" && (
+            <XOBattleBotGame
+              difficulty={soloConfig.difficulty}
+              playerId={playerId}
+              onExit={() => setSoloConfig(null)}
+            />
+          )}
+          {soloConfig.game === "snake" && (
+            <ViperSoloGame
+              difficulty={soloConfig.difficulty}
+              playerId={playerId}
+              onExit={() => setSoloConfig(null)}
+            />
+          )}
+        </Suspense>
+      </div>
+    );
+  }
+
   return (
     <div className="app-shell">
       <SessionBar />
@@ -249,7 +310,125 @@ export default function Lobby() {
           stake={Number(stake)}
           onMatchFound={handleMatchFound}
         />
+
+        <div style={{ marginTop: "16px", paddingTop: "16px", borderTop: "1px solid var(--clr-border)" }}>
+          <button
+            onClick={() => setShowSoloModal(true)}
+            style={{
+              width: "100%",
+              padding: "12px",
+              background: "rgba(0,180,216,0.08)",
+              border: "1px solid rgba(0,180,216,0.35)",
+              color: "#00b4d8",
+              borderRadius: "var(--radius-md)",
+              fontFamily: "var(--font-heading)",
+              fontWeight: 800,
+              fontSize: "0.88rem",
+              textTransform: "uppercase",
+              letterSpacing: "0.1em",
+              cursor: "pointer",
+              transition: "background 0.2s, box-shadow 0.2s",
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = "rgba(0,180,216,0.15)"; e.currentTarget.style.boxShadow = "0 0 14px rgba(0,180,216,0.25)"; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "rgba(0,180,216,0.08)"; e.currentTarget.style.boxShadow = "none"; }}
+          >
+            ▶ Jouer en solo
+          </button>
+        </div>
       </SectionCard>
+
+      {/* Solo mode modal */}
+      {showSoloModal && (
+        <div
+          onClick={e => { if (e.target === e.currentTarget) setShowSoloModal(false); }}
+          style={{
+            position: "fixed", inset: 0, zIndex: 999,
+            background: "rgba(0,0,0,0.75)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            padding: "16px",
+          }}
+        >
+          <div style={{
+            background: "var(--clr-surface-1)",
+            border: "1px solid rgba(0,180,216,0.4)",
+            borderRadius: "var(--radius-lg)",
+            padding: "28px 32px",
+            width: "100%",
+            maxWidth: "440px",
+            boxShadow: "0 0 40px rgba(0,180,216,0.15)",
+          }}>
+            <h3 style={{ color: "#00b4d8", marginBottom: "20px", fontSize: "1.4rem", letterSpacing: "3px" }}>
+              Mode Solo
+            </h3>
+
+            {/* Game selector */}
+            <div style={{ marginBottom: "20px" }}>
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--clr-text-muted)", marginBottom: "10px" }}>
+                Jeu
+              </label>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                {SOLO_GAMES.map(g => (
+                  <button
+                    key={g.key}
+                    onClick={() => setSoloGame(g.key)}
+                    className={soloGame === g.key ? "" : "btn-ghost"}
+                    style={{ padding: "8px 18px", fontSize: "0.85rem" }}
+                  >
+                    {g.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Difficulty selector */}
+            <div style={{ marginBottom: "28px" }}>
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--clr-text-muted)", marginBottom: "10px" }}>
+                Difficulté
+              </label>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                {(DIFFICULTIES[soloGame] ?? DIFFICULTIES.default).map(d => (
+                  <button
+                    key={d.key}
+                    onClick={() => setSoloDifficulty(d.key)}
+                    style={{
+                      padding: "10px 14px",
+                      textAlign: "left",
+                      background: soloDifficulty === d.key ? "rgba(0,180,216,0.14)" : "rgba(255,255,255,0.03)",
+                      border: soloDifficulty === d.key ? "1px solid rgba(0,180,216,0.6)" : "1px solid var(--clr-border)",
+                      borderRadius: "var(--radius-md)",
+                      cursor: "pointer",
+                      transition: "all 0.15s",
+                    }}
+                  >
+                    <div style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: "0.88rem", textTransform: "uppercase", color: soloDifficulty === d.key ? "#00b4d8" : "var(--clr-text)" }}>
+                      {d.label}
+                    </div>
+                    <div style={{ fontSize: "0.72rem", color: "var(--clr-text-muted)", marginTop: "2px" }}>
+                      {d.desc}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button
+                onClick={() => { setSoloConfig({ game: soloGame, difficulty: soloDifficulty }); setShowSoloModal(false); }}
+                style={{ flex: 1, padding: "12px" }}
+              >
+                ▶ Jouer
+              </button>
+              <button
+                onClick={() => setShowSoloModal(false)}
+                className="btn-ghost"
+                style={{ padding: "12px 20px" }}
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Profile />
       <Settings />
