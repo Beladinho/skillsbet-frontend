@@ -29,28 +29,56 @@ import ReferralPanel from "../components/ReferralPanel";
 import VipBenefitsPanel from "../components/VipBenefitsPanel";
 import GameScreen from "../components/GameScreen";
 
-const LineUp4BotGame  = lazy(() => import("../components/games/LineUp4BotGame"));
-const XOBattleBotGame = lazy(() => import("../components/games/XOBattleBotGame"));
-const ViperSoloGame   = lazy(() => import("../components/games/ViperSoloGame"));
+const LineUp4BotGame    = lazy(() => import("../components/games/LineUp4BotGame"));
+const XOBattleBotGame   = lazy(() => import("../components/games/XOBattleBotGame"));
+const ViperSoloGame     = lazy(() => import("../components/games/ViperSoloGame"));
+const FlipMatchSoloGame = lazy(() => import("../components/games/FlipMatchSoloGame"));
+const BlockDropSoloGame = lazy(() => import("../components/games/BlockDropSoloGame"));
+const DraughtWarBotGame = lazy(() => import("../components/games/DraughtWarBotGame"));
+const KingSlayerBotGame = lazy(() => import("../components/games/KingSlayerBotGame"));
+const ColorBlitzBotGame = lazy(() => import("../components/games/ColorBlitzBotGame"));
 
 const SOLO_GAMES = [
-  { key: "snake",    label: "Viper"     },
-  { key: "lineup4",  label: "LineUp4"   },
-  { key: "xobattle", label: "XO Battle" },
+  { key: "snake",      label: "Viper"       },
+  { key: "lineup4",    label: "LineUp4"     },
+  { key: "xobattle",   label: "XO Battle"  },
+  { key: "memory",     label: "FlipMatch"  },
+  { key: "tetris",     label: "BlockDrop"  },
+  { key: "checkers",   label: "DraughtWar" },
+  { key: "chess",      label: "KingSlayer" },
+  { key: "uno",        label: "ColorBlitz" },
 ];
 
 const DIFFICULTIES = {
   default: [
     { key: "easy",   label: "Facile",    desc: "Joue aléatoirement" },
     { key: "medium", label: "Moyen",     desc: "Bloque et attaque" },
-    { key: "hard",   label: "Difficile", desc: "Minimax profondeur 5" },
-    { key: "expert", label: "Expert",    desc: "Minimax profondeur 7" },
+    { key: "hard",   label: "Difficile", desc: "Minimax profondeur 4" },
+    { key: "expert", label: "Expert",    desc: "Minimax profondeur 6" },
   ],
   snake: [
     { key: "easy",   label: "Facile",    desc: "Vitesse lente" },
     { key: "medium", label: "Moyen",     desc: "Vitesse normale" },
     { key: "hard",   label: "Difficile", desc: "Vitesse rapide" },
     { key: "expert", label: "Expert",    desc: "Vitesse extrême" },
+  ],
+  memory: [
+    { key: "easy",   label: "Facile",    desc: "Grille 4×4 (8 paires)" },
+    { key: "medium", label: "Moyen",     desc: "Grille 4×4 (8 paires)" },
+    { key: "hard",   label: "Difficile", desc: "Grille 5×5 (12 paires)" },
+    { key: "expert", label: "Expert",    desc: "Grille 6×6 (18 paires)" },
+  ],
+  tetris: [
+    { key: "easy",   label: "Facile",    desc: "Vitesse lente" },
+    { key: "medium", label: "Moyen",     desc: "Vitesse normale" },
+    { key: "hard",   label: "Difficile", desc: "Vitesse rapide" },
+    { key: "expert", label: "Expert",    desc: "Vitesse extrême" },
+  ],
+  uno: [
+    { key: "easy",   label: "Facile",    desc: "Gagner 5 manches" },
+    { key: "medium", label: "Moyen",     desc: "Gagner 7 manches" },
+    { key: "hard",   label: "Difficile", desc: "Gagner 10 manches" },
+    { key: "expert", label: "Expert",    desc: "Gagner 15 manches" },
   ],
 };
 
@@ -236,31 +264,19 @@ export default function Lobby() {
   }
 
   if (soloConfig) {
+    const soloProps = { difficulty: soloConfig.difficulty, playerId, onExit: () => setSoloConfig(null) };
     return (
       <div className="app-shell">
         <SessionBar />
         <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
-          {soloConfig.game === "lineup4" && (
-            <LineUp4BotGame
-              difficulty={soloConfig.difficulty}
-              playerId={playerId}
-              onExit={() => setSoloConfig(null)}
-            />
-          )}
-          {soloConfig.game === "xobattle" && (
-            <XOBattleBotGame
-              difficulty={soloConfig.difficulty}
-              playerId={playerId}
-              onExit={() => setSoloConfig(null)}
-            />
-          )}
-          {soloConfig.game === "snake" && (
-            <ViperSoloGame
-              difficulty={soloConfig.difficulty}
-              playerId={playerId}
-              onExit={() => setSoloConfig(null)}
-            />
-          )}
+          {soloConfig.game === "lineup4"  && <LineUp4BotGame    {...soloProps} />}
+          {soloConfig.game === "xobattle" && <XOBattleBotGame   {...soloProps} />}
+          {soloConfig.game === "snake"    && <ViperSoloGame      {...soloProps} />}
+          {soloConfig.game === "memory"   && <FlipMatchSoloGame  {...soloProps} />}
+          {soloConfig.game === "tetris"   && <BlockDropSoloGame  {...soloProps} />}
+          {soloConfig.game === "checkers" && <DraughtWarBotGame  {...soloProps} />}
+          {soloConfig.game === "chess"    && <KingSlayerBotGame  {...soloProps} />}
+          {soloConfig.game === "uno"      && <ColorBlitzBotGame  {...soloProps} />}
         </Suspense>
       </div>
     );
