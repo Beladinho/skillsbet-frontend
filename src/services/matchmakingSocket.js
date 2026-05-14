@@ -6,6 +6,8 @@ export function connectMatchmaking({
   game,
   stake,
   elo,
+  country,
+  regionFilter,
   onMessage,
   onOpen,
   onClose,
@@ -22,6 +24,8 @@ export function connectMatchmaking({
         game,
         stake,
         elo,
+        country: country || null,
+        region_filter: regionFilter || "world",
       })
     );
 

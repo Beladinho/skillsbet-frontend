@@ -125,6 +125,10 @@ export async function getLeaderboard(game = null) {
   });
 }
 
+export async function getCountryLeaderboard() {
+  return apiRequest("/leaderboard/countries", { useAuth: false });
+}
+
 /* =========================
    MATCHMAKING / DUELS
 ========================= */

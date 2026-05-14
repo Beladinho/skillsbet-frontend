@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { getPlayerStats, fillQueueWithBot } from "../api/skillsbetApi";
+import { getProfile } from "../api/profileApi";
 import { connectMatchmaking, leaveMatchmaking } from "../services/matchmakingSocket";
 import { useAppSettings } from "../context/AppSettingsContext";
 import { useNotifications } from "../context/NotificationContext";
 import { useSounds } from "../context/SoundContext";
 import { gameLabel } from "../i18n";
+import { getFlagByCode, getCountryNameByCode } from "../utils/countries";
 
 function getAllowedGap(waitSeconds) {
   const baseGap = 50;
@@ -23,6 +25,8 @@ function getStatusModifier(searching, status) {
   return "";
 }
 
+const REGION_FILTERS = ["world", "region", "country"];
+
 export default function Matchmaker({ playerId, game, stake, onMatchFound }) {
   const { tr, settings } = useAppSettings();
   const { notifyError, notifyInfo, notifySuccess } = useNotifications();
@@ -31,6 +35,8 @@ export default function Matchmaker({ playerId, game, stake, onMatchFound }) {
   const [searching, setSearching] = useState(false);
   const [status, setStatus] = useState("");
   const [waitSeconds, setWaitSeconds] = useState(0);
+  const [playerCountry, setPlayerCountry] = useState(null);
+  const [regionFilter, setRegionFilter] = useState("world");
 
   const hasMatchedRef = useRef(false);
   const botFillStartedRef = useRef(false);
@@ -39,6 +45,12 @@ export default function Matchmaker({ playerId, game, stake, onMatchFound }) {
   const botCountdown = getBotCountdown(waitSeconds);
   const botProgress = Math.min(100, Math.round((waitSeconds / 5) * 100));
   const statusMod = getStatusModifier(searching, status);
+
+  useEffect(() => {
+    getProfile()
+      .then((p) => { if (p?.country) setPlayerCountry(p.country); })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!searching) { setWaitSeconds(0); return; }
@@ -64,7 +76,12 @@ export default function Matchmaker({ playerId, game, stake, onMatchFound }) {
       const currentGameElo = Number(stats?.current_game_elo ?? 1200);
 
       connectMatchmaking({
-        playerId, game, stake, elo: currentGameElo,
+        playerId,
+        game,
+        stake,
+        elo: currentGameElo,
+        country: playerCountry,
+        regionFilter,
         onOpen: () => setStatus("waiting"),
         onClose: () => setSearching(false),
         onMessage: (data) => {
@@ -81,7 +98,13 @@ export default function Matchmaker({ playerId, game, stake, onMatchFound }) {
             botFillStartedRef.current = false;
             setSearching(false);
             setStatus("matched");
-            notifySuccess(tr("matchFound"), `${data.players[0]} vs ${data.players[1]} — ${gameLabel(settings.language, data.game)}`);
+
+            const p0flag = data.player_countries?.[0] ? getFlagByCode(data.player_countries[0]) : "";
+            const p1flag = data.player_countries?.[1] ? getFlagByCode(data.player_countries[1]) : "";
+            notifySuccess(
+              tr("matchFound"),
+              `${p0flag} ${data.players[0]} vs ${p1flag} ${data.players[1]} — ${gameLabel(settings.language, data.game)}`
+            );
             onMatchFound?.({ duel_id: data.duel_id, players: data.players, game: data.game, stake: data.stake });
           }
         },
@@ -142,6 +165,12 @@ export default function Matchmaker({ playerId, game, stake, onMatchFound }) {
     return status || "—";
   }
 
+  function getFilterLabel(f) {
+    if (f === "country") return playerCountry ? `${getFlagByCode(playerCountry)} ${tr("filterMyCountry")}` : tr("filterMyCountry");
+    if (f === "region")  return tr("filterMyRegion");
+    return tr("filterWorld");
+  }
+
   return (
     <div className="card" style={{ marginTop: "20px", padding: "20px" }}>
       <h3 style={{ marginBottom: "14px" }}>{tr("matchmaking")}</h3>
@@ -155,6 +184,37 @@ export default function Matchmaker({ playerId, game, stake, onMatchFound }) {
           <strong>{tr("stake")}</strong>
           {stake} {tr("tokens")}
         </div>
+        {playerCountry && (
+          <div className="stat-box">
+            <strong>{tr("country")}</strong>
+            <span>{getFlagByCode(playerCountry)} {getCountryNameByCode(playerCountry)}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Region filter */}
+      <div style={{ marginBottom: "16px" }}>
+        <p style={{ margin: "0 0 8px 0", fontSize: "0.82rem", color: "var(--clr-text-dim)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          {tr("matchmakingFilter")}
+        </p>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {REGION_FILTERS.map((f) => (
+            <button
+              key={f}
+              onClick={() => { playClick(); setRegionFilter(f); }}
+              disabled={searching || (f === "country" && !playerCountry) || (f === "region" && !playerCountry)}
+              className={regionFilter === f ? "" : "btn-ghost"}
+              style={{ fontSize: "0.82rem", padding: "4px 12px" }}
+            >
+              {getFilterLabel(f)}
+            </button>
+          ))}
+        </div>
+        {!playerCountry && (
+          <p style={{ margin: "6px 0 0 0", fontSize: "0.78rem", color: "var(--clr-text-dim)" }}>
+            {tr("noCountrySet")}
+          </p>
+        )}
       </div>
 
       <div className={`matchmaker-status matchmaker-status--${statusMod || "idle"}`}>

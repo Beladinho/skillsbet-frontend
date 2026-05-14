@@ -13,6 +13,7 @@ export async function updateProfile(payload) {
     body: {
       display_name: payload?.display_name ?? null,
       bio: payload?.bio ?? null,
+      country: payload?.country ?? null,
     },
   });
 }

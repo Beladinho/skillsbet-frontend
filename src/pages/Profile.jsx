@@ -3,6 +3,7 @@ import { getProfile, updateProfile } from "../api/profileApi";
 import { useAppSettings } from "../context/AppSettingsContext";
 import { useNotifications } from "../context/NotificationContext";
 import { useSounds } from "../context/SoundContext";
+import { SORTED_COUNTRIES, getFlagByCode, getCountryNameByCode } from "../utils/countries";
 
 export default function Profile() {
   const { tr } = useAppSettings();
@@ -10,10 +11,7 @@ export default function Profile() {
   const { playClick } = useSounds();
 
   const [profile, setProfile] = useState(null);
-  const [form, setForm] = useState({
-    display_name: "",
-    bio: "",
-  });
+  const [form, setForm] = useState({ display_name: "", bio: "", country: "" });
   const [error, setError] = useState("");
   const [status, setStatus] = useState("");
 
@@ -26,6 +24,7 @@ export default function Profile() {
         setForm({
           display_name: data.display_name ?? "",
           bio: data.bio ?? "",
+          country: data.country ?? "",
         });
       } catch (err) {
         console.error(err);
@@ -34,36 +33,30 @@ export default function Profile() {
         notifyError("Erreur profil", msg);
       }
     }
-
     loadProfile();
   }, [notifyError]);
 
   function handleChange(e) {
     const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
-
     try {
       setError("");
       setStatus("");
-
       const updated = await updateProfile({
         display_name: form.display_name,
         bio: form.bio,
+        country: form.country || null,
       });
-
       setProfile(updated);
       setForm({
         display_name: updated.display_name ?? "",
         bio: updated.bio ?? "",
+        country: updated.country ?? "",
       });
-
       setStatus("saved");
       notifySuccess("Profil sauvegardé", "Les informations du profil ont été mises à jour.");
     } catch (err) {
@@ -76,83 +69,126 @@ export default function Profile() {
 
   if (!profile && !error) {
     return (
-      <div className="card" style={{ padding: 16, marginTop: 16 }}>
+      <div className="section-card" style={{ marginTop: 16 }}>
         <h2>{tr("userProfile")}</h2>
         <p>{tr("loading")}</p>
       </div>
     );
   }
 
+  const countryFlag = profile?.country ? getFlagByCode(profile.country) : null;
+  const countryName = profile?.country ? getCountryNameByCode(profile.country) : null;
+
   return (
-    <div className="card" style={{ padding: 16, marginTop: 16 }}>
-      <h2>{tr("userProfile")}</h2>
+    <div className="section-card" style={{ marginTop: 16 }}>
+      <h2 style={{ fontFamily: "var(--font-heading)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+        {tr("userProfile")}
+      </h2>
 
       {error ? (
-        <p style={{ color: "red" }}>
-          {tr("error")} : {error}
-        </p>
+        <p style={{ color: "var(--clr-error)" }}>{tr("error")} : {error}</p>
       ) : null}
 
       {profile ? (
-        <>
-          <p>
-            <strong>{tr("email")} :</strong> {profile.email}
-          </p>
-          <p>
-            <strong>{tr("role")} :</strong> {profile.role}
-          </p>
-          <p>
-            <strong>{tr("balance")} :</strong> {profile.balance}
-          </p>
-          <p>
-            <strong>Anti-cheat :</strong> {profile.risk_level || "clean"}
-          </p>
-          <p>
-            <strong>{tr("globalElo")} :</strong> {profile.elo}
-          </p>
-          <p>
-            <strong>{tr("wins")} :</strong> {profile.wins}
-          </p>
-          <p>
-            <strong>{tr("losses")} :</strong> {profile.losses}
-          </p>
-          <p>
-            <strong>{tr("gamesPlayed")} :</strong> {profile.games_played}
-          </p>
-        </>
+        <div className="stats-grid" style={{ marginBottom: 20 }}>
+          <div className="stat-box">
+            <strong>{tr("email")}</strong>
+            {profile.email}
+          </div>
+          <div className="stat-box">
+            <strong>{tr("role")}</strong>
+            {profile.role}
+          </div>
+          <div className="stat-box">
+            <strong>{tr("balance")}</strong>
+            {profile.balance} {tr("tokens")}
+          </div>
+          <div className="stat-box">
+            <strong>{tr("globalElo")}</strong>
+            {profile.elo}
+          </div>
+          <div className="stat-box">
+            <strong>{tr("wins")}</strong>
+            {profile.wins}
+          </div>
+          <div className="stat-box">
+            <strong>{tr("losses")}</strong>
+            {profile.losses}
+          </div>
+          <div className="stat-box">
+            <strong>{tr("gamesPlayed")}</strong>
+            {profile.games_played}
+          </div>
+          {countryName && (
+            <div className="stat-box">
+              <strong>{tr("country")}</strong>
+              <span style={{ fontSize: "1.1rem" }}>{countryFlag} {countryName}</span>
+            </div>
+          )}
+        </div>
       ) : null}
 
-      {status === "saved" ? <p>✅ {tr("saveProfile")}</p> : null}
+      {status === "saved" ? (
+        <p style={{ color: "var(--clr-success)", marginBottom: 12 }}>
+          ✓ {tr("saveProfile")}
+        </p>
+      ) : null}
 
       <form
         onSubmit={(e) => {
           playClick();
           handleSubmit(e);
         }}
+        style={{ display: "flex", flexDirection: "column", gap: 16 }}
       >
-        <div style={{ marginBottom: 12 }}>
-          <label>{tr("displayName")}</label>
-          <br />
+        <div>
+          <label style={{ display: "block", marginBottom: 6, color: "var(--clr-text-dim)", fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            {tr("displayName")}
+          </label>
           <input
             type="text"
             name="display_name"
             value={form.display_name}
             onChange={handleChange}
+            style={{ width: "100%" }}
           />
         </div>
 
-        <div style={{ marginBottom: 12 }}>
-          <label>{tr("bio")}</label>
-          <br />
+        <div>
+          <label style={{ display: "block", marginBottom: 6, color: "var(--clr-text-dim)", fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            {tr("bio")}
+          </label>
           <textarea
             name="bio"
             value={form.bio}
             onChange={handleChange}
-            rows={4}
+            rows={3}
+            style={{ width: "100%" }}
           />
         </div>
 
-        <button type="submit">{tr("saveProfile")}</button>
+        <div>
+          <label style={{ display: "block", marginBottom: 6, color: "var(--clr-text-dim)", fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            {tr("country")}
+          </label>
+          <select
+            name="country"
+            value={form.country}
+            onChange={handleChange}
+            style={{ width: "100%" }}
+          >
+            <option value="">{tr("chooseCountry")}</option>
+            {SORTED_COUNTRIES.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.flag} {c.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <button type="submit" style={{ alignSelf: "flex-start" }}>
+          {tr("saveProfile")}
+        </button>
       </form>
     </div>
   );
