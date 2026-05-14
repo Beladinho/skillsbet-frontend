@@ -141,7 +141,7 @@ export default function MemoryGame({ duel, playerId, onGameFinished }) {
 
   return (
     <div style={{ textAlign: "center", marginTop: "20px" }}>
-      <h2>Memory</h2>
+      <h2>FlipMatch</h2>
 
       <p>Trouve toutes les paires avec le moins de coups possible.</p>
 

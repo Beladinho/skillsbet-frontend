@@ -313,7 +313,7 @@ export default function TetrisGame({ duel, playerId, onGameFinished }) {
 
   return (
     <div style={{ textAlign: "center", marginTop: "20px" }}>
-      <h2>Tetris</h2>
+      <h2>BlockDrop</h2>
 
       <p>
         Contrôles : ← → pour bouger, ↑ pour tourner, ↓ pour accélérer, espace pour tomber.

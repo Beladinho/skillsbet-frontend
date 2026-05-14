@@ -155,7 +155,7 @@ export default function SnakeGame({ duel, playerId, onGameFinished }) {
 
   return (
     <div style={{ textAlign: "center", marginTop: "20px" }}>
-      <h2>Snake</h2>
+      <h2>Viper</h2>
 
       <p>Utilise les flèches du clavier : ↑ ↓ ← →</p>
 

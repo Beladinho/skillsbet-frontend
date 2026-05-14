@@ -24,7 +24,7 @@ export default function DamesGame({ duel, playerId, onGameFinished }) {
 
   return (
     <div style={{ textAlign: "center" }}>
-      <h2>♟ Dames</h2>
+      <h2>DraughtWar</h2>
       <p>
         {duel.player1} vs {duel.player2}
       </p>

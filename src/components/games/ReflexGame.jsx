@@ -70,7 +70,7 @@ export default function ReflexGame({ duel, playerId, onGameFinished }) {
 
   return (
     <div style={{ textAlign: "center", marginTop: "40px" }}>
-      <h2>Reflex Game</h2>
+      <h2>QuickShot</h2>
 
       {!gameStarted && <button onClick={startGame}>Start</button>}
 

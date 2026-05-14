@@ -266,13 +266,13 @@ export default function AdminUsersPanel() {
 
           <select value={eloGame} onChange={(e) => setEloGame(e.target.value)}>
             <option value="global">Global</option>
-            <option value="snake">Snake</option>
-            <option value="reflex">Reflex</option>
-            <option value="memory">Memory</option>
-            <option value="tetris">Tetris</option>
-            <option value="checkers">Checkers</option>
-            <option value="chess">Chess</option>
-            <option value="uno">UNO</option>
+            <option value="snake">Viper</option>
+            <option value="reflex">QuickShot</option>
+            <option value="memory">FlipMatch</option>
+            <option value="tetris">BlockDrop</option>
+            <option value="checkers">DraughtWar</option>
+            <option value="chess">KingSlayer</option>
+            <option value="uno">ColorBlitz</option>
           </select>
 
           <input

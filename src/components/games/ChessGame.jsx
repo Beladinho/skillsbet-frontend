@@ -156,7 +156,7 @@ export default function ChessGame({ duel, playerId, onGameFinished }) {
 
   return (
     <div style={{ textAlign: "center", marginTop: "20px" }}>
-      <h2>Chess</h2>
+      <h2>KingSlayer</h2>
 
       <p>{status}</p>
 

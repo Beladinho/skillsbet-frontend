@@ -131,7 +131,7 @@ export default function CheckersGame({ duel, playerId, onGameFinished }) {
 
   return (
     <div style={{ textAlign: "center", marginTop: "20px" }}>
-      <h2>Checkers</h2>
+      <h2>DraughtWar</h2>
 
       <p>{status}</p>
 

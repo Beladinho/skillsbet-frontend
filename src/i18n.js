@@ -64,12 +64,14 @@ export const translations = {
 
     matchHistory: "Historique des matchs",
 
-    snake: "Serpent",
-    reflex: "Réflexe",
-    memory: "Mémoire",
-    tetris: "Tetris",
-    checkers: "Dames",
-    chess: "Échecs",
+    snake: "Viper",
+    reflex: "QuickShot",
+    memory: "FlipMatch",
+    tetris: "BlockDrop",
+    checkers: "DraughtWar",
+    chess: "KingSlayer",
+    uno: "ColorBlitz",
+    dames: "DraughtWar",
 
     user: "utilisateur",
     admin: "admin",
@@ -273,12 +275,14 @@ queueStatus: "État de la file",
 
     matchHistory: "Match history",
 
-    snake: "Snake",
-    reflex: "Reflex",
-    memory: "Memory",
-    tetris: "Tetris",
-    checkers: "Checkers",
-    chess: "Chess",
+    snake: "Viper",
+    reflex: "QuickShot",
+    memory: "FlipMatch",
+    tetris: "BlockDrop",
+    checkers: "DraughtWar",
+    chess: "KingSlayer",
+    uno: "ColorBlitz",
+    dames: "DraughtWar",
 
     user: "user",
     admin: "admin",
@@ -431,6 +435,8 @@ export function gameLabel(lang, game) {
     tetris: t(lang, "tetris"),
     checkers: t(lang, "checkers"),
     chess: t(lang, "chess"),
+    uno: t(lang, "uno"),
+    dames: t(lang, "dames"),
   };
 
   return map[game] || game;

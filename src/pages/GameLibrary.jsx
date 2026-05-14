@@ -26,19 +26,19 @@ export default function GameLibrary({ startGame }) {
         }}
       >
 
-        <GameCard title="Snake" play={() => startGame("snake")} />
+        <GameCard title="Viper" play={() => startGame("snake")} />
 
-        <GameCard title="Memory" play={() => startGame("memory")} />
+        <GameCard title="FlipMatch" play={() => startGame("memory")} />
 
-        <GameCard title="Chess" play={() => startGame("chess")} />
+        <GameCard title="KingSlayer" play={() => startGame("chess")} />
 
-        <GameCard title="Checkers" play={() => startGame("checkers")} />
+        <GameCard title="DraughtWar" play={() => startGame("checkers")} />
 
-        <GameCard title="Tetris" play={() => startGame("tetris")} />
+        <GameCard title="BlockDrop" play={() => startGame("tetris")} />
 
-        <GameCard title="Reflex" play={() => startGame("reflex")} />
+        <GameCard title="QuickShot" play={() => startGame("reflex")} />
 
-        <GameCard title="UNO" play={() => startGame("uno")} />
+        <GameCard title="ColorBlitz" play={() => startGame("uno")} />
 
       </div>
 

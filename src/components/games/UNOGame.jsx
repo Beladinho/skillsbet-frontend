@@ -27,7 +27,7 @@ export default function UNOGame({ duel, playerId, onGameFinished }) {
 
   return (
     <div style={{ textAlign: "center" }}>
-      <h2>UNO</h2>
+      <h2>ColorBlitz</h2>
       <p>
         {duel.player1} vs {duel.player2}
       </p>
