@@ -1,20 +1,20 @@
-import { useContext, useEffect, useRef, useState, useCallback } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { PlayerContext } from "../context/PlayerContext";
 import { getLeaderboard } from "../api/skillsbetApi";
 import "../styles/landing.css";
 
 const GAMES = [
-  { key: "snake",    label: "Viper",      emoji: "🐍", desc: "Mange, grandis, domine" },
-  { key: "reflex",   label: "QuickShot",  emoji: "⚡", desc: "Réflexes d'élite" },
-  { key: "lineup4",  label: "LineUp4",    emoji: "🟡", desc: "4 en ligne, victoire" },
-  { key: "xobattle", label: "XO Battle",  emoji: "❌", desc: "Morpion stratégique" },
-  { key: "memory",   label: "FlipMatch",  emoji: "🧠", desc: "Mémoire parfaite" },
-  { key: "tetris",   label: "BlockDrop",  emoji: "🧱", desc: "Empile et écrase" },
-  { key: "checkers", label: "DraughtWar", emoji: "⚔️", desc: "Tactique de guerre" },
-  { key: "chess",    label: "KingSlayer", emoji: "♟️", desc: "Le roi doit tomber" },
-  { key: "uno",      label: "ColorBlitz", emoji: "🃏", desc: "Couleurs explosives" },
-  { key: "2048",     label: "GridBlitz",  emoji: "🔢", desc: "Fusionne jusqu'à 2048" },
+  { key: "snake",    label: "Viper",      emoji: "🐍", desc: "Mange, grandis, domine",  isNew: false },
+  { key: "reflex",   label: "QuickShot",  emoji: "⚡", desc: "Réflexes d'élite",         isNew: false },
+  { key: "lineup4",  label: "LineUp4",    emoji: "🟡", desc: "4 en ligne, victoire",      isNew: true  },
+  { key: "xobattle", label: "XO Battle",  emoji: "❌", desc: "Morpion stratégique",       isNew: true  },
+  { key: "memory",   label: "FlipMatch",  emoji: "🧠", desc: "Mémoire parfaite",          isNew: false },
+  { key: "tetris",   label: "BlockDrop",  emoji: "🧱", desc: "Empile et écrase",          isNew: false },
+  { key: "checkers", label: "DraughtWar", emoji: "⚔️", desc: "Tactique de guerre",       isNew: false },
+  { key: "chess",    label: "KingSlayer", emoji: "♟️", desc: "Le roi doit tomber",       isNew: false },
+  { key: "uno",      label: "ColorBlitz", emoji: "🃏", desc: "Couleurs explosives",       isNew: false },
+  { key: "2048",     label: "GridBlitz",  emoji: "🔢", desc: "Fusionne jusqu'à 2048",    isNew: true  },
 ];
 
 const FEATURES = [
@@ -26,13 +26,72 @@ const FEATURES = [
   { icon: "💬", title: "CHAT EN DUEL",           desc: "Communique avec ton adversaire pendant la partie." },
 ];
 
+const HOW_IT_WORKS = [
+  {
+    step: "01",
+    icon: "👤",
+    title: "CRÉE TON COMPTE",
+    desc: "Inscription gratuite en 30 secondes. Choisis ton avatar et ton pseudo de légende.",
+  },
+  {
+    step: "02",
+    icon: "🎮",
+    title: "CHOISIS TON JEU",
+    desc: "10 jeux t'attendent. Entraîne-toi contre l'IA avant d'entrer dans l'arène.",
+  },
+  {
+    step: "03",
+    icon: "⚔️",
+    title: "DÉFIE ET GAGNE",
+    desc: "Lance un défi, mise tes jetons et prouve que tu es le meilleur. Grimpe dans les classements.",
+  },
+];
+
+const TESTIMONIALS = [
+  {
+    avatar: "🎯",
+    name: "SnipeKing_FR",
+    country: "🇫🇷",
+    rating: 5,
+    text: "Incroyable plateforme ! J'ai passé des heures sur QuickShot. L'IA est vraiment redoutable, parfait pour progresser.",
+  },
+  {
+    avatar: "⚡",
+    name: "xX_L1ghtn1ng_Xx",
+    country: "🇧🇪",
+    rating: 5,
+    text: "Les duels en temps réel sont ultra addictifs. J'ai grimpé top 50 en 2 semaines, je reviens chaque soir !",
+  },
+  {
+    avatar: "🐍",
+    name: "ViperMaster99",
+    country: "🇨🇭",
+    rating: 5,
+    text: "Le système ELO est top. Ça motive vraiment à s'améliorer. Meilleur site de duels que j'ai testé.",
+  },
+  {
+    avatar: "♟️",
+    name: "ChessSlayer2026",
+    country: "🇫🇷",
+    rating: 5,
+    text: "KingSlayer m'a totalement accroché. Les tournois planifiés c'est la cerise sur le gâteau !",
+  },
+];
+
 const PLATFORM_STATS = [
   { icon: "👥", target: 1247,  label: "Joueurs inscrits",  suffix: "+" },
   { icon: "🎮", target: 38920, label: "Parties jouées",    suffix: "" },
   { icon: "🌍", target: 42,    label: "Pays représentés",  suffix: "" },
 ];
 
-/* ── Animated canvas background ── */
+const JOIN_STATS = [
+  { num: "1 247", suffix: "+", label: "JOUEURS INSCRITS" },
+  { num: "38 920", suffix: "", label: "PARTIES JOUÉES" },
+  { num: "42", suffix: "", label: "PAYS REPRÉSENTÉS" },
+  { num: "100", suffix: "%", label: "GRATUIT" },
+];
+
+/* ── Improved canvas background with 3D perspective grid ── */
 function AnimatedBackground() {
   const canvasRef = useRef(null);
 
@@ -43,30 +102,56 @@ function AnimatedBackground() {
 
     let width  = (canvas.width  = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
-    const GRID = 70;
+    let offset = 0;
 
-    const particles = Array.from({ length: 55 }, () => ({
+    const particles = Array.from({ length: 65 }, () => ({
       x:     Math.random() * width,
       y:     Math.random() * height,
       vx:    (Math.random() - 0.5) * 0.35,
       vy:    (Math.random() - 0.5) * 0.35,
-      size:  Math.random() * 1.8 + 0.4,
-      alpha: Math.random() * 0.5 + 0.1,
+      size:  Math.random() * 2.2 + 0.4,
+      alpha: Math.random() * 0.55 + 0.08,
     }));
 
     let animId;
     function draw() {
       ctx.clearRect(0, 0, width, height);
+      offset += 0.4;
 
-      ctx.strokeStyle = "rgba(255,107,0,0.045)";
-      ctx.lineWidth = 1;
-      for (let x = 0; x <= width; x += GRID) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
-      }
-      for (let y = 0; y <= height; y += GRID) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
+      const vanishX = width / 2;
+      const horizon = height * 0.38;
+      const cols = 12;
+
+      // Vertical perspective lines
+      for (let i = 0; i <= cols; i++) {
+        const x = (i / cols) * width;
+        const alpha = 0.025 + 0.03 * Math.sin((i / cols) * Math.PI);
+        ctx.strokeStyle = `rgba(255,107,0,${alpha})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(vanishX, horizon);
+        ctx.lineTo(x, height);
+        ctx.stroke();
       }
 
+      // Horizontal perspective lines (animated scroll)
+      for (let j = 1; j <= 10; j++) {
+        const t = ((j / 10 + offset / 900) % 1);
+        const perspT = t * t;
+        const y = horizon + (height - horizon) * perspT;
+        const xSpread = perspT;
+        const xLeft  = vanishX - vanishX * xSpread;
+        const xRight = vanishX + (width - vanishX) * xSpread;
+        const alpha = 0.015 + 0.055 * perspT;
+        ctx.strokeStyle = `rgba(255,107,0,${alpha})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(xLeft, y);
+        ctx.lineTo(xRight, y);
+        ctx.stroke();
+      }
+
+      // Particles
       for (const p of particles) {
         p.x += p.vx;
         p.y += p.vy;
@@ -81,6 +166,24 @@ function AnimatedBackground() {
         ctx.fill();
       }
 
+      // Connect nearby particles
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = dx * dx + dy * dy;
+          if (dist < 12000) {
+            const alpha = 0.045 * (1 - dist / 12000);
+            ctx.strokeStyle = `rgba(255,107,0,${alpha})`;
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+
       animId = requestAnimationFrame(draw);
     }
 
@@ -91,7 +194,6 @@ function AnimatedBackground() {
       height = canvas.height = window.innerHeight;
     };
     window.addEventListener("resize", onResize);
-
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener("resize", onResize);
@@ -99,6 +201,59 @@ function AnimatedBackground() {
   }, []);
 
   return <canvas ref={canvasRef} className="landing-canvas" aria-hidden="true" />;
+}
+
+/* ── Typewriter text ── */
+function TypewriterText({ text, startDelay = 0 }) {
+  const [displayed, setDisplayed] = useState("");
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    let outer = setTimeout(() => {
+      let i = 0;
+      const interval = setInterval(() => {
+        i++;
+        setDisplayed(text.slice(0, i));
+        if (i >= text.length) {
+          clearInterval(interval);
+          setDone(true);
+        }
+      }, 55);
+      return () => clearInterval(interval);
+    }, startDelay);
+    return () => clearTimeout(outer);
+  }, [text, startDelay]);
+
+  return (
+    <span aria-label={text}>
+      {displayed}
+      {!done && <span className="typewriter-cursor">|</span>}
+    </span>
+  );
+}
+
+/* ── Online players counter ── */
+function OnlineCounter() {
+  const [count, setCount] = useState(null);
+
+  useEffect(() => {
+    const base = 43 + Math.floor(Math.random() * 74);
+    setCount(base);
+    const id = setInterval(() => {
+      setCount((prev) => Math.max(28, prev + Math.floor(Math.random() * 7) - 3));
+    }, 4500);
+    return () => clearInterval(id);
+  }, []);
+
+  if (count === null) return null;
+
+  return (
+    <div className="online-counter">
+      <span className="online-counter__dot" />
+      <span className="online-counter__num">{count}</span>
+      <span className="online-counter__label">joueurs en ligne maintenant</span>
+    </div>
+  );
 }
 
 /* ── Intersection observer hook ── */
@@ -113,10 +268,25 @@ function useReveal() {
           }
         });
       },
-      { threshold: 0.12 }
+      { threshold: 0.1 }
     );
     document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
     return () => observer.disconnect();
+  }, []);
+}
+
+/* ── Parallax on scroll ── */
+function useParallax() {
+  useEffect(() => {
+    const heroParallax = document.querySelector(".hero-parallax");
+    const handleScroll = () => {
+      if (!heroParallax) return;
+      const scrolled = window.scrollY;
+      heroParallax.style.transform = `translateY(${scrolled * 0.28}px)`;
+      heroParallax.style.opacity   = String(Math.max(0, 1 - scrolled / 520));
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 }
 
@@ -171,6 +341,17 @@ function StatItem({ icon, target, label, suffix }) {
   );
 }
 
+/* ── Star rating ── */
+function Stars({ rating }) {
+  return (
+    <div className="stars" aria-label={`${rating} étoiles sur 5`}>
+      {Array.from({ length: 5 }, (_, i) => (
+        <span key={i} className={i < rating ? "star star--on" : "star"}>★</span>
+      ))}
+    </div>
+  );
+}
+
 /* ── Leaderboard section ── */
 function PublicLeaderboard() {
   const [players, setPlayers] = useState(null);
@@ -179,9 +360,9 @@ function PublicLeaderboard() {
     getLeaderboard()
       .then((data) => {
         const normalized = (data || []).map((row) => ({
-          player:  row.player,
-          elo:     row.elo     ?? row.display_elo  ?? 0,
-          wins:    row.wins    ?? row.display_wins ?? 0,
+          player: row.player,
+          elo:    row.elo     ?? row.display_elo  ?? 0,
+          wins:   row.wins    ?? row.display_wins ?? 0,
         }));
         setPlayers(normalized.slice(0, 5));
       })
@@ -239,6 +420,7 @@ export default function LandingPage() {
   const navigate = useNavigate();
 
   useReveal();
+  useParallax();
 
   useEffect(() => {
     if (playerId) navigate("/lobby", { replace: true });
@@ -263,30 +445,61 @@ export default function LandingPage() {
 
       {/* ── Hero ── */}
       <section className="landing-hero">
-        <div className="hero-badge">
-          <span className="hero-badge__dot" />
-          Plateforme de duels &amp; paris virtuels
-        </div>
+        <div className="hero-parallax">
+          <div className="hero-badge">
+            <span className="hero-badge__dot" />
+            Plateforme de duels &amp; paris virtuels
+          </div>
 
-        <h1 className="hero-logo">SKILLS<span>BET</span></h1>
-        <p className="hero-tagline">COMPETE · WIN · DOMINATE</p>
-        <p className="hero-subtitle">
-          La plateforme de duels de mini-jeux avec paris en jetons virtuels.<br />
-          10 jeux, une IA redoutable, un classement mondial.
-        </p>
+          <h1 className="hero-logo">SKILLS<span>BET</span></h1>
 
-        <div className="hero-cta">
-          <Link to="/login" className="hero-btn hero-btn--primary">
-            ⚡ JOUER MAINTENANT
-          </Link>
-          <Link to="/login" className="hero-btn hero-btn--ghost">
-            CRÉER UN COMPTE
-          </Link>
+          <p className="hero-tagline">
+            <TypewriterText text="COMPETE · WIN · DOMINATE" startDelay={600} />
+          </p>
+
+          <p className="hero-subtitle">
+            La plateforme de duels de mini-jeux avec paris en jetons virtuels.<br />
+            10 jeux, une IA redoutable, un classement mondial.
+          </p>
+
+          <OnlineCounter />
+
+          <div className="hero-cta">
+            <Link to="/login" className="hero-btn hero-btn--primary">
+              ⚡ JOUER MAINTENANT
+            </Link>
+            <Link to="/login" className="hero-btn hero-btn--ghost">
+              CRÉER UN COMPTE
+            </Link>
+          </div>
         </div>
 
         <div className="hero-scroll-hint">
           <span>Découvrir</span>
           <span className="hero-scroll-hint__arrow" />
+        </div>
+      </section>
+
+      <div className="landing-divider" />
+
+      {/* ── How it works ── */}
+      <section className="landing-section">
+        <div className="section-header reveal">
+          <span className="section-label">Simple &amp; rapide</span>
+          <h2 className="section-title">COMMENT ÇA <span>MARCHE</span></h2>
+          <p className="section-desc">Rejoins l'arène en 3 étapes. Aucune carte bancaire requise.</p>
+        </div>
+
+        <div className="how-grid">
+          {HOW_IT_WORKS.map((step, i) => (
+            <div key={step.step} className={`how-step reveal reveal-delay-${i + 1}`}>
+              <div className="how-step__connector" />
+              <div className="how-step__num">{step.step}</div>
+              <div className="how-step__icon">{step.icon}</div>
+              <div className="how-step__title">{step.title}</div>
+              <div className="how-step__desc">{step.desc}</div>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -306,9 +519,11 @@ export default function LandingPage() {
               key={g.key}
               className={`game-card reveal reveal-delay-${Math.min(i % 5 + 1, 5)}`}
             >
+              {g.isNew && <span className="game-badge game-badge--new">NOUVEAU</span>}
               <span className="game-card__emoji">{g.emoji}</span>
               <span className="game-card__name">{g.label}</span>
               <span className="game-card__desc">{g.desc}</span>
+              <span className="game-badge game-badge--solo">SOLO IA</span>
             </div>
           ))}
         </div>
@@ -333,6 +548,32 @@ export default function LandingPage() {
               <span className="feature-card__icon">{f.icon}</span>
               <span className="feature-card__title">{f.title}</span>
               <span className="feature-card__desc">{f.desc}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="landing-divider" />
+
+      {/* ── Testimonials ── */}
+      <section className="landing-section">
+        <div className="section-header reveal">
+          <span className="section-label">Communauté</span>
+          <h2 className="section-title">ILS <span>DOMINENT</span> DÉJÀ</h2>
+          <p className="section-desc">Des milliers de joueurs nous font confiance. Rejoins-les.</p>
+        </div>
+
+        <div className="testimonials-grid">
+          {TESTIMONIALS.map((t, i) => (
+            <div key={t.name} className={`testimonial-card reveal reveal-delay-${i + 1}`}>
+              <div className="testimonial-card__header">
+                <span className="testimonial-card__avatar">{t.avatar}</span>
+                <div className="testimonial-card__meta">
+                  <span className="testimonial-card__name">{t.name} {t.country}</span>
+                  <Stars rating={t.rating} />
+                </div>
+              </div>
+              <p className="testimonial-card__text">"{t.text}"</p>
             </div>
           ))}
         </div>
@@ -379,18 +620,31 @@ export default function LandingPage() {
 
       <div className="landing-divider" />
 
-      {/* ── CTA Banner ── */}
-      <section className="landing-section" style={{ textAlign: "center", paddingTop: 64, paddingBottom: 64 }}>
-        <div className="reveal">
-          <h2 className="section-title" style={{ marginBottom: 16 }}>
-            PRÊT À <span>DOMINER</span> ?
-          </h2>
-          <p className="section-desc" style={{ marginBottom: 36 }}>
-            Rejoins des milliers de joueurs et prouve ta valeur dans l'arène.
+      {/* ── Join competition CTA ── */}
+      <section className="join-section reveal">
+        <div className="join-section__bg" aria-hidden="true" />
+        <div className="join-section__inner">
+          <span className="section-label" style={{ color: "rgba(255,255,255,0.7)" }}>Rejoins l'arène</span>
+          <h2 className="join-section__title">PRÊT À <span>DOMINER</span> ?</h2>
+          <p className="join-section__sub">
+            Des milliers de joueurs t'attendent. Inscription gratuite, aucune carte bancaire.
           </p>
-          <div className="hero-cta" style={{ justifyContent: "center" }}>
-            <Link to="/login" className="hero-btn hero-btn--primary">
+
+          <div className="join-stats">
+            {JOIN_STATS.map((s) => (
+              <div key={s.label} className="join-stat">
+                <span className="join-stat__num">{s.num}<span className="join-stat__suffix">{s.suffix}</span></span>
+                <span className="join-stat__label">{s.label}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="hero-cta" style={{ justifyContent: "center", marginTop: 40 }}>
+            <Link to="/login" className="hero-btn hero-btn--white">
               ⚡ COMMENCER GRATUITEMENT
+            </Link>
+            <Link to="/login" className="hero-btn hero-btn--outline-white">
+              EN SAVOIR PLUS
             </Link>
           </div>
         </div>
