@@ -36,10 +36,12 @@ const FlipMatchSoloGame = lazy(() => import("../components/games/FlipMatchSoloGa
 const BlockDropSoloGame = lazy(() => import("../components/games/BlockDropSoloGame"));
 const DraughtWarBotGame = lazy(() => import("../components/games/DraughtWarBotGame"));
 const KingSlayerBotGame = lazy(() => import("../components/games/KingSlayerBotGame"));
-const ColorBlitzBotGame = lazy(() => import("../components/games/ColorBlitzBotGame"));
+const ColorBlitzBotGame  = lazy(() => import("../components/games/ColorBlitzBotGame"));
+const QuickShotSoloGame  = lazy(() => import("../components/games/QuickShotSoloGame"));
 
 const SOLO_GAMES = [
   { key: "snake",      label: "Viper"       },
+  { key: "reflex",     label: "QuickShot"   },
   { key: "lineup4",    label: "LineUp4"     },
   { key: "xobattle",   label: "XO Battle"  },
   { key: "memory",     label: "FlipMatch"  },
@@ -79,6 +81,12 @@ const DIFFICULTIES = {
     { key: "medium", label: "Moyen",     desc: "Gagner 7 manches" },
     { key: "hard",   label: "Difficile", desc: "Gagner 10 manches" },
     { key: "expert", label: "Expert",    desc: "Gagner 15 manches" },
+  ],
+  reflex: [
+    { key: "easy",   label: "Facile",    desc: "30s · cibles lentes" },
+    { key: "medium", label: "Moyen",     desc: "20s · vitesse normale" },
+    { key: "hard",   label: "Difficile", desc: "15s · cibles rapides" },
+    { key: "expert", label: "Expert",    desc: "10s · cibles éclair" },
   ],
 };
 
@@ -294,6 +302,7 @@ export default function Lobby() {
           {soloConfig.game === "lineup4"  && <LineUp4BotGame    {...soloProps} />}
           {soloConfig.game === "xobattle" && <XOBattleBotGame   {...soloProps} />}
           {soloConfig.game === "snake"    && <ViperSoloGame      {...soloProps} />}
+          {soloConfig.game === "reflex"   && <QuickShotSoloGame  {...soloProps} />}
           {soloConfig.game === "memory"   && <FlipMatchSoloGame  {...soloProps} />}
           {soloConfig.game === "tetris"   && <BlockDropSoloGame  {...soloProps} />}
           {soloConfig.game === "checkers" && <DraughtWarBotGame  {...soloProps} />}

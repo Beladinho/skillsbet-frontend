@@ -42,7 +42,13 @@ export default function Leaderboard() {
     try {
       const data = await getLeaderboard(game);
       const list = Array.isArray(data) ? data : [];
-      setPlayers(list);
+      const normalized = list.map((row) => ({
+        ...row,
+        player: row.player ?? row.username ?? row.name ?? "",
+        elo:  row.elo  ?? row.display_elo  ?? 0,
+        wins: row.wins ?? row.display_wins ?? 0,
+      }));
+      setPlayers(normalized);
 
       // Try dedicated endpoint first, fall back to computing from player data
       try {
