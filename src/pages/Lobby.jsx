@@ -138,7 +138,7 @@ export default function Lobby() {
   const [liveScores, setLiveScores] = useState({});
   const [chatMessages, setChatMessages] = useState([]);
 
-  const GAMES = ["snake", "reflex", "memory", "tetris", "checkers", "chess", "dames", "uno", "lineup4", "xobattle"];
+  const GAMES = ["snake", "reflex", "memory", "tetris", "checkers", "chess", "uno", "lineup4", "xobattle"];
 
   const loadLeaderboardData = useCallback(async () => {
     try {
@@ -151,7 +151,10 @@ export default function Lobby() {
         return;
       }
       const lb = await getLeaderboard(leaderboardGame === "global" ? null : leaderboardGame);
-      setLeaderboard(Array.isArray(lb) ? lb : []);
+      const normalized = Array.isArray(lb)
+        ? lb.map((row) => ({ player: row.player, display_elo: row.elo ?? row.display_elo, display_wins: row.wins ?? row.display_wins }))
+        : [];
+      setLeaderboard(normalized);
     } catch (error) {
       console.error("Erreur chargement leaderboard :", error);
     }

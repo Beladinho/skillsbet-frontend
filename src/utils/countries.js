@@ -18,6 +18,7 @@ export const COUNTRIES = [
   { code: "RU", name: "Russie",              flag: "🇷🇺", region: "Europe" },
   { code: "UA", name: "Ukraine",             flag: "🇺🇦", region: "Europe" },
   { code: "RO", name: "Roumanie",            flag: "🇷🇴", region: "Europe" },
+  { code: "CY", name: "Chypre",              flag: "🇨🇾", region: "Europe" },
   { code: "GR", name: "Grèce",              flag: "🇬🇷", region: "Europe" },
   { code: "IE", name: "Irlande",             flag: "🇮🇪", region: "Europe" },
   { code: "LU", name: "Luxembourg",          flag: "🇱🇺", region: "Europe" },
