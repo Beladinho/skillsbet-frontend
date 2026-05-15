@@ -23,6 +23,10 @@ const CreatorDashboard  = lazy(() => import("./pages/CreatorDashboard"));
 const CreatorGamePage   = lazy(() => import("./pages/CreatorGamePage"));
 const FriendsPage       = lazy(() => import("./pages/Friends"));
 const PublicProfile     = lazy(() => import("./pages/PublicProfile"));
+const CGU               = lazy(() => import("./pages/legal/CGU"));
+const Privacy           = lazy(() => import("./pages/legal/Privacy"));
+const ResponsibleGaming = lazy(() => import("./pages/legal/ResponsibleGaming"));
+const ContactPage       = lazy(() => import("./pages/legal/Contact"));
 
 /* Inner component so useLocation works inside BrowserRouter */
 function AppRoutes() {
@@ -124,6 +128,38 @@ function AppRoutes() {
                   <CreatorGamePage />
                 </Suspense>
               </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/legal/cgu"
+            element={
+              <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                <CGU />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/legal/privacy"
+            element={
+              <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                <Privacy />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/legal/responsible-gaming"
+            element={
+              <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                <ResponsibleGaming />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/legal/contact"
+            element={
+              <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                <ContactPage />
+              </Suspense>
             }
           />
           <Route

@@ -656,10 +656,10 @@ export default function LandingPage() {
           <div className="landing-footer__logo">SKILLS<span>BET</span></div>
 
           <nav className="landing-footer__links" aria-label="Liens légaux">
-            <a href="/cgu">Conditions générales d'utilisation</a>
-            <a href="/privacy">Politique de confidentialité</a>
-            <a href="/contact">Contact</a>
-            <a href="/responsible-gaming">Jeu responsable</a>
+            <a href="/legal/cgu">Conditions générales d'utilisation</a>
+            <a href="/legal/privacy">Politique de confidentialité</a>
+            <a href="/legal/responsible-gaming">Jeu responsable</a>
+            <a href="/legal/contact">Contact</a>
           </nav>
 
           <p className="landing-footer__copy">

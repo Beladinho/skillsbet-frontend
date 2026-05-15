@@ -895,6 +895,39 @@ export default function Lobby() {
       )}
 
       </div>{/* end .lobby-sections */}
+
+      <footer style={{
+        borderTop: "1px solid var(--clr-border)",
+        padding: "16px 24px",
+        display: "flex",
+        flexWrap: "wrap",
+        gap: "6px 20px",
+        justifyContent: "center",
+        marginTop: 8,
+      }}>
+        {[
+          { to: "/legal/cgu",                label: "CGU" },
+          { to: "/legal/privacy",            label: "Confidentialité" },
+          { to: "/legal/responsible-gaming", label: "Jeu responsable" },
+          { to: "/legal/contact",            label: "Contact" },
+        ].map(({ to, label }) => (
+          <Link
+            key={to}
+            to={to}
+            style={{
+              color: "var(--clr-text-muted)",
+              textDecoration: "none",
+              fontSize: "0.75rem",
+              letterSpacing: "0.04em",
+              transition: "color var(--transition-fast)",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = "var(--clr-orange)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "var(--clr-text-muted)"; }}
+          >
+            {label}
+          </Link>
+        ))}
+      </footer>
     </div>
   );
 }
