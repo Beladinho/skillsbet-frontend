@@ -3,10 +3,12 @@ import { Link } from "react-router-dom";
 import { PlayerContext } from "../context/PlayerContext";
 import { useAppSettings } from "../context/AppSettingsContext";
 import { getMyNotifications } from "../api/skillsbetApi";
+import { useSounds } from "../context/SoundContext";
 
 export default function SessionBar() {
   const { playerId, role, logoutPlayer } = useContext(PlayerContext);
-  const { settings } = useAppSettings();
+  const { settings, setSidebarOpen } = useAppSettings();
+  const { unlockAudio } = useSounds();
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -53,6 +55,15 @@ export default function SessionBar() {
             ⚙ ADMIN
           </Link>
         )}
+
+        <button
+          className="btn-ghost btn-sm"
+          onClick={() => { unlockAudio(); setSidebarOpen(true); }}
+          title="Paramètres"
+          style={{ fontSize: 16 }}
+        >
+          ⚙
+        </button>
 
         <button className="btn-ghost btn-sm" onClick={logoutPlayer}>
           DÉCONNEXION

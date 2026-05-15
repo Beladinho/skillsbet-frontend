@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { t as translate } from "../i18n";
+import { COLOR_THEMES } from "../components/SettingsSidebar";
 
 const AppSettingsContext = createContext(null);
 
@@ -11,6 +12,8 @@ const defaultSettings = {
   notifications_enabled: true,
   music_style: "gaming-electro",
   music_volume: 0.4,
+  color_theme: "cod-orange",
+  sound_volume: 0.5,
 };
 
 function areSettingsEqual(a, b) {
@@ -21,12 +24,33 @@ function areSettingsEqual(a, b) {
     a.music_enabled === b.music_enabled &&
     a.notifications_enabled === b.notifications_enabled &&
     a.music_style === b.music_style &&
-    a.music_volume === b.music_volume
+    a.music_volume === b.music_volume &&
+    a.color_theme === b.color_theme &&
+    a.sound_volume === b.sound_volume
   );
+}
+
+function applyColorTheme(themeKey) {
+  const theme = COLOR_THEMES[themeKey] ?? COLOR_THEMES["cod-orange"];
+  const root = document.documentElement;
+  root.style.setProperty("--clr-orange",        theme.accent);
+  root.style.setProperty("--clr-orange-dim",     theme.accentDim);
+  root.style.setProperty("--clr-orange-bright",  theme.accentBright);
+  root.style.setProperty("--clr-orange-glow",    `rgba(${theme.glowRgb}, 0.35)`);
+  root.style.setProperty("--clr-orange-subtle",  `rgba(${theme.glowRgb}, 0.07)`);
+  root.style.setProperty("--clr-bg",             theme.bg);
+  root.style.setProperty("--clr-surface-1",      theme.s1);
+  root.style.setProperty("--clr-surface-2",      theme.s2);
+  root.style.setProperty("--clr-surface-3",      theme.s3);
+  root.style.setProperty("--clr-surface-4",      theme.s4);
+  root.style.setProperty("--clr-border",         theme.border);
+  root.style.setProperty("--clr-border-bright",  theme.borderBright);
+  root.style.setProperty("--shadow-orange",      `0 0 20px rgba(${theme.glowRgb}, 0.3), 0 0 40px rgba(${theme.glowRgb}, 0.1)`);
 }
 
 export function AppSettingsProvider({ children }) {
   const [settings, setSettings] = useState(defaultSettings);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("app_settings");
@@ -56,6 +80,8 @@ export function AppSettingsProvider({ children }) {
       body.classList.add("theme-dark");
       body.classList.remove("theme-light");
     }
+
+    applyColorTheme(settings.color_theme || "cod-orange");
   }, [settings]);
 
   const applyRemoteSettings = useCallback((remote) => {
@@ -82,8 +108,10 @@ export function AppSettingsProvider({ children }) {
       setSettings,
       applyRemoteSettings,
       tr,
+      sidebarOpen,
+      setSidebarOpen,
     };
-  }, [settings, applyRemoteSettings, tr]);
+  }, [settings, applyRemoteSettings, tr, sidebarOpen]);
 
   return (
     <AppSettingsContext.Provider value={value}>

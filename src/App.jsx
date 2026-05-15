@@ -4,6 +4,7 @@ import { PlayerContext } from "./context/PlayerContext";
 import { useAppSettings } from "./context/AppSettingsContext";
 import NotificationCenter from "./components/NotificationCenter";
 import FloatingMusicPlayer from "./components/FloatingMusicPlayer";
+import SettingsSidebar from "./components/SettingsSidebar";
 import Login from "./pages/Login";
 import Lobby from "./pages/Lobby";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -24,6 +25,7 @@ export default function App() {
     <BrowserRouter>
       <NotificationCenter />
       <FloatingMusicPlayer />
+      <SettingsSidebar />
       <Routes>
         <Route
           path="/login"

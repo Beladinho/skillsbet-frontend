@@ -38,6 +38,7 @@ const DraughtWarBotGame = lazy(() => import("../components/games/DraughtWarBotGa
 const KingSlayerBotGame = lazy(() => import("../components/games/KingSlayerBotGame"));
 const ColorBlitzBotGame  = lazy(() => import("../components/games/ColorBlitzBotGame"));
 const QuickShotSoloGame  = lazy(() => import("../components/games/QuickShotSoloGame"));
+const GridBlitzSoloGame  = lazy(() => import("../components/games/GridBlitzSoloGame"));
 
 const SOLO_GAMES = [
   { key: "snake",      label: "Viper"       },
@@ -49,6 +50,7 @@ const SOLO_GAMES = [
   { key: "checkers",   label: "DraughtWar" },
   { key: "chess",      label: "KingSlayer" },
   { key: "uno",        label: "ColorBlitz" },
+  { key: "2048",       label: "GridBlitz"  },
 ];
 
 const DIFFICULTIES = {
@@ -87,6 +89,12 @@ const DIFFICULTIES = {
     { key: "medium", label: "Moyen",     desc: "20s · vitesse normale" },
     { key: "hard",   label: "Difficile", desc: "15s · cibles rapides" },
     { key: "expert", label: "Expert",    desc: "10s · cibles éclair" },
+  ],
+  "2048": [
+    { key: "easy",   label: "Facile",    desc: "Objectif : tuile 256" },
+    { key: "medium", label: "Moyen",     desc: "Objectif : tuile 512" },
+    { key: "hard",   label: "Difficile", desc: "Objectif : tuile 1024" },
+    { key: "expert", label: "Expert",    desc: "Objectif : tuile 2048" },
   ],
 };
 
@@ -308,6 +316,7 @@ export default function Lobby() {
           {soloConfig.game === "checkers" && <DraughtWarBotGame  {...soloProps} />}
           {soloConfig.game === "chess"    && <KingSlayerBotGame  {...soloProps} />}
           {soloConfig.game === "uno"      && <ColorBlitzBotGame  {...soloProps} />}
+          {soloConfig.game === "2048"     && <GridBlitzSoloGame  {...soloProps} />}
         </Suspense>
       </div>
     );

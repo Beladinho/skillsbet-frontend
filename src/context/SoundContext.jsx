@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useRef } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef } from "react";
 import { useAppSettings } from "./AppSettingsContext";
 
 const SoundContext = createContext(null);
@@ -9,6 +9,7 @@ function safeNow(ctx) {
 
 function createBeep(
   ctx,
+  destination,
   {
     frequency = 440,
     duration = 0.12,
@@ -27,7 +28,7 @@ function createBeep(
   gain.gain.exponentialRampToValueAtTime(0.0001, safeNow(ctx) + duration);
 
   oscillator.connect(gain);
-  gain.connect(ctx.destination);
+  gain.connect(destination);
 
   oscillator.start();
   oscillator.stop(safeNow(ctx) + duration + 0.02);
@@ -36,6 +37,13 @@ function createBeep(
 export function SoundProvider({ children }) {
   const { settings } = useAppSettings();
   const audioContextRef = useRef(null);
+  const masterGainRef = useRef(null);
+
+  useEffect(() => {
+    if (masterGainRef.current) {
+      masterGainRef.current.gain.value = Math.max(0, Math.min(1, settings?.sound_volume ?? 0.5)) * 2;
+    }
+  }, [settings?.sound_volume]);
 
   function getAudioContext() {
     if (typeof window === "undefined") return null;
@@ -45,6 +53,9 @@ export function SoundProvider({ children }) {
 
     if (!audioContextRef.current) {
       audioContextRef.current = new AudioCtx();
+      masterGainRef.current = audioContextRef.current.createGain();
+      masterGainRef.current.gain.value = Math.max(0, Math.min(1, settings?.sound_volume ?? 0.5)) * 2;
+      masterGainRef.current.connect(audioContextRef.current.destination);
     }
 
     return audioContextRef.current;
@@ -73,7 +84,7 @@ export function SoundProvider({ children }) {
 
     await unlockAudio();
 
-    createBeep(ctx, {
+    createBeep(ctx, masterGainRef.current ?? ctx.destination, {
       frequency: 523.25,
       duration: 0.08,
       type: "sine",
@@ -81,7 +92,7 @@ export function SoundProvider({ children }) {
     });
 
     window.setTimeout(() => {
-      createBeep(ctx, {
+      createBeep(ctx, masterGainRef.current ?? ctx.destination, {
         frequency: 659.25,
         duration: 0.12,
         type: "sine",
@@ -98,7 +109,7 @@ export function SoundProvider({ children }) {
 
     await unlockAudio();
 
-    createBeep(ctx, {
+    createBeep(ctx, masterGainRef.current ?? ctx.destination, {
       frequency: 220,
       duration: 0.12,
       type: "sawtooth",
@@ -106,7 +117,7 @@ export function SoundProvider({ children }) {
     });
 
     window.setTimeout(() => {
-      createBeep(ctx, {
+      createBeep(ctx, masterGainRef.current ?? ctx.destination, {
         frequency: 180,
         duration: 0.14,
         type: "sawtooth",
@@ -123,7 +134,7 @@ export function SoundProvider({ children }) {
 
     await unlockAudio();
 
-    createBeep(ctx, {
+    createBeep(ctx, masterGainRef.current ?? ctx.destination, {
       frequency: 440,
       duration: 0.08,
       type: "triangle",
@@ -139,7 +150,7 @@ export function SoundProvider({ children }) {
 
     await unlockAudio();
 
-    createBeep(ctx, {
+    createBeep(ctx, masterGainRef.current ?? ctx.destination, {
       frequency: 523.25,
       duration: 0.08,
       type: "square",
@@ -147,7 +158,7 @@ export function SoundProvider({ children }) {
     });
 
     window.setTimeout(() => {
-      createBeep(ctx, {
+      createBeep(ctx, masterGainRef.current ?? ctx.destination, {
         frequency: 659.25,
         duration: 0.08,
         type: "square",
@@ -156,7 +167,7 @@ export function SoundProvider({ children }) {
     }, 80);
 
     window.setTimeout(() => {
-      createBeep(ctx, {
+      createBeep(ctx, masterGainRef.current ?? ctx.destination, {
         frequency: 783.99,
         duration: 0.14,
         type: "square",
@@ -173,7 +184,7 @@ export function SoundProvider({ children }) {
 
     await unlockAudio();
 
-    createBeep(ctx, {
+    createBeep(ctx, masterGainRef.current ?? ctx.destination, {
       frequency: 330,
       duration: 0.04,
       type: "triangle",
@@ -189,7 +200,7 @@ export function SoundProvider({ children }) {
 
     await unlockAudio();
 
-    createBeep(ctx, {
+    createBeep(ctx, masterGainRef.current ?? ctx.destination, {
       frequency: 523.25,
       duration: 0.08,
       type: "square",
@@ -197,7 +208,7 @@ export function SoundProvider({ children }) {
     });
 
     window.setTimeout(() => {
-      createBeep(ctx, {
+      createBeep(ctx, masterGainRef.current ?? ctx.destination, {
         frequency: 659.25,
         duration: 0.08,
         type: "square",
@@ -206,7 +217,7 @@ export function SoundProvider({ children }) {
     }, 90);
 
     window.setTimeout(() => {
-      createBeep(ctx, {
+      createBeep(ctx, masterGainRef.current ?? ctx.destination, {
         frequency: 783.99,
         duration: 0.1,
         type: "square",
@@ -215,7 +226,7 @@ export function SoundProvider({ children }) {
     }, 180);
 
     window.setTimeout(() => {
-      createBeep(ctx, {
+      createBeep(ctx, masterGainRef.current ?? ctx.destination, {
         frequency: 1046.5,
         duration: 0.18,
         type: "square",
