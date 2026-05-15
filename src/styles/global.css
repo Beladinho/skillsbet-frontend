@@ -655,6 +655,127 @@ hr {
   color: var(--clr-orange-bright);
 }
 
+/* ── Session Bar — Avatar ── */
+.session-bar__avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: #fff;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.1);
+}
+
+.session-bar__player-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  line-height: 1;
+}
+
+.session-bar__balance {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--clr-text-dim);
+  letter-spacing: 0.02em;
+}
+
+/* ── Splash Screen ── */
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #0A0A0A;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.splash-screen--out {
+  animation: splashFadeOut 0.4s ease forwards;
+}
+
+.splash-logo {
+  font-family: var(--font-heading);
+  font-size: clamp(3.5rem, 12vw, 7rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  animation: splashLogoIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  line-height: 1;
+}
+
+.splash-logo__skills {
+  color: #fff;
+}
+
+.splash-logo__bet {
+  color: var(--clr-orange);
+}
+
+.splash-tagline {
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--clr-text-muted);
+  animation: splashTaglineIn 0.7s ease 0.5s both;
+}
+
+/* ── Page Transition ── */
+.page-transition {
+  animation: pageFadeIn 0.3s ease both;
+}
+
+/* ── Scroll To Top ── */
+.scroll-to-top {
+  position: fixed;
+  bottom: 32px;
+  right: 24px;
+  z-index: 500;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--clr-orange);
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 900;
+  line-height: 1;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(255,107,0,0.45), 0 0 0 1px rgba(255,107,0,0.2);
+  transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+  animation: scrollBtnIn 0.25s ease both;
+}
+
+.scroll-to-top:hover {
+  background: var(--clr-orange-bright);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(255,107,0,0.55);
+}
+
+.scroll-to-top:active {
+  transform: translateY(0);
+}
+
+/* ── Lobby Section Stagger Animations ── */
+.lobby-sections .section-card {
+  animation: fadeInUp 0.5s ease both;
+  animation-delay: var(--section-delay, 0.05s);
+}
+
 /* ── Login Page ── */
 .login-page {
   min-height: 100vh;

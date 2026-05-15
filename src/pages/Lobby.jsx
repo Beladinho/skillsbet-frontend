@@ -1,9 +1,10 @@
-import { useCallback, useContext, useEffect, useState, lazy, Suspense } from "react";
+import { useCallback, useContext, useEffect, useRef, useState, lazy, Suspense } from "react";
 import { PlayerContext } from "../context/PlayerContext";
 import { useAppSettings } from "../context/AppSettingsContext";
 import { useNotifications } from "../context/NotificationContext";
 import { useSounds } from "../context/SoundContext";
 import { useMusic } from "../context/MusicContext";
+import { usePushNotifications } from "../hooks/usePushNotifications";
 import { gameLabel, missionLabel } from "../i18n";
 import { getRankFromElo, getRankProgress } from "../ranking";
 import { getRankReward } from "../rankRewards";
@@ -128,6 +129,8 @@ export default function Lobby() {
   const { notifySuccess, notifyError, notifyInfo } = useNotifications();
   const { playMatchFound } = useSounds();
   const { startLobbyMusic, stopLobbyMusic } = useMusic();
+  const { sendLocalPush } = usePushNotifications();
+  const prevMissionsRef = useRef([]);
 
   const [leaderboard, setLeaderboard] = useState([]);
   const [history, setHistory] = useState([]);
@@ -185,7 +188,19 @@ export default function Lobby() {
         getPlayerStats(playerId, statsGame),
       ]);
       setHistory(Array.isArray(hist) ? hist : []);
-      setMissions(Array.isArray(mis) ? mis : []);
+      const newMissions = Array.isArray(mis) ? mis : [];
+      const prev = prevMissionsRef.current;
+      if (prev.length > 0) {
+        newMissions.forEach((m) => {
+          const old = prev.find((p) => p.id === m.id || p.label === m.label);
+          if (m.done && old && !old.done) {
+            notifySuccess("Mission accomplie !", missionLabel(settings.language, m.label || m.id));
+            sendLocalPush("Mission accomplie !", missionLabel(settings.language, m.label || m.id));
+          }
+        });
+      }
+      prevMissionsRef.current = newMissions;
+      setMissions(newMissions);
       setPlayerStats(stats || null);
     } catch (error) {
       console.error("Erreur chargement données lobby :", error);
@@ -208,6 +223,7 @@ export default function Lobby() {
     setLiveScores({});
     playMatchFound();
     notifySuccess("Match trouvé", `${matchData.players[0]} vs ${matchData.players[1]} — ${gameLabel(settings.language, matchData.game)}`);
+    sendLocalPush("Match trouvé !", `${matchData.players[0]} vs ${matchData.players[1]} — ${gameLabel(settings.language, matchData.game)}`);
     setCurrentDuel((prev) => {
       if (prev?.duel_id === matchData.duel_id) return prev;
       return { duel_id: matchData.duel_id, player1: matchData.players[0], player2: matchData.players[1], game: matchData.game, stake: matchData.stake };
@@ -242,6 +258,7 @@ export default function Lobby() {
         if (data.type === "score_update" && data.scores) setLiveScores(data.scores);
         if (data.type === "chat" && data.player_id !== playerId) {
           setChatMessages((prev) => [...prev, data]);
+          sendLocalPush("Message reçu", `${data.player_id} : ${String(data.message || "").slice(0, 80)}`);
         }
         if (data.type === "duel_finished" && data.result) {
           setResult(data.result);
@@ -333,8 +350,10 @@ export default function Lobby() {
         </p>
       </div>
 
+      <div className="lobby-sections">
+
       {/* Game Selection */}
-      <SectionCard title={tr("chooseGame")}>
+      <SectionCard title={tr("chooseGame")} style={{ "--section-delay": "0.05s" }}>
         <div className="stats-grid" style={{ marginBottom: "20px" }}>
           <div className="stat-box">
             <strong>{tr("stake")}</strong>
@@ -493,6 +512,7 @@ export default function Lobby() {
       <SectionCard
         title={tr("playerStats")}
         right={currentRank ? <RankBadge rankKey={currentRank.key} /> : null}
+        style={{ "--section-delay": "0.13s" }}
       >
         <div className="inline-button-group" style={{ marginBottom: "16px" }}>
           {["snake", "reflex", "memory", "tetris", "checkers", "chess"].map((g) => (
@@ -586,6 +606,7 @@ export default function Lobby() {
       {/* Creator Games */}
       <SectionCard
         title="Jeux Créateurs"
+        style={{ "--section-delay": "0.21s" }}
         right={
           <Link
             to="/creator"
@@ -664,7 +685,7 @@ export default function Lobby() {
       </SectionCard>
 
       {/* Leaderboard */}
-      <SectionCard title={leaderboardMode === "season" ? "Classement Saison" : tr("leaderboard")}>
+      <SectionCard title={leaderboardMode === "season" ? "Classement Saison" : tr("leaderboard")} style={{ "--section-delay": "0.29s" }}>
         <div className="inline-button-group" style={{ marginBottom: "14px" }}>
           <button
             className={leaderboardMode === "global" ? "" : "btn-ghost"}
@@ -732,7 +753,7 @@ export default function Lobby() {
       <Tournaments />
 
       {/* Daily Missions */}
-      <SectionCard title={tr("dailyMissions")}>
+      <SectionCard title={tr("dailyMissions")} style={{ "--section-delay": "0.37s" }}>
         <div className="simple-list">
           {missions.map((mission, index) => (
             <div key={index} className="simple-list-item" style={{
@@ -757,7 +778,7 @@ export default function Lobby() {
       </SectionCard>
 
       {/* Match History */}
-      <SectionCard title={tr("matchHistory")}>
+      <SectionCard title={tr("matchHistory")} style={{ "--section-delay": "0.44s" }}>
         {history.length === 0 ? (
           <p>{tr("empty")}</p>
         ) : (
@@ -825,6 +846,8 @@ export default function Lobby() {
           </Link>
         </div>
       )}
+
+      </div>{/* end .lobby-sections */}
     </div>
   );
 }

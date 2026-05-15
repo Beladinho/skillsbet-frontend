@@ -1,0 +1,37 @@
+{
+  "name": "SkillsBet",
+  "short_name": "SkillsBet",
+  "description": "Plateforme de gaming compétitif avec paris de compétences",
+  "start_url": "/lobby",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0A0A0A",
+  "theme_color": "#FF6B00",
+  "orientation": "portrait-primary",
+  "lang": "fr",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Lobby",
+      "short_name": "Lobby",
+      "description": "Accéder au lobby de jeu",
+      "url": "/lobby",
+      "icons": [{ "src": "/icon.svg", "sizes": "any" }]
+    }
+  ]
+}
