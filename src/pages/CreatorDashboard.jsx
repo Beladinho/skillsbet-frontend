@@ -100,7 +100,7 @@ export default function CreatorDashboard() {
       <SessionBar />
 
       <div style={{ padding: "8px 0 16px", display: "flex", alignItems: "center", gap: "12px" }}>
-        <Link to="/" style={{ color: "#94a3b8", textDecoration: "none", fontWeight: 600 }}>
+        <Link to="/lobby" style={{ color: "#94a3b8", textDecoration: "none", fontWeight: 600 }}>
           ← Retour au lobby
         </Link>
         <span style={{

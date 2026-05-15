@@ -35,7 +35,7 @@ export default function AdminHub() {
 
       <div style={{ padding: "8px 0 16px" }}>
         <Link
-          to="/"
+          to="/lobby"
           style={{ color: "#94a3b8", textDecoration: "none", fontWeight: 600 }}
         >
           ← Retour au lobby

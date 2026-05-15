@@ -51,7 +51,7 @@ export default function CreatorGamePage() {
           <p style={{ color: "var(--clr-text-muted)", marginBottom: "24px" }}>
             Ce jeu n'existe pas ou n'est pas encore approuvé.
           </p>
-          <Link to="/" style={{ padding: "12px 28px", background: "rgba(255,107,0,0.12)", border: "1px solid rgba(255,107,0,0.4)", borderRadius: "8px", color: "var(--clr-orange)", textDecoration: "none", fontFamily: "var(--font-heading)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+          <Link to="/lobby" style={{ padding: "12px 28px", background: "rgba(255,107,0,0.12)", border: "1px solid rgba(255,107,0,0.4)", borderRadius: "8px", color: "var(--clr-orange)", textDecoration: "none", fontFamily: "var(--font-heading)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em" }}>
             Retour au lobby
           </Link>
         </div>
@@ -67,7 +67,7 @@ export default function CreatorGamePage() {
       <SessionBar />
 
       <div style={{ padding: "8px 0 20px", display: "flex", gap: "16px", alignItems: "center", flexWrap: "wrap" }}>
-        <Link to="/" style={{ color: "#94a3b8", textDecoration: "none", fontWeight: 600 }}>← Retour au lobby</Link>
+        <Link to="/lobby" style={{ color: "#94a3b8", textDecoration: "none", fontWeight: 600 }}>← Retour au lobby</Link>
         <Link to="/creator" style={{ color: "var(--clr-orange)", textDecoration: "none", fontWeight: 600, fontSize: "0.85rem" }}>Espace Créateur →</Link>
       </div>
 

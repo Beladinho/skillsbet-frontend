@@ -7,6 +7,7 @@ import FloatingMusicPlayer from "./components/FloatingMusicPlayer";
 import SettingsSidebar from "./components/SettingsSidebar";
 import Login from "./pages/Login";
 import Lobby from "./pages/Lobby";
+import LandingPage from "./pages/LandingPage";
 import VerifyEmail from "./pages/VerifyEmail";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
@@ -31,20 +32,24 @@ export default function App() {
       <SettingsSidebar />
       <Routes>
         <Route
+          path="/"
+          element={playerId ? <Navigate to="/lobby" replace /> : <LandingPage />}
+        />
+        <Route
           path="/login"
-          element={playerId ? <Navigate to="/" replace /> : <Login />}
+          element={playerId ? <Navigate to="/lobby" replace /> : <Login />}
         />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route
           path="/forgot-password"
-          element={playerId ? <Navigate to="/" replace /> : <ForgotPassword />}
+          element={playerId ? <Navigate to="/lobby" replace /> : <ForgotPassword />}
         />
         <Route
           path="/reset-password"
-          element={playerId ? <Navigate to="/" replace /> : <ResetPassword />}
+          element={playerId ? <Navigate to="/lobby" replace /> : <ResetPassword />}
         />
         <Route
-          path="/"
+          path="/lobby"
           element={
             <ProtectedRoute>
               <Lobby />
@@ -83,7 +88,7 @@ export default function App() {
         />
         <Route
           path="*"
-          element={<Navigate to={playerId ? "/" : "/login"} replace />}
+          element={<Navigate to={playerId ? "/lobby" : "/"} replace />}
         />
       </Routes>
     </BrowserRouter>
