@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+
 const AVATAR_COLORS = [
   "#FF6B00", "#00b4d8", "#22c55e", "#f59e0b", "#8b5cf6", "#ec4899",
 ];
@@ -15,6 +17,10 @@ function avatarInitials(id) {
 }
 
 export default function PlayerAvatar({ playerId, avatarUrl, size = 36, style = {} }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  const spinStyle = mounted ? { animation: "avatarSpin 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both" } : { opacity: 0 };
+
   const baseStyle = {
     width: size,
     height: size,
@@ -24,6 +30,7 @@ export default function PlayerAvatar({ playerId, avatarUrl, size = 36, style = {
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
+    ...spinStyle,
     ...style,
   };
 

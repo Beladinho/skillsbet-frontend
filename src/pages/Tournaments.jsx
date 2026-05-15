@@ -4,6 +4,7 @@ import { useAppSettings } from "../context/AppSettingsContext";
 import { useNotifications } from "../context/NotificationContext";
 import { useSounds } from "../context/SoundContext";
 import { gameLabel } from "../i18n";
+import Skeleton from "../components/Skeleton";
 import {
   getTournaments,
   getScheduledTournaments,
@@ -348,7 +349,11 @@ export default function Tournaments() {
             </div>
           )}
 
-          {tournaments.length === 0 ? (
+          {tournaments.length === 0 && loading ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {[...Array(3)].map((_, i) => <Skeleton key={i} height={56} />)}
+            </div>
+          ) : tournaments.length === 0 ? (
             <p>Aucun tournoi disponible</p>
           ) : (
             <div className="section-card" style={{ padding: "16px" }}>

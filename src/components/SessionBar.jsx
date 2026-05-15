@@ -13,6 +13,7 @@ export default function SessionBar() {
   const { unlockAudio } = useSounds();
   const { pendingCount: friendRequests } = useSocial();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!playerId) return;
@@ -35,6 +36,16 @@ export default function SessionBar() {
           SKILLS<span>BET</span>
         </span>
       </div>
+
+      {/* Hamburger - visible seulement sur mobile via CSS */}
+      <button
+        className="session-bar__hamburger"
+        onClick={() => setMenuOpen((o) => !o)}
+        aria-label="Menu"
+        style={{ display: "none" }}
+      >
+        {menuOpen ? "✕" : "☰"}
+      </button>
 
       <div className="session-bar__player">
         <div style={{ position: "relative", flexShrink: 0 }}>
@@ -110,6 +121,28 @@ export default function SessionBar() {
           DÉCONNEXION
         </button>
       </div>
+
+      {menuOpen && (
+        <div className="session-bar__mobile-menu">
+          <div className={`session-bar__notif${unreadCount > 0 ? " session-bar__notif--active" : ""}`}>
+            {unreadCount > 0 ? `${unreadCount} NOTIF` : "0 NOTIF"}
+          </div>
+          <Link to="/friends" className="session-bar__friends" onClick={() => setMenuOpen(false)}>
+            👥 AMIS
+            {friendRequests > 0 && <span className="session-bar__friends-badge">{friendRequests}</span>}
+          </Link>
+          <Link to="/creator" className="session-bar__creator" onClick={() => setMenuOpen(false)}>
+            🎮 CRÉATEUR
+          </Link>
+          {role === "admin" && (
+            <Link to="/admin" className="session-bar__admin" onClick={() => setMenuOpen(false)}>
+              ⚙ ADMIN
+            </Link>
+          )}
+          <button className="btn-ghost btn-sm" onClick={() => { unlockAudio(); setSidebarOpen(true); setMenuOpen(false); }} style={{ fontSize: 16 }}>⚙ Paramètres</button>
+          <button className="btn-ghost btn-sm" onClick={logoutPlayer}>DÉCONNEXION</button>
+        </div>
+      )}
     </nav>
   );
 }

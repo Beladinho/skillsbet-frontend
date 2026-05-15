@@ -5,6 +5,7 @@ import { useAppSettings } from "../context/AppSettingsContext";
 import { useNotifications } from "../context/NotificationContext";
 import { useSounds } from "../context/SoundContext";
 import { registerUser, loginUser } from "../api/authApi";
+import FloatingInput from "../components/FloatingInput";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -79,38 +80,15 @@ export default function Login() {
 
         <form onSubmit={handleSubmit}>
           <div className="login-form-group">
-            <label htmlFor="sb-email">{tr("emailOrPlayerId")}</label>
-            <input
-              id="sb-email"
-              type="text"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="username"
-              placeholder="Identifiant ou email"
-            />
+            <FloatingInput id="sb-email" label={tr("emailOrPlayerId")} type="text" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" />
           </div>
 
           <div className="login-form-group">
-            <label htmlFor="sb-password">{tr("password")}</label>
-            <input
-              id="sb-password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
-              placeholder="••••••••"
-            />
+            <FloatingInput id="sb-password" label={tr("password")} type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
           </div>
 
           <div className="login-form-group">
-            <label htmlFor="sb-referral">Code Referral (optionnel)</label>
-            <input
-              id="sb-referral"
-              type="text"
-              value={referralCode}
-              onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-              placeholder="XXXXXXXX"
-            />
+            <FloatingInput id="sb-referral" label="Code Referral (optionnel)" type="text" value={referralCode} onChange={(e) => setReferralCode(e.target.value.toUpperCase())} />
           </div>
 
           <div className="login-actions">

@@ -8,6 +8,8 @@ import FloatingMusicPlayer from "./components/FloatingMusicPlayer";
 import SettingsSidebar from "./components/SettingsSidebar";
 import SplashScreen from "./components/SplashScreen";
 import ScrollToTop from "./components/ScrollToTop";
+import OnboardingTour from "./components/OnboardingTour";
+import RippleEffect from "./components/RippleEffect";
 import Login from "./pages/Login";
 import Lobby from "./pages/Lobby";
 import LandingPage from "./pages/LandingPage";
@@ -42,6 +44,8 @@ function AppRoutes() {
   return (
     <>
       <NotificationCenter />
+      <RippleEffect />
+      <OnboardingTour />
       <FloatingMusicPlayer />
       <SettingsSidebar />
       <ScrollToTop />

@@ -5,6 +5,7 @@ import { useNotifications } from "../context/NotificationContext";
 import { useSocial } from "../context/SocialContext";
 import PlayerAvatar from "../components/PlayerAvatar";
 import SessionBar from "../components/SessionBar";
+import Skeleton from "../components/Skeleton";
 
 const GAMES = [
   { key: "snake", label: "Viper" },
@@ -131,7 +132,17 @@ export default function Friends() {
         {tab === "friends" && (
           <div className="friends-list">
             {loading ? (
-              <p style={{ color: "var(--clr-text-dim)" }}>Chargement...</p>
+              <>
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: "var(--clr-surface-1)", border: "1px solid var(--clr-border)", borderRadius: 6 }}>
+                    <Skeleton width={44} height={44} borderRadius={999} />
+                    <div style={{ flex: 1 }}>
+                      <Skeleton height={14} style={{ marginBottom: 6 }} />
+                      <Skeleton width="60%" height={10} />
+                    </div>
+                  </div>
+                ))}
+              </>
             ) : friends.length === 0 ? (
               <div className="section-card friends-empty">
                 <span style={{ color: "var(--clr-text-dim)" }}>

@@ -154,5 +154,33 @@ body {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+@keyframes notifSpring {
+  0%   { opacity: 0; transform: translateX(60px) scale(0.88); }
+  55%  { opacity: 1; transform: translateX(-6px) scale(1.01); }
+  75%  { transform: translateX(3px) scale(1); }
+  100% { transform: translateX(0) scale(1); }
+}
+
+@keyframes screenShake {
+  0%, 100% { transform: translateX(0); }
+  12%  { transform: translateX(-10px) rotate(-0.4deg); }
+  24%  { transform: translateX(10px) rotate(0.4deg); }
+  36%  { transform: translateX(-8px); }
+  48%  { transform: translateX(8px); }
+  60%  { transform: translateX(-5px); }
+  72%  { transform: translateX(5px); }
+  84%  { transform: translateX(-2px); }
+}
+
+@keyframes rippleExpand {
+  0%   { transform: scale(0); opacity: 0.35; }
+  100% { transform: scale(4); opacity: 0; }
+}
+
+@keyframes avatarSpin {
+  from { transform: rotate(-360deg) scale(0.7); opacity: 0; }
+  to   { transform: rotate(0deg) scale(1); opacity: 1; }
+}
+
 /* cache bust Mer 13 mai 2026 12:14:34 EEST */
 /* rebuild Jeu 14 mai 2026 09:57:13 EEST */

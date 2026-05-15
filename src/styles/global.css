@@ -1768,3 +1768,192 @@ hr {
   border-radius: var(--radius-md);
   border: 1px solid var(--clr-border);
 }
+
+/* ══════════════════════════════════════════
+   SKELETON LOADER
+   ══════════════════════════════════════════ */
+.skeleton {
+  display: block;
+  background: linear-gradient(90deg, var(--clr-surface-2) 25%, var(--clr-surface-3) 50%, var(--clr-surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+
+/* ══════════════════════════════════════════
+   RIPPLE EFFECT
+   ══════════════════════════════════════════ */
+.ripple-wave {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  pointer-events: none;
+  transform: scale(0);
+  animation: rippleExpand 0.65s ease-out forwards;
+}
+
+/* ══════════════════════════════════════════
+   FLOATING INPUT LABEL
+   ══════════════════════════════════════════ */
+.input-float-wrap {
+  position: relative;
+}
+
+.input-float-wrap input {
+  padding-top: 22px;
+  padding-bottom: 8px;
+}
+
+.input-float-wrap label {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--clr-text-muted);
+  transition: top 0.2s ease, font-size 0.2s ease, color 0.2s ease, letter-spacing 0.2s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.input-float-wrap input:focus + label,
+.input-float-wrap input:not(:placeholder-shown) + label {
+  top: 10px;
+  font-size: 0.68rem;
+  color: var(--clr-orange);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transform: translateY(0);
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE MOBILE
+   ══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .app-shell {
+    padding: 10px 14px 40px;
+  }
+
+  /* SessionBar hamburger */
+  .session-bar {
+    flex-wrap: nowrap;
+    padding: 10px 14px;
+    gap: 10px;
+  }
+
+  .session-bar__player {
+    flex: 1;
+    min-width: 0;
+    flex-wrap: nowrap;
+  }
+
+  .session-bar__id {
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .session-bar__role,
+  .session-bar__settings,
+  .session-bar__balance {
+    display: none;
+  }
+
+  .session-bar__actions {
+    display: none;
+  }
+
+  .session-bar__hamburger {
+    display: flex !important;
+    background: transparent;
+    border: 1px solid var(--clr-border-bright);
+    color: var(--clr-text-dim);
+    padding: 6px 9px;
+    min-height: unset;
+    font-size: 1.1rem;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+  }
+
+  .session-bar__mobile-menu {
+    position: fixed;
+    top: 62px;
+    right: 14px;
+    background: var(--clr-surface-1);
+    border: 1px solid var(--clr-border-bright);
+    border-top: 2px solid var(--clr-orange);
+    border-radius: var(--radius-lg);
+    padding: 12px;
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 190px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    animation: fadeInUp 0.2s ease both;
+  }
+
+  .session-bar__mobile-menu button,
+  .session-bar__mobile-menu a {
+    width: 100%;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Stats grid 2 cols */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Game selector 2 cols */
+  .game-selector {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Buttons min touch target */
+  button {
+    min-height: 44px;
+  }
+
+  /* section-card */
+  .section-card {
+    padding: 16px;
+    margin-top: 16px;
+  }
+
+  /* Leaderboard items stack */
+  .leaderboard-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  /* friends-page-title */
+  .friends-page-title {
+    font-size: 1.5rem;
+  }
+
+  /* friends-tabs scroll */
+  .friends-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 640px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .section-card__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

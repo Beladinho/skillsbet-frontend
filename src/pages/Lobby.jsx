@@ -9,6 +9,9 @@ import { gameLabel, missionLabel } from "../i18n";
 import { getRankFromElo, getRankProgress } from "../ranking";
 import { getRankReward } from "../rankRewards";
 
+import Skeleton from "../components/Skeleton";
+import TiltCard from "../components/TiltCard";
+import { useCountUp } from "../hooks/useCountUp";
 import Wallet from "../components/Wallet";
 import Matchmaker from "../components/Matchmaker";
 import SessionBar from "../components/SessionBar";
@@ -106,6 +109,11 @@ import Settings from "../pages/Settings";
 
 import { Link } from "react-router-dom";
 
+function CountUpStat({ value }) {
+  const animated = useCountUp(Number(value) || 0);
+  return <>{animated}</>;
+}
+
 import {
   getLeaderboard,
   getMatchHistory,
@@ -136,6 +144,7 @@ export default function Lobby() {
   const [history, setHistory] = useState([]);
   const [missions, setMissions] = useState([]);
   const [playerStats, setPlayerStats] = useState(null);
+  const [coreLoading, setCoreLoading] = useState(true);
   const [currentDuel, setCurrentDuel] = useState(null);
   const [result, setResult] = useState(null);
 
@@ -181,6 +190,7 @@ export default function Lobby() {
   }, [leaderboardGame, leaderboardMode]);
 
   const loadLobbyCoreData = useCallback(async () => {
+    setCoreLoading(true);
     try {
       if (!playerId) return;
       const [hist, mis, stats] = await Promise.all([
@@ -206,6 +216,8 @@ export default function Lobby() {
     } catch (error) {
       console.error("Erreur chargement données lobby :", error);
       notifyError("Erreur lobby", error.message || "Impossible de charger les données du lobby.");
+    } finally {
+      setCoreLoading(false);
     }
   }, [playerId, statsGame, notifyError]);
 
@@ -545,24 +557,30 @@ export default function Lobby() {
           ))}
         </div>
 
+        {!playerStats && coreLoading && (
+          <div className="stats-grid">
+            {[...Array(6)].map((_, i) => <Skeleton key={i} height={72} />)}
+          </div>
+        )}
+
         {playerStats && (
           <>
             <div className="stats-grid">
               {[
-                [tr("globalElo"), playerStats.elo],
-                [tr("rank"), <RankBadge key="rank" rankKey={currentRank?.key} />],
-                [tr("wins"), playerStats.wins],
-                [tr("losses"), playerStats.losses],
-                [tr("gamesPlayed"), playerStats.games_played],
-                [tr("winStreak"), playerStats.win_streak],
-                [tr("balance"), playerStats.balance],
-                [`${gameLabel(settings.language, playerStats.selected_game)} ELO`, playerStats.current_game_elo],
-                [`${tr("wins")} ${gameLabel(settings.language, playerStats.selected_game)}`, playerStats.current_game_stats?.wins],
-                [`${tr("losses")} ${gameLabel(settings.language, playerStats.selected_game)}`, playerStats.current_game_stats?.losses],
-              ].map(([label, value]) => (
+                [tr("globalElo"), playerStats.elo, true],
+                [tr("rank"), <RankBadge key="rank" rankKey={currentRank?.key} />, false],
+                [tr("wins"), playerStats.wins, true],
+                [tr("losses"), playerStats.losses, true],
+                [tr("gamesPlayed"), playerStats.games_played, true],
+                [tr("winStreak"), playerStats.win_streak, true],
+                [tr("balance"), playerStats.balance, true],
+                [`${gameLabel(settings.language, playerStats.selected_game)} ELO`, playerStats.current_game_elo, true],
+                [`${tr("wins")} ${gameLabel(settings.language, playerStats.selected_game)}`, playerStats.current_game_stats?.wins, true],
+                [`${tr("losses")} ${gameLabel(settings.language, playerStats.selected_game)}`, playerStats.current_game_stats?.losses, true],
+              ].map(([label, value, isNumeric]) => (
                 <div key={label} className="stat-box">
                   <strong>{label}</strong>
-                  <div>{value}</div>
+                  <div>{isNumeric ? <CountUpStat value={value} /> : value}</div>
                 </div>
               ))}
             </div>
@@ -664,7 +682,7 @@ export default function Lobby() {
                   to={`/creator/game/${game.id}`}
                   style={{ textDecoration: "none" }}
                 >
-                  <div style={{
+                  <TiltCard style={{
                     background: "var(--clr-surface-1)",
                     border: "1px solid var(--clr-border)",
                     borderRadius: "10px",
@@ -694,7 +712,7 @@ export default function Lobby() {
                         {" · "}{game.plays || 0} parties
                       </div>
                     </div>
-                  </div>
+                  </TiltCard>
                 </Link>
               );
             })}
@@ -736,6 +754,12 @@ export default function Lobby() {
           </div>
         )}
 
+        {leaderboard.length === 0 && coreLoading && (
+          <div className="simple-list">
+            {[...Array(4)].map((_, i) => <Skeleton key={i} height={48} style={{ marginBottom: 6 }} />)}
+          </div>
+        )}
+
         <div className="simple-list">
           {leaderboard.map((player, index) => {
             const rank = getRankFromElo(player.display_elo);
@@ -772,6 +796,11 @@ export default function Lobby() {
 
       {/* Daily Missions */}
       <SectionCard title={tr("dailyMissions")} style={{ "--section-delay": "0.37s" }}>
+        {missions.length === 0 && coreLoading && (
+          <div className="simple-list">
+            {[...Array(3)].map((_, i) => <Skeleton key={i} height={44} style={{ marginBottom: 6 }} />)}
+          </div>
+        )}
         <div className="simple-list">
           {missions.map((mission, index) => (
             <div key={index} className="simple-list-item" style={{

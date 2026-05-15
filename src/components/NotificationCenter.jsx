@@ -55,7 +55,7 @@ export default function NotificationCenter() {
               borderRadius: "8px",
               backdropFilter: "blur(16px)",
               boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
-              animation: "notifSlide 0.2s ease both",
+              animation: "notifSpring 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both",
             }}
           >
             <span

@@ -1,10 +1,63 @@
-import { useContext, useEffect, useMemo, useRef } from "react";
+import { useRef, useEffect, useState, useContext, useMemo } from "react";
 import { useAppSettings } from "../context/AppSettingsContext";
 import { useSounds } from "../context/SoundContext";
 import { useNotifications } from "../context/NotificationContext";
 import { gameLabel, rankLabel } from "../i18n";
 import PlayerAvatar from "../components/PlayerAvatar";
 import { PlayerContext } from "../context/PlayerContext";
+
+function Confetti({ active }) {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    if (!active) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const colors = ["#FF6B00", "#FFD700", "#4ade80", "#60a5fa", "#f87171", "#c084fc", "#fff"];
+    const pieces = Array.from({ length: 120 }, () => ({
+      x: Math.random() * canvas.width,
+      y: -20 - Math.random() * 200,
+      w: Math.random() * 10 + 5,
+      h: Math.random() * 6 + 3,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      speed: Math.random() * 4 + 2,
+      phase: Math.random() * Math.PI * 2,
+      wobble: Math.random() * 0.06 + 0.02,
+      rotation: Math.random() * Math.PI * 2,
+      rotSpeed: (Math.random() - 0.5) * 0.15,
+    }));
+    let rafId;
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      pieces.forEach((p) => {
+        p.y += p.speed;
+        p.x += Math.sin(p.phase) * 2.5;
+        p.phase += p.wobble;
+        p.rotation += p.rotSpeed;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      });
+      if (pieces.some((p) => p.y < canvas.height + 40)) {
+        rafId = requestAnimationFrame(draw);
+      }
+    }
+    rafId = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(rafId);
+  }, [active]);
+  if (!active) return null;
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 9995 }}
+    />
+  );
+}
 
 export default function MatchResult({ result, playerId, onExit, avatarUrls = {} }) {
   const { tr, settings } = useAppSettings();
@@ -13,6 +66,16 @@ export default function MatchResult({ result, playerId, onExit, avatarUrls = {} 
   const { setPlayerLevel, setPlayerXp } = useContext(PlayerContext);
   const hasAnnouncedPromotionRef = useRef(false);
   const hasAnnouncedXpRef = useRef(false);
+
+  const isWin = result?.winner === playerId;
+  const isLoss = result?.winner !== null && result?.winner !== undefined && result?.winner !== playerId;
+  const [shaking, setShaking] = useState(false);
+  useEffect(() => {
+    if (isLoss) {
+      setShaking(true);
+      setTimeout(() => setShaking(false), 700);
+    }
+  }, [isLoss]);
 
   if (!result) {
     return null;
@@ -70,7 +133,9 @@ export default function MatchResult({ result, playerId, onExit, avatarUrls = {} 
   }, [myXpChange, notifySuccess, setPlayerLevel, setPlayerXp]);
 
   return (
-    <div style={{ padding: "24px", maxWidth: "900px", margin: "0 auto" }}>
+    <>
+    <Confetti active={isWin} />
+    <div style={{ padding: "24px", maxWidth: "900px", margin: "0 auto", animation: shaking ? "screenShake 0.6s ease both" : "none" }}>
       <h1>{tr("matchResult")}</h1>
 
       <div className="card" style={{ padding: "16px", marginTop: "16px" }}>
@@ -236,5 +301,6 @@ export default function MatchResult({ result, playerId, onExit, avatarUrls = {} 
   </button>
 </div>
     </div>
+    </>
   );
 }
