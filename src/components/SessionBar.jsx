@@ -4,12 +4,14 @@ import { PlayerContext } from "../context/PlayerContext";
 import { useAppSettings } from "../context/AppSettingsContext";
 import { getMyNotifications } from "../api/skillsbetApi";
 import { useSounds } from "../context/SoundContext";
+import { useSocial } from "../context/SocialContext";
 import PlayerAvatar from "./PlayerAvatar";
 
 export default function SessionBar() {
   const { playerId, balance, role, logoutPlayer, avatarUrl } = useContext(PlayerContext);
   const { settings, setSidebarOpen } = useAppSettings();
   const { unlockAudio } = useSounds();
+  const { pendingCount: friendRequests } = useSocial();
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -57,6 +59,13 @@ export default function SessionBar() {
         <div className={`session-bar__notif${unreadCount > 0 ? " session-bar__notif--active" : ""}`}>
           {unreadCount > 0 ? `${unreadCount} NOTIF` : "0 NOTIF"}
         </div>
+
+        <Link to="/friends" className="session-bar__friends">
+          👥 AMIS
+          {friendRequests > 0 && (
+            <span className="session-bar__friends-badge">{friendRequests}</span>
+          )}
+        </Link>
 
         <Link to="/creator" className="session-bar__creator">
           🎮 CRÉATEUR

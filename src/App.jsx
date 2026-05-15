@@ -19,6 +19,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 const AdminHub          = lazy(() => import("./pages/AdminHub"));
 const CreatorDashboard  = lazy(() => import("./pages/CreatorDashboard"));
 const CreatorGamePage   = lazy(() => import("./pages/CreatorGamePage"));
+const FriendsPage       = lazy(() => import("./pages/Friends"));
+const PublicProfile     = lazy(() => import("./pages/PublicProfile"));
 
 /* Inner component so useLocation works inside BrowserRouter */
 function AppRoutes() {
@@ -86,6 +88,26 @@ function AppRoutes() {
               <ProtectedRoute>
                 <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
                   <CreatorDashboard />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/player/:email"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                  <PublicProfile />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/friends"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                  <FriendsPage />
                 </Suspense>
               </ProtectedRoute>
             }

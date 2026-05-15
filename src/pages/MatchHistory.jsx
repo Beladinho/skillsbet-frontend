@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { PlayerContext } from "../context/PlayerContext";
 import { getMatchHistory } from "../api/skillsbetApi";
+import AddFriendButton from "../components/AddFriendButton";
 
 export default function MatchHistory() {
   const { playerId } = useContext(PlayerContext);
@@ -22,28 +23,38 @@ export default function MatchHistory() {
   }
 
   return (
-    <div style={{ textAlign: "center", marginTop: "30px" }}>
-      <h2>Match History</h2>
+    <div style={{ marginTop: "30px" }}>
+      <h2>Historique des matchs</h2>
 
-      {matches.length === 0 && <p>No matches yet</p>}
+      {matches.length === 0 && <p style={{ color: "var(--clr-text-dim)" }}>Aucun match pour l'instant.</p>}
 
-      {matches.map((m, i) => (
-        <div
-          key={i}
-          style={{
-            background: "#1e1e2f",
-            padding: "10px",
-            margin: "10px",
-            borderRadius: "8px",
-          }}
-        >
-          <p>{m.game}</p>
-          <p>
-            {m.player1} vs {m.player2}
-          </p>
-          <p>Winner : {m.winner}</p>
-        </div>
-      ))}
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 16 }}>
+        {matches.map((m, i) => {
+          const opponent = m.player1 === playerId ? m.player2 : m.player1;
+          const won = m.winner === playerId;
+          return (
+            <div
+              key={i}
+              className="simple-list-item"
+              style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}
+            >
+              <span className={`badge-${won ? "success" : "error"}`} style={{ fontSize: "0.72rem" }}>
+                {won ? "VICTOIRE" : "DÉFAITE"}
+              </span>
+              <span style={{ fontWeight: 600, flex: 1 }}>{m.game}</span>
+              <span style={{ color: "var(--clr-text-dim)", fontSize: "0.85rem" }}>
+                vs <strong style={{ color: "var(--clr-text)" }}>{opponent}</strong>
+              </span>
+              {opponent && !opponent.startsWith("bot_") && opponent !== playerId && (
+                <AddFriendButton
+                  targetId={opponent}
+                  className="btn-ghost btn-sm leaderboard-add-friend"
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

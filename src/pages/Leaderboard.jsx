@@ -1,6 +1,10 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getLeaderboard, getCountryLeaderboard } from "../api/skillsbetApi";
 import { useAppSettings } from "../context/AppSettingsContext";
+import { useNotifications } from "../context/NotificationContext";
+import { PlayerContext } from "../context/PlayerContext";
+import { useSocial } from "../context/SocialContext";
 import { getFlagByCode, getCountryNameByCode } from "../utils/countries";
 import PlayerAvatar from "../components/PlayerAvatar";
 
@@ -28,6 +32,9 @@ function computeCountryLeaderboard(players) {
 
 export default function Leaderboard() {
   const { tr } = useAppSettings();
+  const { playerId } = useContext(PlayerContext);
+  const { notifySuccess, notifyError } = useNotifications();
+  const { sendRequest } = useSocial();
   const [tab, setTab] = useState("players");
   const [selectedGame, setSelectedGame] = useState(null);
   const [players, setPlayers] = useState([]);
@@ -122,7 +129,19 @@ export default function Leaderboard() {
       {loading ? (
         <p style={{ color: "var(--clr-text-dim)" }}>{tr("loading")}</p>
       ) : tab === "players" ? (
-        <PlayerLeaderboard players={players} tr={tr} />
+        <PlayerLeaderboard
+          players={players}
+          tr={tr}
+          currentPlayerId={playerId}
+          onAddFriend={async (email) => {
+            try {
+              await sendRequest(email);
+              notifySuccess("Demande envoyée", `Demande d'ami envoyée`);
+            } catch (err) {
+              notifyError("Erreur", err.message);
+            }
+          }}
+        />
       ) : (
         <CountryLeaderboard countries={countries} tr={tr} />
       )}
@@ -130,7 +149,7 @@ export default function Leaderboard() {
   );
 }
 
-function PlayerLeaderboard({ players, tr }) {
+function PlayerLeaderboard({ players, tr, currentPlayerId, onAddFriend }) {
   if (!players.length) {
     return <p style={{ color: "var(--clr-text-dim)" }}>{tr("empty")}</p>;
   }
@@ -141,7 +160,7 @@ function PlayerLeaderboard({ players, tr }) {
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr style={{ borderBottom: "1px solid var(--clr-surface-3)" }}>
-              {["#", tr("players"), tr("wins"), "ELO"].map((h) => (
+              {["#", tr("players"), tr("wins"), "ELO", ""].map((h) => (
                 <th key={h} style={{
                   padding: "12px 16px",
                   textAlign: "left",
@@ -189,7 +208,14 @@ function PlayerLeaderboard({ players, tr }) {
                         size={32}
                       />
                       <span style={{ fontSize: "0.9rem", marginRight: 4 }}>{flag}</span>
-                      <span style={{ fontWeight: 600, color: "var(--clr-text)" }}>{p.player}</span>
+                      <Link
+                        to={`/player/${encodeURIComponent(p.player)}`}
+                        style={{ fontWeight: 600, color: "var(--clr-text)", textDecoration: "none" }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = "var(--clr-orange)"}
+                        onMouseLeave={(e) => e.currentTarget.style.color = "var(--clr-text)"}
+                      >
+                        {p.player}
+                      </Link>
                     </div>
                   </td>
                   <td style={{ padding: "12px 16px", color: "var(--clr-success)", fontWeight: 700 }}>
@@ -197,6 +223,17 @@ function PlayerLeaderboard({ players, tr }) {
                   </td>
                   <td style={{ padding: "12px 16px" }}>
                     <span style={{ color: "var(--clr-orange)", fontWeight: 700 }}>{p.elo}</span>
+                  </td>
+                  <td style={{ padding: "8px 12px", textAlign: "right" }}>
+                    {currentPlayerId && p.player !== currentPlayerId && (
+                      <button
+                        className="btn-ghost btn-sm leaderboard-add-friend"
+                        onClick={() => onAddFriend(p.player)}
+                        title="Ajouter en ami"
+                      >
+                        + Ami
+                      </button>
+                    )}
                   </td>
                 </tr>
               );
