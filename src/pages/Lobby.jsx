@@ -124,7 +124,7 @@ import {
 import { getApprovedGames } from "../api/creatorApi";
 
 export default function Lobby() {
-  const { playerId, role } = useContext(PlayerContext);
+  const { playerId, role, avatarUrl } = useContext(PlayerContext);
   const { tr, settings } = useAppSettings();
   const { notifySuccess, notifyError, notifyInfo } = useNotifications();
   const { playMatchFound } = useSounds();
@@ -156,6 +156,7 @@ export default function Lobby() {
   const [socketState, setSocketState] = useState("disconnected");
   const [liveScores, setLiveScores] = useState({});
   const [chatMessages, setChatMessages] = useState([]);
+  const [duelAvatarUrls, setDuelAvatarUrls] = useState({});
 
   const GAMES = ["snake", "reflex", "memory", "tetris", "checkers", "chess", "uno", "lineup4", "xobattle"];
 
@@ -218,6 +219,21 @@ export default function Lobby() {
     sendDuelSocketMessage(msg);
   }
 
+  async function fetchDuelAvatars(players) {
+    const map = {};
+    if (playerId && avatarUrl) map[playerId] = avatarUrl;
+    await Promise.all(
+      players.map(async (pid) => {
+        if (map[pid]) return;
+        try {
+          const stats = await getPlayerStats(pid);
+          if (stats?.avatar_url) map[pid] = stats.avatar_url;
+        } catch {}
+      })
+    );
+    setDuelAvatarUrls(map);
+  }
+
   function handleMatchFound(matchData) {
     setChatMessages([]);
     setLiveScores({});
@@ -228,6 +244,7 @@ export default function Lobby() {
       if (prev?.duel_id === matchData.duel_id) return prev;
       return { duel_id: matchData.duel_id, player1: matchData.players[0], player2: matchData.players[1], game: matchData.game, stake: matchData.stake };
     });
+    fetchDuelAvatars(matchData.players);
   }
 
   useEffect(() => { loadAllLobbyData(); }, [loadAllLobbyData]);
@@ -296,7 +313,7 @@ export default function Lobby() {
   if (!playerId) return <p style={{ padding: 24 }}>{tr("error")} : {tr("noPlayerConnected")}</p>;
 
   if (result) {
-    return <MatchResult result={result} playerId={playerId} onExit={handleExitResult} />;
+    return <MatchResult result={result} playerId={playerId} onExit={handleExitResult} avatarUrls={duelAvatarUrls} />;
   }
 
   const currentRank = playerStats ? getRankFromElo(playerStats.elo) : null;
@@ -314,6 +331,7 @@ export default function Lobby() {
         chatMessages={chatMessages}
         onSendChat={handleSendChat}
         onGameFinished={handleDuelFinished}
+        avatarUrls={duelAvatarUrls}
       />
     );
   }

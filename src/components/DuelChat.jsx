@@ -3,6 +3,7 @@ import { containsBannedWord } from "../utils/chatFilter";
 import { moderateWithAI } from "../api/chatModeration";
 import { sendDuelSocketMessage } from "../api/socket";
 import { useSounds } from "../context/SoundContext";
+import PlayerAvatar from "./PlayerAvatar";
 
 const EMOTES = [
   { label: "GG 👏",       message: "GG 👏" },
@@ -17,7 +18,7 @@ const EMOTES = [
 
 const MAX_LEN = 200;
 
-export default function DuelChat({ messages, playerId, onSendMessage }) {
+export default function DuelChat({ messages, playerId, onSendMessage, avatarUrls = {} }) {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [error, setError] = useState(null);
@@ -173,37 +174,44 @@ export default function DuelChat({ messages, playerId, onSendMessage }) {
                 key={i}
                 style={{
                   display: "flex",
-                  gap: "6px",
-                  alignItems: "baseline",
-                  flexWrap: "wrap",
+                  gap: "7px",
+                  alignItems: "flex-start",
                 }}
               >
-                <span
-                  style={{
-                    fontFamily: "var(--font-heading)",
-                    fontWeight: 800,
-                    fontSize: "0.72rem",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.04em",
-                    color: isMe(msg) ? "var(--clr-orange)" : "#60a5fa",
-                    flexShrink: 0,
-                  }}
-                >
-                  {isMe(msg) ? "Moi" : msg.player_id}
-                </span>
-                <span
-                  style={{
-                    fontSize: "0.82rem",
-                    color: isMe(msg) ? "#ffd6a0" : "#bfdbfe",
-                    wordBreak: "break-word",
-                  }}
-                >
-                  {msg.kind === "emote" ? (
-                    <em style={{ opacity: 0.9 }}>{msg.message}</em>
-                  ) : (
-                    msg.message
-                  )}
-                </span>
+                <PlayerAvatar
+                  playerId={msg.player_id}
+                  avatarUrl={avatarUrls[msg.player_id]}
+                  size={22}
+                  style={{ marginTop: 2, flexShrink: 0 }}
+                />
+                <div style={{ display: "flex", gap: "5px", alignItems: "baseline", flexWrap: "wrap" }}>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-heading)",
+                      fontWeight: 800,
+                      fontSize: "0.72rem",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.04em",
+                      color: isMe(msg) ? "var(--clr-orange)" : "#60a5fa",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {isMe(msg) ? "Moi" : msg.player_id}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: "0.82rem",
+                      color: isMe(msg) ? "#ffd6a0" : "#bfdbfe",
+                      wordBreak: "break-word",
+                    }}
+                  >
+                    {msg.kind === "emote" ? (
+                      <em style={{ opacity: 0.9 }}>{msg.message}</em>
+                    ) : (
+                      msg.message
+                    )}
+                  </span>
+                </div>
               </div>
             ))}
             <div ref={messagesEndRef} />

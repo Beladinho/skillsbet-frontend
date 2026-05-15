@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getLeaderboard, getCountryLeaderboard } from "../api/skillsbetApi";
 import { useAppSettings } from "../context/AppSettingsContext";
 import { getFlagByCode, getCountryNameByCode } from "../utils/countries";
+import PlayerAvatar from "../components/PlayerAvatar";
 
 const GAMES = ["snake", "reflex", "memory", "tetris", "checkers", "chess", "uno", "lineup4", "xobattle"];
 
@@ -181,8 +182,15 @@ function PlayerLeaderboard({ players, tr }) {
                     </span>
                   </td>
                   <td style={{ padding: "12px 16px" }}>
-                    <span style={{ fontSize: "1rem", marginRight: 6 }}>{flag}</span>
-                    <span style={{ fontWeight: 600, color: "var(--clr-text)" }}>{p.player}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <PlayerAvatar
+                        playerId={p.player_id || p.player}
+                        avatarUrl={p.avatar_url}
+                        size={32}
+                      />
+                      <span style={{ fontSize: "0.9rem", marginRight: 4 }}>{flag}</span>
+                      <span style={{ fontWeight: 600, color: "var(--clr-text)" }}>{p.player}</span>
+                    </div>
                   </td>
                   <td style={{ padding: "12px 16px", color: "var(--clr-success)", fontWeight: 700 }}>
                     {p.wins}

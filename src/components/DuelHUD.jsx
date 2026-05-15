@@ -9,6 +9,7 @@ export default function DuelHUD({
   playerId,
   chatMessages = [],
   onSendChat,
+  avatarUrls = {},
 }) {
   const { tr, settings } = useAppSettings();
 
@@ -142,6 +143,7 @@ export default function DuelHUD({
           messages={chatMessages}
           playerId={playerId}
           onSendMessage={onSendChat}
+          avatarUrls={avatarUrls}
         />
       )}
     </div>

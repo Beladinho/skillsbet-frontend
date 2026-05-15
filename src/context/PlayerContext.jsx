@@ -7,17 +7,20 @@ export function PlayerProvider({ children }) {
   const [balance, setBalance] = useState(0);
   const [token, setToken] = useState("");
   const [role, setRole] = useState("user");
+  const [avatarUrl, setAvatarUrl] = useState("");
 
   useEffect(() => {
     const savedPlayerId = localStorage.getItem("skillsbet_player_id");
     const savedToken = localStorage.getItem("skillsbet_token");
     const savedRole = localStorage.getItem("skillsbet_role");
     const savedBalance = localStorage.getItem("skillsbet_balance");
+    const savedAvatar = localStorage.getItem("skillsbet_avatar_url");
 
     if (savedPlayerId) setPlayerId(savedPlayerId);
     if (savedToken) setToken(savedToken);
     if (savedRole) setRole(savedRole);
     if (savedBalance) setBalance(Number(savedBalance));
+    if (savedAvatar) setAvatarUrl(savedAvatar);
 
     function handleForcedLogout() {
       logoutPlayer();
@@ -33,6 +36,14 @@ export function PlayerProvider({ children }) {
   useEffect(() => {
     localStorage.setItem("skillsbet_balance", String(balance || 0));
   }, [balance]);
+
+  useEffect(() => {
+    if (avatarUrl) {
+      localStorage.setItem("skillsbet_avatar_url", avatarUrl);
+    } else {
+      localStorage.removeItem("skillsbet_avatar_url");
+    }
+  }, [avatarUrl]);
 
   function loginPlayer(newPlayerId, newToken, newRole = "user") {
     setPlayerId(newPlayerId);
@@ -51,22 +62,24 @@ export function PlayerProvider({ children }) {
   }
 
   function logoutPlayer() {
-  setPlayerId("");
-  setToken("");
-  setRole("user");
-  setBalance(0);
+    setPlayerId("");
+    setToken("");
+    setRole("user");
+    setBalance(0);
+    setAvatarUrl("");
 
-  localStorage.removeItem("skillsbet_player_id");
-  localStorage.removeItem("skillsbet_token");
-  localStorage.removeItem("skillsbet_role");
-  localStorage.removeItem("skillsbet_balance");
+    localStorage.removeItem("skillsbet_player_id");
+    localStorage.removeItem("skillsbet_token");
+    localStorage.removeItem("skillsbet_role");
+    localStorage.removeItem("skillsbet_balance");
+    localStorage.removeItem("skillsbet_avatar_url");
 
-  localStorage.removeItem("duel_id");
-  localStorage.removeItem("scores");
-  localStorage.removeItem("xp");
-  localStorage.removeItem("badges");
-  localStorage.removeItem("wallet");
-}
+    localStorage.removeItem("duel_id");
+    localStorage.removeItem("scores");
+    localStorage.removeItem("xp");
+    localStorage.removeItem("badges");
+    localStorage.removeItem("wallet");
+  }
 
   return (
     <PlayerContext.Provider
@@ -79,6 +92,8 @@ export function PlayerProvider({ children }) {
         setToken,
         role,
         setRole,
+        avatarUrl,
+        setAvatarUrl,
         loginPlayer,
         logoutPlayer,
       }}

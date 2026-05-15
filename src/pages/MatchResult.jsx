@@ -3,8 +3,9 @@ import { useAppSettings } from "../context/AppSettingsContext";
 import { useSounds } from "../context/SoundContext";
 import { useNotifications } from "../context/NotificationContext";
 import { gameLabel, rankLabel } from "../i18n";
+import PlayerAvatar from "../components/PlayerAvatar";
 
-export default function MatchResult({ result, playerId, onExit }) {
+export default function MatchResult({ result, playerId, onExit, avatarUrls = {} }) {
   const { tr, settings } = useAppSettings();
   const { playClick, playPromotion } = useSounds();
   const { notifySuccess } = useNotifications();
@@ -94,17 +95,13 @@ const myStreakRewards = safeStreakRewards[playerId] || [];
 
       <div className="card" style={{ padding: "16px", marginTop: "16px" }}>
         <h3>{tr("scores")}</h3>
-        <p>
-          <strong>{playerId}</strong> : {safeScores[playerId] ?? 0}
-        </p>
-
-        {Object.entries(safeScores)
-          .filter(([name]) => name !== playerId)
-          .map(([name, score]) => (
-            <p key={name}>
-              <strong>{name}</strong> : {score}
-            </p>
-          ))}
+        {Object.entries(safeScores).map(([name, score]) => (
+          <div key={name} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+            <PlayerAvatar playerId={name} avatarUrl={avatarUrls[name]} size={32} />
+            <strong style={{ color: name === playerId ? "var(--clr-orange)" : "var(--clr-text)" }}>{name}</strong>
+            <span style={{ color: "var(--clr-text-dim)" }}>: {score}</span>
+          </div>
+        ))}
       </div>
 
       <div className="card" style={{ padding: "16px", marginTop: "16px" }}>

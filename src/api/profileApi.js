@@ -14,6 +14,7 @@ export async function updateProfile(payload) {
       display_name: payload?.display_name ?? null,
       bio: payload?.bio ?? null,
       country: payload?.country ?? null,
+      avatar_url: payload?.avatar_url ?? null,
     },
   });
 }

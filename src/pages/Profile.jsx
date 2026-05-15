@@ -1,17 +1,20 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { getProfile, updateProfile } from "../api/profileApi";
 import { useAppSettings } from "../context/AppSettingsContext";
 import { useNotifications } from "../context/NotificationContext";
 import { useSounds } from "../context/SoundContext";
 import { SORTED_COUNTRIES, getFlagByCode, getCountryNameByCode } from "../utils/countries";
+import { PlayerContext } from "../context/PlayerContext";
+import AvatarPicker from "../components/AvatarPicker";
 
 export default function Profile() {
   const { tr } = useAppSettings();
   const { notifySuccess, notifyError } = useNotifications();
   const { playClick } = useSounds();
+  const { setAvatarUrl } = useContext(PlayerContext);
 
   const [profile, setProfile] = useState(null);
-  const [form, setForm] = useState({ display_name: "", bio: "", country: "" });
+  const [form, setForm] = useState({ display_name: "", bio: "", country: "", avatar_url: "" });
   const [error, setError] = useState("");
   const [status, setStatus] = useState("");
 
@@ -25,7 +28,9 @@ export default function Profile() {
           display_name: data.display_name ?? "",
           bio: data.bio ?? "",
           country: data.country ?? "",
+          avatar_url: data.avatar_url ?? "",
         });
+        if (data.avatar_url) setAvatarUrl(data.avatar_url);
       } catch (err) {
         console.error(err);
         const msg = err.message || "Failed to load profile";
@@ -34,7 +39,7 @@ export default function Profile() {
       }
     }
     loadProfile();
-  }, [notifyError]);
+  }, [notifyError, setAvatarUrl]);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -50,13 +55,17 @@ export default function Profile() {
         display_name: form.display_name,
         bio: form.bio,
         country: form.country || null,
+        avatar_url: form.avatar_url || null,
       });
       setProfile(updated);
+      const newAvatar = updated.avatar_url ?? "";
       setForm({
         display_name: updated.display_name ?? "",
         bio: updated.bio ?? "",
         country: updated.country ?? "",
+        avatar_url: newAvatar,
       });
+      setAvatarUrl(newAvatar);
       setStatus("saved");
       notifySuccess("Profil sauvegardé", "Les informations du profil ont été mises à jour.");
     } catch (err) {
@@ -139,8 +148,15 @@ export default function Profile() {
           playClick();
           handleSubmit(e);
         }}
-        style={{ display: "flex", flexDirection: "column", gap: 16 }}
+        style={{ display: "flex", flexDirection: "column", gap: 20 }}
       >
+        <div className="section-card" style={{ padding: 16 }}>
+          <AvatarPicker
+            value={form.avatar_url}
+            onChange={(val) => setForm((prev) => ({ ...prev, avatar_url: val }))}
+          />
+        </div>
+
         <div>
           <label style={{ display: "block", marginBottom: 6, color: "var(--clr-text-dim)", fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
             {tr("displayName")}
