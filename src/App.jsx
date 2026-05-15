@@ -23,6 +23,7 @@ const CreatorDashboard  = lazy(() => import("./pages/CreatorDashboard"));
 const CreatorGamePage   = lazy(() => import("./pages/CreatorGamePage"));
 const FriendsPage       = lazy(() => import("./pages/Friends"));
 const PublicProfile     = lazy(() => import("./pages/PublicProfile"));
+const StatsPage         = lazy(() => import("./pages/Stats"));
 const CGU               = lazy(() => import("./pages/legal/CGU"));
 const Privacy           = lazy(() => import("./pages/legal/Privacy"));
 const ResponsibleGaming = lazy(() => import("./pages/legal/ResponsibleGaming"));
@@ -116,6 +117,16 @@ function AppRoutes() {
               <ProtectedRoute>
                 <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
                   <FriendsPage />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/stats"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                  <StatsPage />
                 </Suspense>
               </ProtectedRoute>
             }

@@ -538,45 +538,26 @@ export default function Lobby() {
       <Profile />
       <Settings />
 
-      {/* Player Stats */}
+      {/* Player Stats — quick overview + link to full stats */}
       <SectionCard
         title={tr("playerStats")}
         right={currentRank ? <RankBadge rankKey={currentRank.key} /> : null}
         style={{ "--section-delay": "0.13s" }}
       >
-        <div className="inline-button-group" style={{ marginBottom: "16px" }}>
-          {["snake", "reflex", "memory", "tetris", "checkers", "chess"].map((g) => (
-            <button
-              key={g}
-              className={statsGame === g ? "" : "btn-ghost"}
-              style={{ padding: "6px 14px", fontSize: "0.75rem" }}
-              onClick={() => setStatsGame(g)}
-            >
-              {tr(g)}
-            </button>
-          ))}
-        </div>
-
         {!playerStats && coreLoading && (
           <div className="stats-grid">
-            {[...Array(6)].map((_, i) => <Skeleton key={i} height={72} />)}
+            {[...Array(4)].map((_, i) => <Skeleton key={i} height={72} />)}
           </div>
         )}
 
         {playerStats && (
           <>
-            <div className="stats-grid">
+            <div className="stats-grid" style={{ marginBottom: "16px" }}>
               {[
                 [tr("globalElo"), playerStats.elo, true],
                 [tr("rank"), <RankBadge key="rank" rankKey={currentRank?.key} />, false],
                 [tr("wins"), playerStats.wins, true],
                 [tr("losses"), playerStats.losses, true],
-                [tr("gamesPlayed"), playerStats.games_played, true],
-                [tr("winStreak"), playerStats.win_streak, true],
-                [tr("balance"), playerStats.balance, true],
-                [`${gameLabel(settings.language, playerStats.selected_game)} ELO`, playerStats.current_game_elo, true],
-                [`${tr("wins")} ${gameLabel(settings.language, playerStats.selected_game)}`, playerStats.current_game_stats?.wins, true],
-                [`${tr("losses")} ${gameLabel(settings.language, playerStats.selected_game)}`, playerStats.current_game_stats?.losses, true],
               ].map(([label, value, isNumeric]) => (
                 <div key={label} className="stat-box">
                   <strong>{label}</strong>
@@ -585,7 +566,7 @@ export default function Lobby() {
               ))}
             </div>
 
-            <div style={{ marginTop: "20px" }}>
+            <div style={{ marginBottom: "16px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
                 <span style={{ fontSize: "0.8rem", color: "var(--clr-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
                   {tr("progressToNextRank")}
@@ -598,25 +579,35 @@ export default function Lobby() {
                 <div className="progress-fill" style={{ width: `${currentRankProgress}%` }} />
               </div>
             </div>
-
-            {(currentReward || nextReward) && (
-              <div className="stats-grid" style={{ marginTop: "16px" }}>
-                {currentReward && (
-                  <div className="stat-box">
-                    <strong>{tr("rankReward")}</strong>
-                    <div>{currentReward.label}</div>
-                  </div>
-                )}
-                {nextReward && (
-                  <div className="stat-box">
-                    <strong>{tr("nextRankReward")}</strong>
-                    <div>{nextReward.label}</div>
-                  </div>
-                )}
-              </div>
-            )}
           </>
         )}
+
+        <Link
+          to="/stats"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px",
+            width: "100%",
+            padding: "13px",
+            background: "linear-gradient(135deg, rgba(255,107,0,0.12), rgba(255,149,0,0.08))",
+            border: "1px solid rgba(255,107,0,0.4)",
+            borderRadius: "var(--radius-md)",
+            color: "var(--clr-orange)",
+            textDecoration: "none",
+            fontFamily: "var(--font-heading)",
+            fontWeight: 800,
+            fontSize: "0.88rem",
+            textTransform: "uppercase",
+            letterSpacing: "0.1em",
+            transition: "all 0.2s",
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = "linear-gradient(135deg, rgba(255,107,0,0.2), rgba(255,149,0,0.14))"; e.currentTarget.style.boxShadow = "0 0 18px rgba(255,107,0,0.25)"; }}
+          onMouseLeave={e => { e.currentTarget.style.background = "linear-gradient(135deg, rgba(255,107,0,0.12), rgba(255,149,0,0.08))"; e.currentTarget.style.boxShadow = "none"; }}
+        >
+          📊 Voir mes stats complètes
+        </Link>
       </SectionCard>
 
       {playerStats && <ProgressionPanel elo={playerStats.elo} />}
