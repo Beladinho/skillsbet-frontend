@@ -328,6 +328,32 @@ export async function reportTournament(tournamentId, winner) {
   });
 }
 
+export async function getScheduledTournaments() {
+  return apiRequest("/tournaments/scheduled", { useAuth: false });
+}
+
+export async function createScheduledTournament(
+  name,
+  game,
+  entryFee,
+  premiumOnly,
+  scheduledAt,
+  recurrence
+) {
+  return apiRequest("/admin/tournaments/create-scheduled", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: {
+      name,
+      game,
+      entry_fee: Number(entryFee),
+      premium_only: premiumOnly,
+      scheduled_at: scheduledAt,
+      recurrence,
+    },
+  });
+}
+
 /* =========================
    WALLET / WITHDRAWALS / STRIPE / LEDGER
 ========================= */
