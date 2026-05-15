@@ -28,3 +28,28 @@ export async function loginUser(email, password) {
     },
   });
 }
+
+export async function verifyEmail(token) {
+  return apiRequest(`/verify-email?token=${encodeURIComponent(token)}`, {
+    method: "GET",
+    useAuth: false,
+  });
+}
+
+export async function forgotPassword(email) {
+  return apiRequest("/forgot-password", {
+    method: "POST",
+    useAuth: false,
+    headers: { "Content-Type": "application/json" },
+    body: { email },
+  });
+}
+
+export async function resetPassword(token, newPassword) {
+  return apiRequest("/reset-password", {
+    method: "POST",
+    useAuth: false,
+    headers: { "Content-Type": "application/json" },
+    body: { token, new_password: newPassword },
+  });
+}

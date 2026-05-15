@@ -7,6 +7,9 @@ import FloatingMusicPlayer from "./components/FloatingMusicPlayer";
 import SettingsSidebar from "./components/SettingsSidebar";
 import Login from "./pages/Login";
 import Lobby from "./pages/Lobby";
+import VerifyEmail from "./pages/VerifyEmail";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const AdminHub          = lazy(() => import("./pages/AdminHub"));
@@ -30,6 +33,15 @@ export default function App() {
         <Route
           path="/login"
           element={playerId ? <Navigate to="/" replace /> : <Login />}
+        />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route
+          path="/forgot-password"
+          element={playerId ? <Navigate to="/" replace /> : <ForgotPassword />}
+        />
+        <Route
+          path="/reset-password"
+          element={playerId ? <Navigate to="/" replace /> : <ResetPassword />}
         />
         <Route
           path="/"

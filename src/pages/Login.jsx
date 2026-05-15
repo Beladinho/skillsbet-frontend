@@ -1,4 +1,5 @@
 import { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { PlayerContext } from "../context/PlayerContext";
 import { useAppSettings } from "../context/AppSettingsContext";
 import { useNotifications } from "../context/NotificationContext";
@@ -6,6 +7,7 @@ import { useSounds } from "../context/SoundContext";
 import { registerUser, loginUser } from "../api/authApi";
 
 export default function Login() {
+  const navigate = useNavigate();
   const { loginPlayer } = useContext(PlayerContext);
   const { tr } = useAppSettings();
   const { notifySuccess, notifyError, notifyInfo } = useNotifications();
@@ -123,6 +125,27 @@ export default function Login() {
 
             <button type="submit" className="btn-lg" disabled={loading}>
               {loading ? "..." : tr("loginButton")}
+            </button>
+          </div>
+
+          <div style={{ textAlign: "center", marginTop: 16 }}>
+            <button
+              type="button"
+              onClick={() => navigate("/forgot-password")}
+              style={{
+                background: "none",
+                border: "none",
+                color: "var(--clr-text-muted)",
+                fontSize: "0.82rem",
+                cursor: "pointer",
+                textDecoration: "underline",
+                textUnderlineOffset: "3px",
+                transition: "color var(--transition-fast)",
+              }}
+              onMouseEnter={(e) => (e.target.style.color = "var(--clr-orange)")}
+              onMouseLeave={(e) => (e.target.style.color = "var(--clr-text-muted)")}
+            >
+              Mot de passe oublié ?
             </button>
           </div>
         </form>
