@@ -8,6 +8,8 @@ export function PlayerProvider({ children }) {
   const [token, setToken] = useState("");
   const [role, setRole] = useState("user");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [playerLevel, setPlayerLevel] = useState(1);
+  const [playerXp, setPlayerXp] = useState(0);
 
   useEffect(() => {
     const savedPlayerId = localStorage.getItem("skillsbet_player_id");
@@ -15,12 +17,16 @@ export function PlayerProvider({ children }) {
     const savedRole = localStorage.getItem("skillsbet_role");
     const savedBalance = localStorage.getItem("skillsbet_balance");
     const savedAvatar = localStorage.getItem("skillsbet_avatar_url");
+    const savedLevel = localStorage.getItem("skillsbet_level");
+    const savedXp = localStorage.getItem("skillsbet_xp");
 
     if (savedPlayerId) setPlayerId(savedPlayerId);
     if (savedToken) setToken(savedToken);
     if (savedRole) setRole(savedRole);
     if (savedBalance) setBalance(Number(savedBalance));
     if (savedAvatar) setAvatarUrl(savedAvatar);
+    if (savedLevel) setPlayerLevel(Number(savedLevel));
+    if (savedXp) setPlayerXp(Number(savedXp));
 
     function handleForcedLogout() {
       logoutPlayer();
@@ -36,6 +42,14 @@ export function PlayerProvider({ children }) {
   useEffect(() => {
     localStorage.setItem("skillsbet_balance", String(balance || 0));
   }, [balance]);
+
+  useEffect(() => {
+    localStorage.setItem("skillsbet_level", String(playerLevel || 1));
+  }, [playerLevel]);
+
+  useEffect(() => {
+    localStorage.setItem("skillsbet_xp", String(playerXp || 0));
+  }, [playerXp]);
 
   useEffect(() => {
     if (avatarUrl) {
@@ -67,6 +81,8 @@ export function PlayerProvider({ children }) {
     setRole("user");
     setBalance(0);
     setAvatarUrl("");
+    setPlayerLevel(1);
+    setPlayerXp(0);
 
     localStorage.removeItem("skillsbet_player_id");
     localStorage.removeItem("skillsbet_token");
@@ -79,6 +95,8 @@ export function PlayerProvider({ children }) {
     localStorage.removeItem("xp");
     localStorage.removeItem("badges");
     localStorage.removeItem("wallet");
+    localStorage.removeItem("skillsbet_level");
+    localStorage.removeItem("skillsbet_xp");
   }
 
   return (
@@ -94,6 +112,10 @@ export function PlayerProvider({ children }) {
         setRole,
         avatarUrl,
         setAvatarUrl,
+        playerLevel,
+        setPlayerLevel,
+        playerXp,
+        setPlayerXp,
         loginPlayer,
         logoutPlayer,
       }}

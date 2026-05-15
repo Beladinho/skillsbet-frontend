@@ -1,15 +1,18 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useContext, useEffect, useMemo, useRef } from "react";
 import { useAppSettings } from "../context/AppSettingsContext";
 import { useSounds } from "../context/SoundContext";
 import { useNotifications } from "../context/NotificationContext";
 import { gameLabel, rankLabel } from "../i18n";
 import PlayerAvatar from "../components/PlayerAvatar";
+import { PlayerContext } from "../context/PlayerContext";
 
 export default function MatchResult({ result, playerId, onExit, avatarUrls = {} }) {
   const { tr, settings } = useAppSettings();
   const { playClick, playPromotion } = useSounds();
   const { notifySuccess } = useNotifications();
+  const { setPlayerLevel, setPlayerXp } = useContext(PlayerContext);
   const hasAnnouncedPromotionRef = useRef(false);
+  const hasAnnouncedXpRef = useRef(false);
 
   if (!result) {
     return null;
@@ -29,7 +32,9 @@ export default function MatchResult({ result, playerId, onExit, avatarUrls = {} 
   const safeRankRewards = result.rank_rewards || {};
   const myRankRewards = safeRankRewards[playerId] || [];
   const safeStreakRewards = result.streak_rewards || {};
-const myStreakRewards = safeStreakRewards[playerId] || [];
+  const myStreakRewards = safeStreakRewards[playerId] || [];
+  const safeXpChange = result.xp_change || {};
+  const myXpChange = safeXpChange[playerId] || null;
 
   const totalPromotionReward = useMemo(() => {
     return myRankRewards.reduce((sum, item) => sum + Number(item.reward || 0), 0);
@@ -49,6 +54,20 @@ const myStreakRewards = safeStreakRewards[playerId] || [];
       `${tr("newRankReached")} : ${rankLabel(settings.language, bestRank.rank_key)} (+${totalPromotionReward} ${tr("tokens")})`
     );
   }, [myRankRewards, notifySuccess, playPromotion, settings.language, totalPromotionReward, tr]);
+
+  useEffect(() => {
+    if (!myXpChange || hasAnnouncedXpRef.current) return;
+    hasAnnouncedXpRef.current = true;
+
+    setPlayerXp(myXpChange.new_xp);
+    setPlayerLevel(myXpChange.new_level);
+
+    if (myXpChange.leveled_up) {
+      notifySuccess("Level Up !", `Tu es maintenant niveau ${myXpChange.new_level} !`);
+    } else {
+      notifySuccess("XP gagnés", `+${myXpChange.xp_gained} XP`);
+    }
+  }, [myXpChange, notifySuccess, setPlayerLevel, setPlayerXp]);
 
   return (
     <div style={{ padding: "24px", maxWidth: "900px", margin: "0 auto" }}>
@@ -103,6 +122,43 @@ const myStreakRewards = safeStreakRewards[playerId] || [];
           </div>
         ))}
       </div>
+
+      {myXpChange && (
+        <div className="card" style={{
+          padding: "18px",
+          marginTop: "16px",
+          border: "2px solid rgba(255,107,0,0.4)",
+          background: "linear-gradient(135deg, rgba(255,107,0,0.12), rgba(15,23,42,0.9))",
+        }}>
+          <h3 style={{ marginTop: 0, color: "var(--clr-orange)", fontFamily: "var(--font-heading)" }}>
+            XP GAGNÉS
+          </h3>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <span style={{ fontSize: "1.8rem", fontWeight: 900, color: "var(--clr-orange)" }}>
+              +{myXpChange.xp_gained} XP
+            </span>
+            <div>
+              <div style={{ fontSize: "0.85rem", color: "var(--clr-text-dim)" }}>
+                Total : {myXpChange.new_xp} XP
+              </div>
+              <div style={{
+                display: "inline-block",
+                background: "linear-gradient(135deg, #ff6b00, #ff9500)",
+                color: "#fff",
+                fontFamily: "var(--font-heading)",
+                fontWeight: 900,
+                fontSize: "0.85rem",
+                padding: "2px 10px",
+                borderRadius: 4,
+                marginTop: 4,
+              }}>
+                NIVEAU {myXpChange.new_level}
+                {myXpChange.leveled_up && " 🏆"}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="card" style={{ padding: "16px", marginTop: "16px" }}>
         <h3>{tr("eloChange")}</h3>

@@ -160,7 +160,7 @@ function PlayerLeaderboard({ players, tr, currentPlayerId, onAddFriend }) {
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr style={{ borderBottom: "1px solid var(--clr-surface-3)" }}>
-              {["#", tr("players"), tr("wins"), "ELO", ""].map((h) => (
+              {["#", tr("players"), "NVX", tr("wins"), "ELO", ""].map((h) => (
                 <th key={h} style={{
                   padding: "12px 16px",
                   textAlign: "left",
@@ -217,6 +217,21 @@ function PlayerLeaderboard({ players, tr, currentPlayerId, onAddFriend }) {
                         {p.player}
                       </Link>
                     </div>
+                  </td>
+                  <td style={{ padding: "12px 16px" }}>
+                    <span style={{
+                      background: "linear-gradient(135deg, #ff6b00, #ff9500)",
+                      color: "#fff",
+                      fontFamily: "var(--font-heading)",
+                      fontWeight: 900,
+                      fontSize: "0.72rem",
+                      padding: "2px 8px",
+                      borderRadius: 4,
+                      letterSpacing: "0.04em",
+                      whiteSpace: "nowrap",
+                    }}>
+                      {p.level ?? 1}
+                    </span>
                   </td>
                   <td style={{ padding: "12px 16px", color: "var(--clr-success)", fontWeight: 700 }}>
                     {p.wins}

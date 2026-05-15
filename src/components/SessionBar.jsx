@@ -8,7 +8,7 @@ import { useSocial } from "../context/SocialContext";
 import PlayerAvatar from "./PlayerAvatar";
 
 export default function SessionBar() {
-  const { playerId, balance, role, logoutPlayer, avatarUrl } = useContext(PlayerContext);
+  const { playerId, balance, role, logoutPlayer, avatarUrl, playerLevel } = useContext(PlayerContext);
   const { settings, setSidebarOpen } = useAppSettings();
   const { unlockAudio } = useSounds();
   const { pendingCount: friendRequests } = useSocial();
@@ -37,12 +37,32 @@ export default function SessionBar() {
       </div>
 
       <div className="session-bar__player">
-        <PlayerAvatar
-          playerId={playerId}
-          avatarUrl={avatarUrl}
-          size={36}
-          style={{ border: "2px solid rgba(255,107,0,0.4)", flexShrink: 0 }}
-        />
+        <div style={{ position: "relative", flexShrink: 0 }}>
+          <PlayerAvatar
+            playerId={playerId}
+            avatarUrl={avatarUrl}
+            size={36}
+            style={{ border: "2px solid rgba(255,107,0,0.4)" }}
+          />
+          <span style={{
+            position: "absolute",
+            bottom: -6,
+            right: -6,
+            background: "linear-gradient(135deg, #ff6b00, #ff9500)",
+            color: "#fff",
+            fontFamily: "var(--font-heading)",
+            fontWeight: 900,
+            fontSize: "0.6rem",
+            padding: "1px 5px",
+            borderRadius: 4,
+            letterSpacing: "0.04em",
+            lineHeight: 1.4,
+            boxShadow: "0 0 6px rgba(255,107,0,0.5)",
+            whiteSpace: "nowrap",
+          }}>
+            LVL {playerLevel || 1}
+          </span>
+        </div>
         <div className="session-bar__player-info">
           <span className="session-bar__id">{playerId}</span>
           <span className="session-bar__balance">
