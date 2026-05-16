@@ -1,5 +1,6 @@
 import { useState } from "react";
 import LegalLayout from "./LegalLayout";
+import { openChat } from "../../hooks/useCrisp";
 
 const SUBJECTS = [
   "Question générale",
@@ -67,6 +68,19 @@ export default function Contact() {
         <p>
           🕐 Horaires de support : Lundi–Vendredi, 9h–18h (heure de Chypre / EET)
         </p>
+      </div>
+
+      <div className="legal-section">
+        <h2>Support en direct</h2>
+        <p>Besoin d'une réponse immédiate ? Notre équipe est disponible via le chat en direct.</p>
+        <button
+          onClick={openChat}
+          className="legal-form__submit"
+          style={{ marginBottom: 0, display: "inline-flex", alignItems: "center", gap: 8 }}
+        >
+          <span>💬</span>
+          <span>Ouvrir le chat support</span>
+        </button>
       </div>
 
       <div className="legal-section">

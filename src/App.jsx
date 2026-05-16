@@ -11,6 +11,7 @@ import SplashScreen from "./components/SplashScreen";
 import ScrollToTop from "./components/ScrollToTop";
 import OnboardingTour from "./components/OnboardingTour";
 import RippleEffect from "./components/RippleEffect";
+import CrispWidget from "./components/CrispWidget";
 import Login from "./pages/Login";
 import Lobby from "./pages/Lobby";
 import LandingPage from "./pages/LandingPage";
@@ -62,6 +63,7 @@ function AppRoutes() {
 
   return (
     <>
+      <CrispWidget />
       <CookieBanner />
       <NotificationCenter />
       <RippleEffect />

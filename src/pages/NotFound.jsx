@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { openChat } from "../hooks/useCrisp";
 
 export default function NotFound() {
   const navigate = useNavigate();
@@ -71,22 +72,38 @@ export default function NotFound() {
           <div style={styles.crosshairDot} />
         </div>
 
-        <button
-          style={styles.btn}
-          onClick={() => navigate("/")}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "#FF8C40";
-            e.currentTarget.style.transform = "translateY(-2px)";
-            e.currentTarget.style.boxShadow = "0 6px 24px rgba(255,107,0,0.35)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "#FF6B00";
-            e.currentTarget.style.transform = "translateY(0)";
-            e.currentTarget.style.boxShadow = "none";
-          }}
-        >
-          ← Retour à la base
-        </button>
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+          <button
+            style={styles.btn}
+            onClick={() => navigate("/")}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#FF8C40";
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 6px 24px rgba(255,107,0,0.35)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "#FF6B00";
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
+          >
+            ← Retour à la base
+          </button>
+          <button
+            style={{ ...styles.btn, background: "transparent", border: "1px solid #FF6B00", color: "#FF6B00" }}
+            onClick={openChat}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "rgba(255,107,0,0.1)";
+              e.currentTarget.style.transform = "translateY(-2px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "transparent";
+              e.currentTarget.style.transform = "translateY(0)";
+            }}
+          >
+            💬 Contacter le support
+          </button>
+        </div>
       </div>
 
       <style>{`

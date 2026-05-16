@@ -1,5 +1,6 @@
 import { useAppSettings } from "../context/AppSettingsContext";
 import { useMusic } from "../context/MusicContext";
+import { openChat } from "../hooks/useCrisp";
 
 export const COLOR_THEMES = {
   "cod-orange": {
@@ -393,6 +394,36 @@ export default function SettingsSidebar() {
             flexShrink: 0,
           }}
         >
+          <button
+            onClick={openChat}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              width: "100%",
+              background: "var(--clr-surface-3)",
+              border: "1px solid var(--clr-border)",
+              borderRadius: "var(--radius-md)",
+              padding: "10px 14px",
+              cursor: "pointer",
+              color: "var(--clr-text-dim)",
+              fontSize: 13,
+              fontFamily: "var(--font-body)",
+              marginBottom: 10,
+              transition: "border-color var(--transition-fast), color var(--transition-fast)",
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = "var(--clr-orange)";
+              e.currentTarget.style.color = "var(--clr-orange)";
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = "var(--clr-border)";
+              e.currentTarget.style.color = "var(--clr-text-dim)";
+            }}
+          >
+            <span style={{ fontSize: 16 }}>💬</span>
+            <span>Support en direct</span>
+          </button>
           <div style={{ fontSize: 10, color: "var(--clr-text-muted)", textAlign: "center", letterSpacing: 1 }}>
             SKILLSBET · PERSONNALISATION
           </div>

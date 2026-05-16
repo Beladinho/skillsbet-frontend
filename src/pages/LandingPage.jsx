@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { PlayerContext } from "../context/PlayerContext";
 import { getLeaderboard } from "../api/skillsbetApi";
 import { t } from "../i18n";
+import { openChat } from "../hooks/useCrisp";
 import "../styles/landing.css";
 
 const browserLang = navigator.language?.startsWith("en") ? "en" : "fr";
@@ -729,6 +730,12 @@ export default function LandingPage() {
             <a href="/legal/privacy">Politique de confidentialité</a>
             <a href="/legal/responsible-gaming">Jeu responsable</a>
             <a href="/legal/contact">Contact</a>
+            <button
+              onClick={openChat}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "inherit", font: "inherit", padding: 0 }}
+            >
+              💬 Support
+            </button>
             <button
               onClick={() => window.dispatchEvent(new CustomEvent("openCookieSettings"))}
               style={{ background: "none", border: "none", cursor: "pointer", color: "inherit", font: "inherit", padding: 0 }}

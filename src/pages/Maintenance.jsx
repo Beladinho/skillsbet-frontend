@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { openChat } from "../hooks/useCrisp";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 const RETRY_INTERVAL = 30;
@@ -98,21 +99,37 @@ export default function Maintenance() {
           Reconnexion automatique dans <strong style={{ color: "#FF6B00" }}>{countdown}s</strong>
         </p>
 
-        <button
-          style={styles.btn}
-          onClick={tryReconnect}
-          disabled={checking}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "#FF8C40";
-            e.currentTarget.style.transform = "translateY(-2px)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "#FF6B00";
-            e.currentTarget.style.transform = "translateY(0)";
-          }}
-        >
-          {checking ? "Vérification…" : "Réessayer maintenant"}
-        </button>
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+          <button
+            style={styles.btn}
+            onClick={tryReconnect}
+            disabled={checking}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#FF8C40";
+              e.currentTarget.style.transform = "translateY(-2px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "#FF6B00";
+              e.currentTarget.style.transform = "translateY(0)";
+            }}
+          >
+            {checking ? "Vérification…" : "Réessayer maintenant"}
+          </button>
+          <button
+            style={{ ...styles.btn, background: "transparent", border: "1px solid #FF6B00", color: "#FF6B00" }}
+            onClick={openChat}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "rgba(255,107,0,0.1)";
+              e.currentTarget.style.transform = "translateY(-2px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "transparent";
+              e.currentTarget.style.transform = "translateY(0)";
+            }}
+          >
+            💬 Contacter le support
+          </button>
+        </div>
       </div>
 
       <style>{`
