@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import SessionBar from "../components/SessionBar";
 import CheatLogs from "./CheatLogs";
+import AdminAnalyticsDashboardPanel from "../components/AdminAnalyticsDashboardPanel";
 import AdminAnalyticsPanel from "../components/AdminAnalyticsPanel";
 import AdminGrowthCrmPanel from "../components/AdminGrowthCrmPanel";
 import AdminGrowthRecommendationsPanel from "../components/AdminGrowthRecommendationsPanel";
@@ -47,6 +48,7 @@ export default function AdminHub() {
       <h2 style={{ marginBottom: 16 }}>Panel Admin</h2>
 
       <CheatLogs />
+      <AdminAnalyticsDashboardPanel />
       <AdminAnalyticsPanel />
       <AdminGrowthCrmPanel />
       <AdminGrowthRecommendationsPanel />

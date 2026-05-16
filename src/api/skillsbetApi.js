@@ -588,6 +588,18 @@ export async function getAdminCharts(period = "all") {
   return apiRequest(`/admin/charts?period=${encodeURIComponent(period)}`);
 }
 
+export async function getAnalyticsDashboard() {
+  return apiRequest("/admin/analytics/dashboard");
+}
+
+export async function getAnalyticsCharts() {
+  return apiRequest("/admin/analytics/charts");
+}
+
+export async function getAnalyticsRetention() {
+  return apiRequest("/admin/analytics/retention");
+}
+
 export async function getFinancialAudit(period = "all") {
   return apiRequest(
     `/admin/financial-audit?period=${encodeURIComponent(period)}`
