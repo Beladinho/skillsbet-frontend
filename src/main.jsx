@@ -8,6 +8,7 @@ import { MusicProvider } from "./context/MusicContext";
 import { NotificationProvider } from "./context/NotificationContext";
 import { CreatorProvider } from "./context/CreatorContext";
 import { SocialProvider } from "./context/SocialContext";
+import { AdvancedNotificationsProvider } from "./context/AdvancedNotificationsContext";
 import "./index.css";
 import "./styles/theme.css";
 import "./styles/global.css";
@@ -21,7 +22,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             <NotificationProvider>
               <CreatorProvider>
                 <SocialProvider>
+                  <AdvancedNotificationsProvider>
                   <App />
+                </AdvancedNotificationsProvider>
                 </SocialProvider>
               </CreatorProvider>
             </NotificationProvider>
