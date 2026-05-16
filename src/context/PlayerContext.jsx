@@ -1,4 +1,5 @@
 import { createContext, useEffect, useState } from "react";
+import * as Sentry from "@sentry/react";
 
 export const PlayerContext = createContext();
 
@@ -28,6 +29,10 @@ export function PlayerProvider({ children }) {
     if (savedAvatar) setAvatarUrl(savedAvatar);
     if (savedLevel) setPlayerLevel(Number(savedLevel));
     if (savedXp) setPlayerXp(Number(savedXp));
+
+    if (savedPlayerId) {
+      Sentry.setUser({ email: savedPlayerId, role: savedRole || "user" });
+    }
 
     const savedSubTier = localStorage.getItem("skillsbet_subscription_tier");
     if (savedSubTier) setSubscriptionTier(savedSubTier);
@@ -92,9 +97,12 @@ export function PlayerProvider({ children }) {
     }
 
     localStorage.setItem("skillsbet_role", newRole || "user");
+
+    Sentry.setUser({ email: newPlayerId, role: newRole || "user" });
   }
 
   function logoutPlayer() {
+    Sentry.setUser(null);
     setPlayerId("");
     setToken("");
     setRole("user");

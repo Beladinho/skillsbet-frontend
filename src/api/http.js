@@ -1,3 +1,5 @@
+import * as Sentry from "@sentry/react";
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 function clearExpiredSession() {
@@ -94,6 +96,12 @@ export async function apiRequest(path, options = {}) {
 
   if (res.status === 404) {
     throw new Error("Ressource introuvable.");
+  }
+
+  if (res.status >= 500) {
+    Sentry.captureException(new Error(`API ${res.status}: ${path}`), {
+      extra: { path, method, status: res.status, detail: errorText },
+    });
   }
 
   throw new Error(errorText || "Erreur API");
