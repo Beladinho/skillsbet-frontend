@@ -439,6 +439,20 @@ noCountryData: "Aucune donnée par pays disponible. Les joueurs doivent renseign
     landingJoinSubtitle: "Plus de 1 200 joueurs t'attendent.",
     landingJoinCta1: "CRÉER MON COMPTE",
     landingJoinCta2: "EN SAVOIR PLUS",
+
+    // Replay
+    replayTitle: "REPLAY",
+    replayBtn: "▶ Replay",
+    replayPlay: "▶ Play",
+    replayPause: "⏸ Pause",
+    replayRestart: "↺ Rejouer",
+    replayReset: "↩ Reset",
+    replayMove: "Coup",
+    replayOf: "/",
+    replayNotFound: "Replay introuvable pour cette partie.",
+    replayUnavailable: "Replay indisponible.",
+    replayLoading: "Chargement du replay…",
+    replayNoMoves: "Aucun coup enregistré pour cette partie.",
   },
 
   en: {
@@ -881,6 +895,20 @@ noCountryData: "No country data available. Players must set their country in the
     landingJoinSubtitle: "Over 1,200 players are waiting for you.",
     landingJoinCta1: "CREATE MY ACCOUNT",
     landingJoinCta2: "LEARN MORE",
+
+    // Replay
+    replayTitle: "REPLAY",
+    replayBtn: "▶ Replay",
+    replayPlay: "▶ Play",
+    replayPause: "⏸ Pause",
+    replayRestart: "↺ Replay",
+    replayReset: "↩ Reset",
+    replayMove: "Move",
+    replayOf: "/",
+    replayNotFound: "Replay not found for this game.",
+    replayUnavailable: "Replay unavailable.",
+    replayLoading: "Loading replay…",
+    replayNoMoves: "No moves recorded for this game.",
   },
 };
 

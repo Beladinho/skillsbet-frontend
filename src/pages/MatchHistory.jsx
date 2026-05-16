@@ -1,12 +1,16 @@
 import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { PlayerContext } from "../context/PlayerContext";
 import { getMatchHistory } from "../api/skillsbetApi";
 import AddFriendButton from "../components/AddFriendButton";
 import ReportButton from "../components/ReportButton";
 
+const REPLAY_GAMES = ["lineup4", "xobattle"];
+
 export default function MatchHistory() {
   const { playerId } = useContext(PlayerContext);
   const [matches, setMatches] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!playerId) return;
@@ -46,6 +50,27 @@ export default function MatchHistory() {
               <span style={{ color: "var(--clr-text-dim)", fontSize: "0.85rem" }}>
                 vs <strong style={{ color: "var(--clr-text)" }}>{opponent}</strong>
               </span>
+              {REPLAY_GAMES.includes(m.game) && m.duel_id && (
+                <button
+                  onClick={() => navigate(`/replay/${m.duel_id}`)}
+                  style={{
+                    background: "transparent",
+                    border: "1px solid #ff6600",
+                    color: "#ff6600",
+                    borderRadius: "4px",
+                    padding: "3px 10px",
+                    cursor: "pointer",
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.05em",
+                    transition: "all 0.15s",
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,102,0,0.15)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+                >
+                  ▶ Replay
+                </button>
+              )}
               {opponent && !opponent.startsWith("bot_") && opponent !== playerId && (
                 <>
                   <AddFriendButton

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { completeDuelWithWinner } from "../../utils/duelHelpers";
 import { useParticles } from "./ParticleEffect";
 
@@ -78,6 +78,8 @@ export default function LineUp4Game({ duel, playerId, onGameFinished }) {
   const [hoveredCol, setHoveredCol] = useState(null);
   const [dynamicMode, setDynamicMode] = useState(false);
   const [winningCells, setWinningCells] = useState([]);
+  const eventsRef = useRef([]);
+  const startTimeRef = useRef(Date.now());
 
   const { triggerAt, ParticleLayer } = useParticles();
 
@@ -99,14 +101,16 @@ export default function LineUp4Game({ duel, playerId, onGameFinished }) {
   async function handleFinish(result) {
     if (submitting) return;
     setSubmitting(true);
+    const durationSeconds = Math.round((Date.now() - startTimeRef.current) / 1000);
     try {
       let finalResult;
+      const events = eventsRef.current;
       if (result === P1) {
-        finalResult = await completeDuelWithWinner({ duel, winnerId: duel?.player1, loserId: duel?.player2, draw: false });
+        finalResult = await completeDuelWithWinner({ duel, winnerId: duel?.player1, loserId: duel?.player2, draw: false, events, durationSeconds });
       } else if (result === P2) {
-        finalResult = await completeDuelWithWinner({ duel, winnerId: duel?.player2, loserId: duel?.player1, draw: false });
+        finalResult = await completeDuelWithWinner({ duel, winnerId: duel?.player2, loserId: duel?.player1, draw: false, events, durationSeconds });
       } else {
-        finalResult = await completeDuelWithWinner({ duel, draw: true });
+        finalResult = await completeDuelWithWinner({ duel, draw: true, events, durationSeconds });
       }
       onGameFinished(finalResult);
     } catch (err) {
@@ -121,6 +125,12 @@ export default function LineUp4Game({ duel, playerId, onGameFinished }) {
     if (!result) return;
     const { newBoard, row } = result;
     setBoard(newBoard);
+
+    eventsRef.current.push({
+      timestamp: Date.now() - startTimeRef.current,
+      type: "move",
+      data: { col, row, player: currentPlayer },
+    });
 
     if (checkWin(newBoard, row, col, currentPlayer)) {
       setWinner(currentPlayer);

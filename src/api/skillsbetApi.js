@@ -203,6 +203,8 @@ export async function submitResult({
   winnerId = null,
   loserId = null,
   draw = false,
+  events = null,
+  durationSeconds = null,
 }) {
   return apiRequest("/submit-result", {
     method: "POST",
@@ -214,8 +216,20 @@ export async function submitResult({
       winner_id: winnerId,
       loser_id: loserId,
       draw,
+      events,
+      duration_seconds: durationSeconds,
     },
   });
+}
+
+export async function getReplay(duelId) {
+  return apiRequest(`/replays/${encodeURIComponent(duelId)}`, {
+    useAuth: false,
+  });
+}
+
+export async function getMyReplays() {
+  return apiRequest("/replays/my");
 }
 
 export async function finishDuel(duelId) {

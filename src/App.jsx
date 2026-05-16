@@ -30,6 +30,7 @@ const CGU               = lazy(() => import("./pages/legal/CGU"));
 const Privacy           = lazy(() => import("./pages/legal/Privacy"));
 const ResponsibleGaming = lazy(() => import("./pages/legal/ResponsibleGaming"));
 const ContactPage       = lazy(() => import("./pages/legal/Contact"));
+const ReplayPage        = lazy(() => import("./pages/Replay"));
 
 /* Inner component so useLocation works inside BrowserRouter */
 function AppRoutes() {
@@ -193,6 +194,16 @@ function AppRoutes() {
               <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
                 <ContactPage />
               </Suspense>
+            }
+          />
+          <Route
+            path="/replay/:duel_id"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                  <ReplayPage />
+                </Suspense>
+              </ProtectedRoute>
             }
           />
           <Route

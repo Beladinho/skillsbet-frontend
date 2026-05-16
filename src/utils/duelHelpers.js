@@ -61,6 +61,8 @@ export async function completeDuelWithWinner({
   winnerId = null,
   loserId = null,
   draw = false,
+  events = null,
+  durationSeconds = null,
 }) {
   if (!duel?.duel_id) {
     throw new Error("Duel introuvable.");
@@ -71,5 +73,7 @@ export async function completeDuelWithWinner({
     winnerId,
     loserId,
     draw,
+    events,
+    durationSeconds,
   });
 }

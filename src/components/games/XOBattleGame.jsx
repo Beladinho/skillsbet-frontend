@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { completeDuelWithWinner } from "../../utils/duelHelpers";
 import { useParticles } from "./ParticleEffect";
 
@@ -69,6 +69,8 @@ export default function XOBattleGame({ duel, playerId, onGameFinished }) {
   const [submitting, setSubmitting] = useState(false);
   const [dynamicMode, setDynamicMode] = useState(false);
   const [winningCells, setWinningCells] = useState([]);
+  const eventsRef = useRef([]);
+  const startTimeRef = useRef(null);
 
   const { triggerAt, ParticleLayer } = useParticles();
 
@@ -90,14 +92,18 @@ export default function XOBattleGame({ duel, playerId, onGameFinished }) {
   async function handleFinish(result) {
     if (submitting) return;
     setSubmitting(true);
+    const durationSeconds = startTimeRef.current
+      ? Math.round((Date.now() - startTimeRef.current) / 1000)
+      : 0;
     try {
       let finalResult;
+      const events = eventsRef.current;
       if (result === P1) {
-        finalResult = await completeDuelWithWinner({ duel, winnerId: duel?.player1, loserId: duel?.player2, draw: false });
+        finalResult = await completeDuelWithWinner({ duel, winnerId: duel?.player1, loserId: duel?.player2, draw: false, events, durationSeconds });
       } else if (result === P2) {
-        finalResult = await completeDuelWithWinner({ duel, winnerId: duel?.player2, loserId: duel?.player1, draw: false });
+        finalResult = await completeDuelWithWinner({ duel, winnerId: duel?.player2, loserId: duel?.player1, draw: false, events, durationSeconds });
       } else {
-        finalResult = await completeDuelWithWinner({ duel, draw: true });
+        finalResult = await completeDuelWithWinner({ duel, draw: true, events, durationSeconds });
       }
       onGameFinished(finalResult);
     } catch (err) {
@@ -107,6 +113,8 @@ export default function XOBattleGame({ duel, playerId, onGameFinished }) {
   }
 
   function selectGrid(option) {
+    eventsRef.current = [{ timestamp: 0, type: "grid_selected", data: { size: option.size, winCount: option.winCount } }];
+    startTimeRef.current = Date.now();
     setGridOption(option);
     setBoard(createBoard(option.size));
     setCurrentPlayer(P1);
@@ -120,6 +128,12 @@ export default function XOBattleGame({ duel, playerId, onGameFinished }) {
     newBoard[row][col] = currentPlayer;
     setBoard(newBoard);
     if (dynamicMode) triggerAt(row, col, "normal");
+
+    eventsRef.current.push({
+      timestamp: startTimeRef.current ? Date.now() - startTimeRef.current : 0,
+      type: "move",
+      data: { row, col, player: currentPlayer },
+    });
 
     if (checkWin(newBoard, row, col, currentPlayer, gridOption.winCount)) {
       setWinner(currentPlayer);
