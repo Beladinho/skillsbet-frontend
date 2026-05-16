@@ -28,6 +28,7 @@ import AdminUsersPanel from "../components/AdminUsersPanel";
 import AdminDevPanel from "../components/AdminDevPanel";
 import AdminCreatorPanel from "../components/AdminCreatorPanel";
 import AdminScheduledTournamentsPanel from "../components/AdminScheduledTournamentsPanel";
+import AdminReportsPanel from "../components/AdminReportsPanel";
 
 export default function AdminHub() {
   return (
@@ -73,6 +74,7 @@ export default function AdminHub() {
       <AdminDevPanel />
       <AdminScheduledTournamentsPanel />
       <AdminCreatorPanel />
+      <AdminReportsPanel />
     </div>
   );
 }

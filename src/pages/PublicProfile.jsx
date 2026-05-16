@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { PlayerContext } from "../context/PlayerContext";
 import PlayerAvatar from "../components/PlayerAvatar";
 import AddFriendButton from "../components/AddFriendButton";
+import ReportButton from "../components/ReportButton";
 import SessionBar from "../components/SessionBar";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -54,11 +55,9 @@ export default function PublicProfile() {
                 </p>
               </div>
               {playerId && email !== playerId && (
-                <div style={{ marginLeft: "auto" }}>
-                  <AddFriendButton
-                    targetId={email}
-                    className="btn-sm"
-                  />
+                <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
+                  <AddFriendButton targetId={email} className="btn-sm" />
+                  <ReportButton targetId={email} />
                 </div>
               )}
             </div>

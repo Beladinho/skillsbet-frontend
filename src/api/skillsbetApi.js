@@ -1345,3 +1345,39 @@ export async function downloadCsvWithAuth(url, filename) {
 
   URL.revokeObjectURL(downloadUrl);
 }
+
+/* =========================
+   REPORTS
+========================= */
+
+export async function submitReport(body) {
+  return apiRequest("/reports", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body,
+  });
+}
+
+export async function getAdminReports() {
+  return apiRequest("/reports/admin");
+}
+
+export async function adminIgnoreReport(id) {
+  return apiRequest(`/reports/admin/${id}/ignore`, { method: "POST" });
+}
+
+export async function adminWarnReport(id) {
+  return apiRequest(`/reports/admin/${id}/warn`, { method: "POST" });
+}
+
+export async function adminSuspendReport(id, days = 7) {
+  return apiRequest(`/reports/admin/${id}/suspend`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: { suspend_days: days },
+  });
+}
+
+export async function adminBanReport(id) {
+  return apiRequest(`/reports/admin/${id}/ban`, { method: "POST" });
+}

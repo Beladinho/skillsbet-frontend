@@ -1,6 +1,7 @@
 import { useAppSettings } from "../context/AppSettingsContext";
 import { gameLabel } from "../i18n";
 import DuelChat from "./DuelChat";
+import ReportButton from "./ReportButton";
 
 export default function DuelHUD({
   duel,
@@ -133,9 +134,14 @@ export default function DuelHUD({
           textAlign: "center",
           fontSize: "13px",
           opacity: 0.8,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 8,
         }}
       >
-        ⚔️ {tr("against")} : {opponent}
+        <span>⚔️ {tr("against")} : {opponent}</span>
+        {opponent && <ReportButton targetId={opponent} />}
       </div>
 
       {onSendChat && (

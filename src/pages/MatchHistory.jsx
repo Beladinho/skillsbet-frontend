@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { PlayerContext } from "../context/PlayerContext";
 import { getMatchHistory } from "../api/skillsbetApi";
 import AddFriendButton from "../components/AddFriendButton";
+import ReportButton from "../components/ReportButton";
 
 export default function MatchHistory() {
   const { playerId } = useContext(PlayerContext);
@@ -46,10 +47,13 @@ export default function MatchHistory() {
                 vs <strong style={{ color: "var(--clr-text)" }}>{opponent}</strong>
               </span>
               {opponent && !opponent.startsWith("bot_") && opponent !== playerId && (
-                <AddFriendButton
-                  targetId={opponent}
-                  className="btn-ghost btn-sm leaderboard-add-friend"
-                />
+                <>
+                  <AddFriendButton
+                    targetId={opponent}
+                    className="btn-ghost btn-sm leaderboard-add-friend"
+                  />
+                  <ReportButton targetId={opponent} />
+                </>
               )}
             </div>
           );
