@@ -10,6 +10,10 @@ const defaultSettings = {
   sound_enabled: true,
   music_enabled: true,
   notifications_enabled: true,
+  notif_friends_online: true,
+  notif_challenges: true,
+  notif_leaderboard: true,
+  notif_daily_summary: true,
   music_style: "gaming-electro",
   music_volume: 0.4,
   color_theme: "cod-orange",
@@ -23,6 +27,10 @@ function areSettingsEqual(a, b) {
     a.sound_enabled === b.sound_enabled &&
     a.music_enabled === b.music_enabled &&
     a.notifications_enabled === b.notifications_enabled &&
+    a.notif_friends_online === b.notif_friends_online &&
+    a.notif_challenges === b.notif_challenges &&
+    a.notif_leaderboard === b.notif_leaderboard &&
+    a.notif_daily_summary === b.notif_daily_summary &&
     a.music_style === b.music_style &&
     a.music_volume === b.music_volume &&
     a.color_theme === b.color_theme &&

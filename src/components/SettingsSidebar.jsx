@@ -349,6 +349,37 @@ export default function SettingsSidebar() {
               value={settings.notifications_enabled !== false}
               onChange={v => toggleSetting("notifications_enabled")}
             />
+            <div
+              style={{
+                paddingLeft: 12,
+                borderLeft: "2px solid var(--clr-border)",
+                marginLeft: 4,
+                opacity: settings.notifications_enabled !== false ? 1 : 0.35,
+                pointerEvents: settings.notifications_enabled !== false ? "auto" : "none",
+                transition: "opacity var(--transition-fast)",
+              }}
+            >
+              <Toggle
+                label="🟢 Amis en ligne"
+                value={settings.notif_friends_online !== false}
+                onChange={() => toggleSetting("notif_friends_online")}
+              />
+              <Toggle
+                label="⚔️ Défis acceptés"
+                value={settings.notif_challenges !== false}
+                onChange={() => toggleSetting("notif_challenges")}
+              />
+              <Toggle
+                label="📉 Dépassé au classement"
+                value={settings.notif_leaderboard !== false}
+                onChange={() => toggleSetting("notif_leaderboard")}
+              />
+              <Toggle
+                label="📊 Résumé quotidien (20h)"
+                value={settings.notif_daily_summary !== false}
+                onChange={() => toggleSetting("notif_daily_summary")}
+              />
+            </div>
           </div>
 
         </div>
