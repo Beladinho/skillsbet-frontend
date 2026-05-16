@@ -4,6 +4,7 @@ import { PlayerContext } from "./context/PlayerContext";
 import { useAppSettings } from "./context/AppSettingsContext";
 import { usePushNotifications } from "./hooks/usePushNotifications";
 import NotificationCenter from "./components/NotificationCenter";
+import CookieBanner from "./components/CookieBanner";
 import FloatingMusicPlayer from "./components/FloatingMusicPlayer";
 import SettingsSidebar from "./components/SettingsSidebar";
 import SplashScreen from "./components/SplashScreen";
@@ -61,6 +62,7 @@ function AppRoutes() {
 
   return (
     <>
+      <CookieBanner />
       <NotificationCenter />
       <RippleEffect />
       <OnboardingTour />

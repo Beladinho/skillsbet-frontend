@@ -729,6 +729,12 @@ export default function LandingPage() {
             <a href="/legal/privacy">Politique de confidentialité</a>
             <a href="/legal/responsible-gaming">Jeu responsable</a>
             <a href="/legal/contact">Contact</a>
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent("openCookieSettings"))}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "inherit", font: "inherit", padding: 0 }}
+            >
+              Gérer mes cookies
+            </button>
           </nav>
 
           <p className="landing-footer__copy">

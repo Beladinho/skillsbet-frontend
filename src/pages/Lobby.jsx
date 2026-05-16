@@ -982,6 +982,24 @@ export default function Lobby() {
             {label}
           </Link>
         ))}
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent("openCookieSettings"))}
+          style={{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            color: "var(--clr-text-muted)",
+            fontSize: "0.75rem",
+            letterSpacing: "0.04em",
+            fontFamily: "inherit",
+            padding: 0,
+            transition: "color var(--transition-fast)",
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = "var(--clr-orange)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = "var(--clr-text-muted)"; }}
+        >
+          Gérer mes cookies
+        </button>
       </footer>
     </div>
   );

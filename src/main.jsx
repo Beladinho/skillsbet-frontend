@@ -14,6 +14,13 @@ import "./index.css";
 import "./styles/theme.css";
 import "./styles/global.css";
 
+const _analyticsAllowed = (() => {
+  try {
+    const raw = localStorage.getItem("sb_cookie_consent");
+    return raw ? JSON.parse(raw).analytics === true : false;
+  } catch { return false; }
+})();
+
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
   environment: import.meta.env.MODE,
@@ -24,7 +31,7 @@ Sentry.init({
   tracesSampleRate: 0.2,
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
-  enabled: !!import.meta.env.VITE_SENTRY_DSN,
+  enabled: !!import.meta.env.VITE_SENTRY_DSN && _analyticsAllowed,
 });
 
 ReactDOM.createRoot(document.getElementById("root")).render(
