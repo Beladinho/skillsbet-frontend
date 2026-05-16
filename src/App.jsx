@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useContext, useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useSearchParams } from "react-router-dom";
 import { PlayerContext } from "./context/PlayerContext";
 import { useAppSettings } from "./context/AppSettingsContext";
 import { usePushNotifications } from "./hooks/usePushNotifications";
@@ -31,6 +31,16 @@ const Privacy           = lazy(() => import("./pages/legal/Privacy"));
 const ResponsibleGaming = lazy(() => import("./pages/legal/ResponsibleGaming"));
 const ContactPage       = lazy(() => import("./pages/legal/Contact"));
 const ReplayPage        = lazy(() => import("./pages/Replay"));
+const ReferralPage      = lazy(() => import("./pages/Referral"));
+const BattlePassPage    = lazy(() => import("./pages/BattlePass"));
+const MaintenancePage   = lazy(() => import("./pages/Maintenance"));
+const NotFoundPage      = lazy(() => import("./pages/NotFound"));
+
+function JoinRedirect() {
+  const [params] = useSearchParams();
+  const ref = params.get("ref");
+  return <Navigate to={ref ? `/register?ref=${ref}` : "/register"} replace />;
+}
 
 /* Inner component so useLocation works inside BrowserRouter */
 function AppRoutes() {
@@ -207,8 +217,45 @@ function AppRoutes() {
             }
           />
           <Route
+            path="/referral"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                  <ReferralPage />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/battlepass"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                  <BattlePassPage />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/maintenance"
+            element={
+              <Suspense fallback={null}>
+                <MaintenancePage />
+              </Suspense>
+            }
+          />
+          {/* /join?ref=CODE → redirect to /register preserving ref param */}
+          <Route
+            path="/join"
+            element={<JoinRedirect />}
+          />
+          <Route
             path="*"
-            element={<Navigate to={playerId ? "/lobby" : "/"} replace />}
+            element={
+              <Suspense fallback={null}>
+                <NotFoundPage />
+              </Suspense>
+            }
           />
         </Routes>
       </div>

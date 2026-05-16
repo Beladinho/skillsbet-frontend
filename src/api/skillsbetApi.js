@@ -986,6 +986,10 @@ export async function getMyReferralData() {
   return apiRequest("/referrals/me");
 }
 
+export async function getReferralDashboard() {
+  return apiRequest("/referrals/dashboard");
+}
+
 export async function getReferralsAdmin() {
   return apiRequest("/admin/referrals");
 }
