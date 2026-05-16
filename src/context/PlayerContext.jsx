@@ -10,6 +10,7 @@ export function PlayerProvider({ children }) {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [playerLevel, setPlayerLevel] = useState(1);
   const [playerXp, setPlayerXp] = useState(0);
+  const [subscriptionTier, setSubscriptionTier] = useState("free");
 
   useEffect(() => {
     const savedPlayerId = localStorage.getItem("skillsbet_player_id");
@@ -27,6 +28,9 @@ export function PlayerProvider({ children }) {
     if (savedAvatar) setAvatarUrl(savedAvatar);
     if (savedLevel) setPlayerLevel(Number(savedLevel));
     if (savedXp) setPlayerXp(Number(savedXp));
+
+    const savedSubTier = localStorage.getItem("skillsbet_subscription_tier");
+    if (savedSubTier) setSubscriptionTier(savedSubTier);
 
     function handleForcedLogout() {
       logoutPlayer();
@@ -50,6 +54,21 @@ export function PlayerProvider({ children }) {
   useEffect(() => {
     localStorage.setItem("skillsbet_xp", String(playerXp || 0));
   }, [playerXp]);
+
+  useEffect(() => {
+    localStorage.setItem("skillsbet_subscription_tier", subscriptionTier || "free");
+  }, [subscriptionTier]);
+
+  useEffect(() => {
+    if (!playerId || !token) return;
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
+    fetch(`${apiUrl}/subscription/status`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (d?.tier) setSubscriptionTier(d.tier); })
+      .catch(() => {});
+  }, [playerId, token]);
 
   useEffect(() => {
     if (avatarUrl) {
@@ -83,6 +102,7 @@ export function PlayerProvider({ children }) {
     setAvatarUrl("");
     setPlayerLevel(1);
     setPlayerXp(0);
+    setSubscriptionTier("free");
 
     localStorage.removeItem("skillsbet_player_id");
     localStorage.removeItem("skillsbet_token");
@@ -97,6 +117,7 @@ export function PlayerProvider({ children }) {
     localStorage.removeItem("wallet");
     localStorage.removeItem("skillsbet_level");
     localStorage.removeItem("skillsbet_xp");
+    localStorage.removeItem("skillsbet_subscription_tier");
   }
 
   return (
@@ -116,6 +137,8 @@ export function PlayerProvider({ children }) {
         setPlayerLevel,
         playerXp,
         setPlayerXp,
+        subscriptionTier,
+        setSubscriptionTier,
         loginPlayer,
         logoutPlayer,
       }}

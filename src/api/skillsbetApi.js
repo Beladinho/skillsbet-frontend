@@ -1393,3 +1393,15 @@ export async function getActiveDuels() {
 export async function getDuelSpectators(duelId) {
   return apiRequest(`/duels/${duelId}/spectators`);
 }
+
+// ─── SUBSCRIPTION ───
+export async function getSubscriptionStatus() {
+  return apiRequest("/subscription/status");
+}
+
+export async function createSubscriptionCheckout(tier) {
+  return apiRequest("/subscription/create", {
+    method: "POST",
+    body: JSON.stringify({ tier }),
+  });
+}

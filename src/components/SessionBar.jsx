@@ -8,7 +8,7 @@ import { useSocial } from "../context/SocialContext";
 import PlayerAvatar from "./PlayerAvatar";
 
 export default function SessionBar() {
-  const { playerId, balance, role, logoutPlayer, avatarUrl, playerLevel } = useContext(PlayerContext);
+  const { playerId, balance, role, logoutPlayer, avatarUrl, playerLevel, subscriptionTier } = useContext(PlayerContext);
   const { settings, setSidebarOpen } = useAppSettings();
   const { unlockAudio } = useSounds();
   const { pendingCount: friendRequests } = useSocial();
@@ -76,6 +76,44 @@ export default function SessionBar() {
         </div>
         <div className="session-bar__player-info">
           <span className="session-bar__id">{playerId}</span>
+          {subscriptionTier === "premium" && (
+            <span style={{
+              display: "inline-block",
+              background: "linear-gradient(135deg, #FFD700, #FFA500)",
+              color: "#000",
+              fontFamily: "var(--font-heading)",
+              fontWeight: 900,
+              fontSize: "0.55rem",
+              padding: "1px 6px",
+              borderRadius: 3,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              verticalAlign: "middle",
+              marginLeft: 4,
+              boxShadow: "0 0 8px rgba(255,215,0,0.4)",
+            }}>
+              PREMIUM
+            </span>
+          )}
+          {subscriptionTier === "vip" && (
+            <span style={{
+              display: "inline-block",
+              background: "linear-gradient(135deg, #FF6B00, #FF9500)",
+              color: "#000",
+              fontFamily: "var(--font-heading)",
+              fontWeight: 900,
+              fontSize: "0.55rem",
+              padding: "1px 6px",
+              borderRadius: 3,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              verticalAlign: "middle",
+              marginLeft: 4,
+              boxShadow: "0 0 8px rgba(255,107,0,0.5)",
+            }}>
+              VIP
+            </span>
+          )}
           <span className="session-bar__balance">
             {Number(balance || 0).toLocaleString("fr-FR")} <span style={{ color: "var(--clr-orange)" }}>🪙</span>
           </span>

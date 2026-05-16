@@ -131,7 +131,7 @@ function Toggle({ label, value, onChange }) {
 }
 
 export default function SettingsSidebar() {
-  const { settings, setSettings, sidebarOpen, setSidebarOpen } = useAppSettings();
+  const { settings, setSettings, sidebarOpen, setSidebarOpen, tr } = useAppSettings();
   const { currentVolume, setMusicVolume } = useMusic();
 
   const currentTheme = settings.color_theme || "cod-orange";
@@ -231,7 +231,7 @@ export default function SettingsSidebar() {
                 textTransform: "uppercase",
               }}
             >
-              Thème de couleurs
+              {tr("themeColors")}
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
               {Object.entries(COLOR_THEMES).map(([key, theme]) => {
@@ -297,14 +297,14 @@ export default function SettingsSidebar() {
             </div>
 
             <Toggle
-              label="Musique"
+              label={tr("musicLabel")}
               value={settings.music_enabled !== false}
               onChange={v => toggleSetting("music_enabled")}
             />
 
             <div style={{ paddingTop: 12 }}>
               <VolumeSlider
-                label="VOLUME MUSIQUE"
+                label={tr("volumeMusic")}
                 value={currentVolume}
                 onChange={setMusicVolume}
                 disabled={!settings.music_enabled}
@@ -312,14 +312,14 @@ export default function SettingsSidebar() {
             </div>
 
             <Toggle
-              label="Sons"
+              label={tr("soundsLabel")}
               value={settings.sound_enabled !== false}
               onChange={v => toggleSetting("sound_enabled")}
             />
 
             <div style={{ paddingTop: 12 }}>
               <VolumeSlider
-                label="VOLUME SONS"
+                label={tr("volumeSounds")}
                 value={settings.sound_volume ?? 0.5}
                 onChange={setSoundVolume}
                 disabled={!settings.sound_enabled}
@@ -345,7 +345,7 @@ export default function SettingsSidebar() {
               Notifications
             </div>
             <Toggle
-              label="Notifications activées"
+              label={tr("notificationsLabel")}
               value={settings.notifications_enabled !== false}
               onChange={v => toggleSetting("notifications_enabled")}
             />

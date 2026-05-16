@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { PlayerContext } from "../context/PlayerContext";
+import { useAppSettings } from "../context/AppSettingsContext";
 import { getPlayerStats, getMatchHistory, getLeaderboard } from "../api/skillsbetApi";
 import SessionBar from "../components/SessionBar";
 import {
@@ -72,7 +73,7 @@ function buildEloHistory(matchHistory, currentElo, playerId) {
   return points;
 }
 
-function computePerformanceBadges(overallStats, allGameStats) {
+function computePerformanceBadges(overallStats, allGameStats, tr) {
   const streak = overallStats?.win_streak || 0;
   const snake = allGameStats.find(g => g.key === "snake");
   const playedCount = allGameStats.filter(g => g.games_played > 0).length;
@@ -82,34 +83,34 @@ function computePerformanceBadges(overallStats, allGameStats) {
     {
       id: "streak5",
       icon: "🔥",
-      name: "Série de 5 victoires",
-      desc: "5 victoires consécutives",
+      name: tr("badgeStreak5Name"),
+      desc: tr("badgeStreak5Desc"),
       earned: streak >= 5,
       progress: `${Math.min(streak, 5)}/5`,
     },
     {
       id: "expert_viper",
       icon: "🐍",
-      name: "Expert Viper",
-      desc: "100 parties de Viper jouées",
+      name: tr("badgeExpertViperName"),
+      desc: tr("badgeExpertViperDesc"),
       earned: (snake?.games_played || 0) >= 100,
       progress: `${Math.min(snake?.games_played || 0, 100)}/100`,
     },
     {
       id: "invincible",
       icon: "🛡️",
-      name: "Imbattable",
-      desc: "10 victoires consécutives",
+      name: tr("badgeInvincibleName"),
+      desc: tr("badgeInvincibleDesc"),
       earned: streak >= 10,
       progress: `${Math.min(streak, 10)}/10`,
     },
     {
       id: "versatile",
       icon: "🎮",
-      name: "Polyvalent",
-      desc: "Joué à tous les jeux",
+      name: tr("badgeVersatileName"),
+      desc: tr("badgeVersatileDesc"),
       earned: allPlayed,
-      progress: allPlayed ? "✓ Complet" : `${playedCount}/${GAMES.length} jeux`,
+      progress: allPlayed ? tr("badgeComplete") : `${playedCount}/${GAMES.length} jeux`,
     },
   ];
 }
@@ -131,6 +132,7 @@ async function loadGameStatsFor(pid) {
 
 export default function Stats() {
   const { playerId } = useContext(PlayerContext);
+  const { tr } = useAppSettings();
   const [tab, setTab] = useState("stats");
   const [loading, setLoading] = useState(true);
   const [overallStats, setOverallStats] = useState(null);
@@ -187,7 +189,7 @@ export default function Stats() {
     }
   }
 
-  if (!playerId) return <p style={{ padding: 24 }}>Non connecté</p>;
+  if (!playerId) return <p style={{ padding: 24 }}>{tr("notConnected")}</p>;
 
   const eloHistory = buildEloHistory(matchHistory, overallStats?.elo, playerId);
 
@@ -199,7 +201,7 @@ export default function Stats() {
 
   const barData = GAMES.map(g => {
     const gs = allGameStats.find(s => s.key === g.key) || {};
-    return { game: gs.label || g.label, Victoires: gs.wins || 0, Défaites: gs.losses || 0 };
+    return { game: gs.label || g.label, [tr("wins")]: gs.wins || 0, [tr("losses")]: gs.losses || 0 };
   });
 
   const pieData = GAMES.map(g => {
@@ -207,7 +209,7 @@ export default function Stats() {
     return { name: gs.label || g.label, value: gs.games_played || 0 };
   }).filter(d => d.value > 0);
 
-  const badges = computePerformanceBadges(overallStats, allGameStats);
+  const badges = computePerformanceBadges(overallStats, allGameStats, tr);
 
   const radarCompareData = compareStats
     ? GAMES.map(g => {
@@ -217,7 +219,7 @@ export default function Stats() {
         const theirTotal = (theirGs.wins || 0) + (theirGs.losses || 0);
         return {
           game: g.label,
-          Moi: myTotal > 0 ? Math.round((myGs.wins / myTotal) * 100) : 0,
+          [tr("myLabel")]: myTotal > 0 ? Math.round((myGs.wins / myTotal) * 100) : 0,
           [compareId]: theirTotal > 0 ? Math.round((theirGs.wins / theirTotal) * 100) : 0,
         };
       })
@@ -255,7 +257,7 @@ export default function Stats() {
       `}</style>
 
       <div className="stats-page">
-        <Link to="/lobby" className="stats-back">← Retour au Lobby</Link>
+        <Link to="/lobby" className="stats-back">{tr("backToLobbyStats")}</Link>
 
         <div style={{ marginBottom: "28px" }}>
           <h1 style={{
@@ -269,7 +271,7 @@ export default function Stats() {
             WebkitTextFillColor: "transparent",
             marginBottom: "10px",
           }}>
-            Statistiques Avancées
+            {tr("statsAdvanced")}
           </h1>
           {overallStats && (
             <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", color: "var(--clr-text-dim)", fontSize: "0.88rem" }}>
@@ -285,17 +287,17 @@ export default function Stats() {
 
         <div className="stats-tabs">
           <button className={`stats-tab${tab === "stats" ? " active" : ""}`} onClick={() => setTab("stats")}>
-            Mes Stats
+            {tr("myStats")}
           </button>
           <button className={`stats-tab${tab === "compare" ? " active" : ""}`} onClick={() => setTab("compare")}>
-            Comparer
+            {tr("compareTab")}
           </button>
         </div>
 
         {loading && (
           <div style={{ textAlign: "center", padding: "60px 20px", color: "var(--clr-text-muted)" }}>
             <div style={{ fontSize: "2.4rem", marginBottom: "14px" }}>📊</div>
-            Chargement des statistiques…
+            {tr("loadingStats")}
           </div>
         )}
 
@@ -304,7 +306,7 @@ export default function Stats() {
           <>
             {/* Performance Badges */}
             <div style={{ marginBottom: "24px" }}>
-              <div className="stats-chart-title">Badges de Performance</div>
+              <div className="stats-chart-title">{tr("performanceBadges")}</div>
               <div className="badges-grid">
                 {badges.map(badge => (
                   <div key={badge.id} className={`badge-card${badge.earned ? " earned" : " unearned"}`}>
@@ -337,7 +339,7 @@ export default function Stats() {
 
             {/* ELO Evolution */}
             <div className="stats-chart-card">
-              <div className="stats-chart-title">Évolution ELO</div>
+              <div className="stats-chart-title">{tr("eloEvolution")}</div>
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={eloHistory} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
@@ -360,7 +362,7 @@ export default function Stats() {
             {/* Radar + Bar grid */}
             <div className="stats-charts-grid">
               <div className="stats-chart-card" style={{ marginBottom: 0 }}>
-                <div className="stats-chart-title">Radar des Performances</div>
+                <div className="stats-chart-title">{tr("performanceRadar")}</div>
                 <ResponsiveContainer width="100%" height={220}>
                   <RadarChart data={radarData} margin={{ top: 0, right: 20, left: 20, bottom: 0 }}>
                     <PolarGrid stroke={GRID_COLOR} />
@@ -379,15 +381,15 @@ export default function Stats() {
               </div>
 
               <div className="stats-chart-card" style={{ marginBottom: 0 }}>
-                <div className="stats-chart-title">Victoires vs Défaites</div>
+                <div className="stats-chart-title">{tr("winsVsLosses")}</div>
                 <ResponsiveContainer width="100%" height={220}>
                   <BarChart data={barData} barGap={2} margin={{ top: 0, right: 8, left: -16, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} vertical={false} />
                     <XAxis dataKey="game" tick={TICK_STYLE} axisLine={false} tickLine={false} />
                     <YAxis tick={TICK_STYLE} axisLine={false} tickLine={false} width={30} allowDecimals={false} />
                     <Tooltip content={<CustomTooltip />} />
-                    <Bar dataKey="Victoires" fill="#ff6b00" radius={[3, 3, 0, 0]} maxBarSize={20} />
-                    <Bar dataKey="Défaites" fill="#e84545" radius={[3, 3, 0, 0]} maxBarSize={20} />
+                    <Bar dataKey={tr("wins")} fill="#ff6b00" radius={[3, 3, 0, 0]} maxBarSize={20} />
+                    <Bar dataKey={tr("losses")} fill="#e84545" radius={[3, 3, 0, 0]} maxBarSize={20} />
                     <Legend wrapperStyle={{ fontSize: "0.75rem", paddingTop: "8px" }} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -396,10 +398,10 @@ export default function Stats() {
 
             {/* Pie chart */}
             <div className="stats-chart-card">
-              <div className="stats-chart-title">Répartition du Temps de Jeu</div>
+              <div className="stats-chart-title">{tr("playTimeDistribution")}</div>
               {pieData.length === 0 ? (
                 <p style={{ color: "var(--clr-text-muted)", textAlign: "center", padding: "28px 0", margin: 0 }}>
-                  Aucune partie jouée pour l'instant.
+                  {tr("noGamesPlayed")}
                 </p>
               ) : (
                 <div style={{ display: "flex", alignItems: "center", gap: "24px", flexWrap: "wrap" }}>
@@ -445,10 +447,10 @@ export default function Stats() {
 
             {/* Match History */}
             <div className="stats-chart-card">
-              <div className="stats-chart-title">Historique des 20 Dernières Parties</div>
+              <div className="stats-chart-title">{tr("last20Games")}</div>
               {matchHistory.length === 0 ? (
                 <p style={{ color: "var(--clr-text-muted)", textAlign: "center", padding: "28px 0", margin: 0 }}>
-                  Aucune partie trouvée.
+                  {tr("noGamesFound")}
                 </p>
               ) : (
                 <div>
@@ -458,7 +460,7 @@ export default function Stats() {
                     const draw = !m.winner;
                     const eloChange = won ? "+20" : draw ? "±0" : "-20";
                     const eloColor = won ? "#22c55e" : draw ? "#ff9500" : "#e84545";
-                    const resultLabel = won ? "Victoire" : draw ? "Nul" : "Défaite";
+                    const resultLabel = won ? tr("statsVictory") : draw ? tr("statsDraw") : tr("statsDefeat");
                     const resultBadge = won ? "badge-success" : draw ? "" : "badge-error";
 
                     return (
@@ -502,12 +504,12 @@ export default function Stats() {
         {!loading && tab === "compare" && (
           <div>
             <div className="stats-chart-card">
-              <div className="stats-chart-title">Comparer avec un Joueur</div>
+              <div className="stats-chart-title">{tr("compareWithPlayer")}</div>
 
               <div style={{ position: "relative" }}>
                 <input
                   type="text"
-                  placeholder="Rechercher un joueur…"
+                  placeholder={tr("searchPlayer")}
                   value={compareSearch}
                   onChange={e => { setCompareSearch(e.target.value); setCompareId(null); setCompareStats(null); setShowDropdown(true); }}
                   onFocus={() => setShowDropdown(true)}
@@ -544,7 +546,7 @@ export default function Stats() {
 
               {compareSearch && !compareId && filteredLeaderboard.length === 0 && !compareLoading && (
                 <div style={{ textAlign: "center", padding: "20px", color: "var(--clr-text-muted)", fontSize: "0.85rem" }}>
-                  Aucun joueur trouvé dans le classement.
+                  {tr("noPlayerFoundLeaderboard")}
                 </div>
               )}
             </div>
@@ -552,7 +554,7 @@ export default function Stats() {
             {compareLoading && (
               <div style={{ textAlign: "center", padding: "40px", color: "var(--clr-text-muted)" }}>
                 <div style={{ fontSize: "1.8rem", marginBottom: "10px" }}>⏳</div>
-                Chargement du profil…
+                {tr("loadingProfile")}
               </div>
             )}
 
@@ -560,7 +562,7 @@ export default function Stats() {
               <>
                 {/* Side-by-side key stats */}
                 <div className="stats-chart-card">
-                  <div className="stats-chart-title">Comparaison — Stats Clés</div>
+                  <div className="stats-chart-title">{tr("compareKeyStats")}</div>
 
                   <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: "12px", alignItems: "center", marginBottom: "8px", paddingBottom: "12px", borderBottom: "1px solid rgba(255,107,0,0.12)" }}>
                     <div style={{ textAlign: "center", fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: "0.8rem", textTransform: "uppercase", color: "#ff6b00" }}>
@@ -573,11 +575,11 @@ export default function Stats() {
                   </div>
 
                   {[
-                    { label: "ELO Global", myVal: overallStats?.elo, theirVal: compareStats?.elo },
-                    { label: "Victoires", myVal: overallStats?.wins, theirVal: compareStats?.wins },
-                    { label: "Défaites", myVal: overallStats?.losses, theirVal: compareStats?.losses },
-                    { label: "Parties jouées", myVal: overallStats?.games_played, theirVal: compareStats?.games_played },
-                    { label: "Win Streak", myVal: overallStats?.win_streak, theirVal: compareStats?.win_streak },
+                    { label: tr("globalEloLabel"), myVal: overallStats?.elo, theirVal: compareStats?.elo },
+                    { label: tr("wins"), myVal: overallStats?.wins, theirVal: compareStats?.wins },
+                    { label: tr("losses"), myVal: overallStats?.losses, theirVal: compareStats?.losses },
+                    { label: tr("gamesPlayedLabel"), myVal: overallStats?.games_played, theirVal: compareStats?.games_played },
+                    { label: tr("winStreakLabel"), myVal: overallStats?.win_streak, theirVal: compareStats?.win_streak },
                   ].map(({ label, myVal, theirVal }) => {
                     const mv = myVal ?? 0;
                     const tv = theirVal ?? 0;
@@ -613,9 +615,9 @@ export default function Stats() {
 
                 {/* Overlapping radar */}
                 <div className="stats-chart-card">
-                  <div className="stats-chart-title">Radar Comparatif — Win Rate %</div>
+                  <div className="stats-chart-title">{tr("comparativeRadar")}</div>
                   <div style={{ display: "flex", justifyContent: "center", gap: "20px", marginBottom: "12px", fontSize: "0.78rem" }}>
-                    <span><span style={{ display: "inline-block", width: 10, height: 10, background: "#ff6b00", borderRadius: 2, marginRight: 5 }} />{overallStats?.player || "Moi"}</span>
+                    <span><span style={{ display: "inline-block", width: 10, height: 10, background: "#ff6b00", borderRadius: 2, marginRight: 5 }} />{overallStats?.player || tr("myLabel")}</span>
                     <span><span style={{ display: "inline-block", width: 10, height: 10, background: "#00b4d8", borderRadius: 2, marginRight: 5 }} />{compareStats.player || compareId}</span>
                   </div>
                   <ResponsiveContainer width="100%" height={300}>
@@ -623,8 +625,8 @@ export default function Stats() {
                       <PolarGrid stroke={GRID_COLOR} />
                       <PolarAngleAxis dataKey="game" tick={TICK_STYLE} />
                       <Radar
-                        name="Moi"
-                        dataKey="Moi"
+                        name={tr("myLabel")}
+                        dataKey={tr("myLabel")}
                         fill="#ff6b00"
                         fillOpacity={0.22}
                         stroke="#ff6b00"

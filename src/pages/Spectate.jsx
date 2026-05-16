@@ -100,8 +100,8 @@ export default function Spectate() {
     ? gameLabel(settings.language, duelInfo.game)
     : duel_id;
 
-  const p1 = duelInfo?.player1 ?? "Joueur 1";
-  const p2 = duelInfo?.player2 ?? "Joueur 2";
+  const p1 = duelInfo?.player1 ?? tr("player1Default");
+  const p2 = duelInfo?.player2 ?? tr("player2Default");
   const score1 = scores[p1] ?? scores[duelInfo?.player1] ?? "-";
   const score2 = scores[p2] ?? scores[duelInfo?.player2] ?? "-";
 
@@ -140,13 +140,13 @@ export default function Spectate() {
               color: "var(--clr-orange)",
             }}
           >
-            👁 Mode Spectateur
+            {"👁 " + tr("spectatorMode")}
           </div>
           <div style={{ fontSize: "0.8rem", color: "var(--clr-text-muted)", marginTop: 4 }}>
             {gameName}
             {duelInfo && (
               <span style={{ marginLeft: 8, color: "var(--clr-text-dim)" }}>
-                · Mise : <strong style={{ color: "var(--clr-orange)" }}>{duelInfo.stake} pts</strong>
+                · {tr("stakePts")} : <strong style={{ color: "var(--clr-orange)" }}>{duelInfo.stake} pts</strong>
               </span>
             )}
           </div>
@@ -168,7 +168,7 @@ export default function Spectate() {
             borderRadius: 6,
           }}
         >
-          ✕ Quitter
+          {tr("leaveSpectator")}
         </button>
       </div>
 
@@ -203,13 +203,13 @@ export default function Spectate() {
           }}
         />
         <span style={{ color: "var(--clr-text-muted)" }}>
-          {status === "connecting" && "Connexion en cours…"}
-          {status === "connected" && !duelFinished && "En direct"}
-          {status === "disconnected" && "Déconnecté"}
-          {duelFinished && "Duel terminé"}
+          {status === "connecting" && tr("connectingSpectator")}
+          {status === "connected" && !duelFinished && tr("liveSpectator")}
+          {status === "disconnected" && tr("disconnectedSpectator")}
+          {duelFinished && tr("duelFinishedSpectator")}
         </span>
         <span style={{ marginLeft: "auto", color: "var(--clr-text-muted)" }}>
-          👁 {spectatorCount} spectateur{spectatorCount !== 1 ? "s" : ""}
+          👁 {spectatorCount} {spectatorCount !== 1 ? tr("spectatorCountPlural") : tr("spectatorCount")}
         </span>
       </div>
 
@@ -330,7 +330,7 @@ export default function Spectate() {
             color: "var(--clr-text-muted)",
           }}
         >
-          💬 Chat Spectateurs
+          {"💬 " + tr("spectatorChat")}
         </div>
 
         <div
@@ -353,7 +353,7 @@ export default function Spectate() {
                 padding: "24px 0",
               }}
             >
-              Aucun message — soyez le premier à écrire !
+              {tr("noMessages")}
             </p>
           ) : (
             chatMessages.map((msg, i) => (
@@ -367,7 +367,7 @@ export default function Spectate() {
                     flexShrink: 0,
                   }}
                 >
-                  {msg.player_id === playerId ? "Vous" : msg.player_id}
+                  {msg.player_id === playerId ? tr("youSpectator") : msg.player_id}
                 </span>
                 <span style={{ fontSize: "0.85rem", color: "var(--clr-text)", wordBreak: "break-word" }}>
                   {msg.message}
@@ -391,7 +391,7 @@ export default function Spectate() {
             value={chatInput}
             onChange={(e) => setChatInput(e.target.value)}
             onKeyDown={handleChatKeyDown}
-            placeholder="Votre message…"
+            placeholder={tr("yourMessage")}
             maxLength={200}
             disabled={status !== "connected"}
             style={{
@@ -420,7 +420,7 @@ export default function Spectate() {
               opacity: !chatInput.trim() || status !== "connected" ? 0.5 : 1,
             }}
           >
-            Envoyer
+            {tr("sendMessage")}
           </button>
         </div>
       </div>

@@ -2,50 +2,103 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { PlayerContext } from "../context/PlayerContext";
 import { getLeaderboard } from "../api/skillsbetApi";
+import { t } from "../i18n";
 import "../styles/landing.css";
 
-const GAMES = [
-  { key: "snake",    label: "Viper",      emoji: "🐍", desc: "Mange, grandis, domine",  isNew: false },
-  { key: "reflex",   label: "QuickShot",  emoji: "⚡", desc: "Réflexes d'élite",         isNew: false },
-  { key: "lineup4",  label: "LineUp4",    emoji: "🟡", desc: "4 en ligne, victoire",      isNew: true  },
-  { key: "xobattle", label: "XO Battle",  emoji: "❌", desc: "Morpion stratégique",       isNew: true  },
-  { key: "memory",   label: "FlipMatch",  emoji: "🧠", desc: "Mémoire parfaite",          isNew: false },
-  { key: "tetris",   label: "BlockDrop",  emoji: "🧱", desc: "Empile et écrase",          isNew: false },
-  { key: "checkers", label: "DraughtWar", emoji: "⚔️", desc: "Tactique de guerre",       isNew: false },
-  { key: "chess",    label: "KingSlayer", emoji: "♟️", desc: "Le roi doit tomber",       isNew: false },
-  { key: "uno",      label: "ColorBlitz", emoji: "🃏", desc: "Couleurs explosives",       isNew: false },
-  { key: "2048",     label: "GridBlitz",  emoji: "🔢", desc: "Fusionne jusqu'à 2048",    isNew: true  },
-];
+const browserLang = navigator.language?.startsWith("en") ? "en" : "fr";
+const tr = (key) => t(browserLang, key);
 
-const FEATURES = [
-  { icon: "🎮", title: "10 JEUX UNIQUES",       desc: "Du snake au chess, 10 mini-jeux conçus pour des duels intenses." },
-  { icon: "🤖", title: "MODE SOLO IA",           desc: "Entraîne-toi contre notre IA adaptative avant d'affronter de vrais joueurs." },
-  { icon: "⚔️", title: "DUELS EN TEMPS RÉEL",   desc: "Lance un défi et joue contre ton adversaire en temps réel." },
-  { icon: "🌍", title: "CLASSEMENT MONDIAL",     desc: "Grimpe dans le classement ELO et représente ton pays." },
-  { icon: "🎨", title: "6 THÈMES VISUELS",       desc: "Personnalise l'interface avec 6 thèmes de couleurs exclusifs." },
-  { icon: "💬", title: "CHAT EN DUEL",           desc: "Communique avec ton adversaire pendant la partie." },
-];
+const GAMES_DATA = {
+  fr: [
+    { key: "snake",    label: "Viper",      emoji: "🐍", desc: "Mange, grandis, domine",  isNew: false },
+    { key: "reflex",   label: "QuickShot",  emoji: "⚡", desc: "Réflexes d'élite",         isNew: false },
+    { key: "lineup4",  label: "LineUp4",    emoji: "🟡", desc: "4 en ligne, victoire",      isNew: true  },
+    { key: "xobattle", label: "XO Battle",  emoji: "❌", desc: "Morpion stratégique",       isNew: true  },
+    { key: "memory",   label: "FlipMatch",  emoji: "🧠", desc: "Mémoire parfaite",          isNew: false },
+    { key: "tetris",   label: "BlockDrop",  emoji: "🧱", desc: "Empile et écrase",          isNew: false },
+    { key: "checkers", label: "DraughtWar", emoji: "⚔️", desc: "Tactique de guerre",       isNew: false },
+    { key: "chess",    label: "KingSlayer", emoji: "♟️", desc: "Le roi doit tomber",       isNew: false },
+    { key: "uno",      label: "ColorBlitz", emoji: "🃏", desc: "Couleurs explosives",       isNew: false },
+    { key: "2048",     label: "GridBlitz",  emoji: "🔢", desc: "Fusionne jusqu'à 2048",    isNew: true  },
+  ],
+  en: [
+    { key: "snake",    label: "Viper",      emoji: "🐍", desc: "Eat, grow, dominate",       isNew: false },
+    { key: "reflex",   label: "QuickShot",  emoji: "⚡", desc: "Elite reflexes",            isNew: false },
+    { key: "lineup4",  label: "LineUp4",    emoji: "🟡", desc: "4 in a row, victory",       isNew: true  },
+    { key: "xobattle", label: "XO Battle",  emoji: "❌", desc: "Strategic tic-tac-toe",     isNew: true  },
+    { key: "memory",   label: "FlipMatch",  emoji: "🧠", desc: "Perfect memory",            isNew: false },
+    { key: "tetris",   label: "BlockDrop",  emoji: "🧱", desc: "Stack and crush",           isNew: false },
+    { key: "checkers", label: "DraughtWar", emoji: "⚔️", desc: "War tactics",              isNew: false },
+    { key: "chess",    label: "KingSlayer", emoji: "♟️", desc: "The king must fall",       isNew: false },
+    { key: "uno",      label: "ColorBlitz", emoji: "🃏", desc: "Explosive colors",          isNew: false },
+    { key: "2048",     label: "GridBlitz",  emoji: "🔢", desc: "Merge up to 2048",          isNew: true  },
+  ],
+};
+const GAMES = GAMES_DATA[browserLang] || GAMES_DATA.fr;
 
-const HOW_IT_WORKS = [
-  {
-    step: "01",
-    icon: "👤",
-    title: "CRÉE TON COMPTE",
-    desc: "Inscription gratuite en 30 secondes. Choisis ton avatar et ton pseudo de légende.",
-  },
-  {
-    step: "02",
-    icon: "🎮",
-    title: "CHOISIS TON JEU",
-    desc: "10 jeux t'attendent. Entraîne-toi contre l'IA avant d'entrer dans l'arène.",
-  },
-  {
-    step: "03",
-    icon: "⚔️",
-    title: "DÉFIE ET GAGNE",
-    desc: "Lance un défi, mise tes jetons et prouve que tu es le meilleur. Grimpe dans les classements.",
-  },
-];
+const FEATURES_DATA = {
+  fr: [
+    { icon: "🎮", title: "10 JEUX UNIQUES",       desc: "Du snake au chess, 10 mini-jeux conçus pour des duels intenses." },
+    { icon: "🤖", title: "MODE SOLO IA",           desc: "Entraîne-toi contre notre IA adaptative avant d'affronter de vrais joueurs." },
+    { icon: "⚔️", title: "DUELS EN TEMPS RÉEL",   desc: "Lance un défi et joue contre ton adversaire en temps réel." },
+    { icon: "🌍", title: "CLASSEMENT MONDIAL",     desc: "Grimpe dans le classement ELO et représente ton pays." },
+    { icon: "🎨", title: "6 THÈMES VISUELS",       desc: "Personnalise l'interface avec 6 thèmes de couleurs exclusifs." },
+    { icon: "💬", title: "CHAT EN DUEL",           desc: "Communique avec ton adversaire pendant la partie." },
+  ],
+  en: [
+    { icon: "🎮", title: "10 UNIQUE GAMES",        desc: "From snake to chess, 10 mini-games built for intense duels." },
+    { icon: "🤖", title: "SOLO AI MODE",           desc: "Train against our adaptive AI before facing real players." },
+    { icon: "⚔️", title: "REAL-TIME DUELS",       desc: "Challenge someone and play against your opponent in real time." },
+    { icon: "🌍", title: "WORLD RANKINGS",         desc: "Climb the ELO leaderboard and represent your country." },
+    { icon: "🎨", title: "6 VISUAL THEMES",        desc: "Customize the interface with 6 exclusive color themes." },
+    { icon: "💬", title: "IN-DUEL CHAT",           desc: "Communicate with your opponent during the game." },
+  ],
+};
+const FEATURES = FEATURES_DATA[browserLang] || FEATURES_DATA.fr;
+
+const HOW_IT_WORKS_DATA = {
+  fr: [
+    {
+      step: "01",
+      icon: "👤",
+      title: "CRÉE TON COMPTE",
+      desc: "Inscription gratuite en 30 secondes. Choisis ton avatar et ton pseudo de légende.",
+    },
+    {
+      step: "02",
+      icon: "🎮",
+      title: "CHOISIS TON JEU",
+      desc: "10 jeux t'attendent. Entraîne-toi contre l'IA avant d'entrer dans l'arène.",
+    },
+    {
+      step: "03",
+      icon: "⚔️",
+      title: "DÉFIE ET GAGNE",
+      desc: "Lance un défi, mise tes jetons et prouve que tu es le meilleur. Grimpe dans les classements.",
+    },
+  ],
+  en: [
+    {
+      step: "01",
+      icon: "👤",
+      title: "CREATE YOUR ACCOUNT",
+      desc: "Free sign-up in 30 seconds. Pick your avatar and legendary username.",
+    },
+    {
+      step: "02",
+      icon: "🎮",
+      title: "CHOOSE YOUR GAME",
+      desc: "10 games await. Train against AI before entering the arena.",
+    },
+    {
+      step: "03",
+      icon: "⚔️",
+      title: "CHALLENGE AND WIN",
+      desc: "Start a duel, stake your tokens and prove you're the best. Climb the rankings.",
+    },
+  ],
+};
+const HOW_IT_WORKS = HOW_IT_WORKS_DATA[browserLang] || HOW_IT_WORKS_DATA.fr;
 
 const TESTIMONIALS = [
   {
@@ -78,18 +131,35 @@ const TESTIMONIALS = [
   },
 ];
 
-const PLATFORM_STATS = [
-  { icon: "👥", target: 1247,  label: "Joueurs inscrits",  suffix: "+" },
-  { icon: "🎮", target: 38920, label: "Parties jouées",    suffix: "" },
-  { icon: "🌍", target: 42,    label: "Pays représentés",  suffix: "" },
-];
+const PLATFORM_STATS_DATA = {
+  fr: [
+    { icon: "👥", target: 1247,  label: "Joueurs inscrits",  suffix: "+" },
+    { icon: "🎮", target: 38920, label: "Parties jouées",    suffix: "" },
+    { icon: "🌍", target: 42,    label: "Pays représentés",  suffix: "" },
+  ],
+  en: [
+    { icon: "👥", target: 1247,  label: "Registered players", suffix: "+" },
+    { icon: "🎮", target: 38920, label: "Games played",        suffix: "" },
+    { icon: "🌍", target: 42,    label: "Countries represented", suffix: "" },
+  ],
+};
+const PLATFORM_STATS = PLATFORM_STATS_DATA[browserLang] || PLATFORM_STATS_DATA.fr;
 
-const JOIN_STATS = [
-  { num: "1 247", suffix: "+", label: "JOUEURS INSCRITS" },
-  { num: "38 920", suffix: "", label: "PARTIES JOUÉES" },
-  { num: "42", suffix: "", label: "PAYS REPRÉSENTÉS" },
-  { num: "100", suffix: "%", label: "GRATUIT" },
-];
+const JOIN_STATS_DATA = {
+  fr: [
+    { num: "1 247", suffix: "+", label: "JOUEURS INSCRITS" },
+    { num: "38 920", suffix: "", label: "PARTIES JOUÉES" },
+    { num: "42", suffix: "", label: "PAYS REPRÉSENTÉS" },
+    { num: "100", suffix: "%", label: "GRATUIT" },
+  ],
+  en: [
+    { num: "1 247", suffix: "+", label: "REGISTERED PLAYERS" },
+    { num: "38 920", suffix: "", label: "GAMES PLAYED" },
+    { num: "42", suffix: "", label: "COUNTRIES REPRESENTED" },
+    { num: "100", suffix: "%", label: "FREE" },
+  ],
+};
+const JOIN_STATS = JOIN_STATS_DATA[browserLang] || JOIN_STATS_DATA.fr;
 
 /* ── Improved canvas background with 3D perspective grid ── */
 function AnimatedBackground() {
@@ -435,10 +505,10 @@ export default function LandingPage() {
         <span className="landing-nav__logo">SKILLS<span>BET</span></span>
         <div className="landing-nav__actions">
           <Link to="/login" className="hero-btn hero-btn--ghost" style={{ padding: "10px 22px", fontSize: "0.88rem" }}>
-            CONNEXION
+            {tr("landingCta2")}
           </Link>
           <Link to="/login" className="hero-btn hero-btn--primary" style={{ padding: "10px 22px", fontSize: "0.88rem" }}>
-            S'INSCRIRE
+            {tr("landingJoinCta1")}
           </Link>
         </div>
       </nav>
@@ -448,7 +518,7 @@ export default function LandingPage() {
         <div className="hero-parallax">
           <div className="hero-badge">
             <span className="hero-badge__dot" />
-            Plateforme de duels &amp; paris virtuels
+            {tr("landingBadgeText")}
           </div>
 
           <h1 className="hero-logo">SKILLS<span>BET</span></h1>
@@ -458,24 +528,23 @@ export default function LandingPage() {
           </p>
 
           <p className="hero-subtitle">
-            La plateforme de duels de mini-jeux avec paris en jetons virtuels.<br />
-            10 jeux, une IA redoutable, un classement mondial.
+            {tr("landingSubtitle")}
           </p>
 
           <OnlineCounter />
 
           <div className="hero-cta">
             <Link to="/login" className="hero-btn hero-btn--primary">
-              ⚡ JOUER MAINTENANT
+              ⚡ {tr("landingCta1")}
             </Link>
             <Link to="/login" className="hero-btn hero-btn--ghost">
-              CRÉER UN COMPTE
+              {tr("landingJoinCta1")}
             </Link>
           </div>
         </div>
 
         <div className="hero-scroll-hint">
-          <span>Découvrir</span>
+          <span>{tr("landingScrollHint")}</span>
           <span className="hero-scroll-hint__arrow" />
         </div>
       </section>
@@ -486,7 +555,7 @@ export default function LandingPage() {
       <section className="landing-section">
         <div className="section-header reveal">
           <span className="section-label">Simple &amp; rapide</span>
-          <h2 className="section-title">COMMENT ÇA <span>MARCHE</span></h2>
+          <h2 className="section-title">{tr("landingHowItWorks")}</h2>
           <p className="section-desc">Rejoins l'arène en 3 étapes. Aucune carte bancaire requise.</p>
         </div>
 
@@ -509,8 +578,8 @@ export default function LandingPage() {
       <section className="landing-section">
         <div className="section-header reveal">
           <span className="section-label">Mini-jeux</span>
-          <h2 className="section-title">10 JEUX <span>UNIQUES</span></h2>
-          <p className="section-desc">Chaque jeu est optimisé pour des duels 1v1 intenses et des sessions solo contre l'IA.</p>
+          <h2 className="section-title">{tr("landingGames")}</h2>
+          <p className="section-desc">{tr("landingGamesDesc")}</p>
         </div>
 
         <div className="games-grid">
@@ -535,7 +604,7 @@ export default function LandingPage() {
       <section className="landing-section">
         <div className="section-header reveal">
           <span className="section-label">Fonctionnalités</span>
-          <h2 className="section-title">TOUT POUR <span>GAGNER</span></h2>
+          <h2 className="section-title">{tr("landingFeatures")}</h2>
           <p className="section-desc">Une plateforme complète conçue pour les compétiteurs sérieux.</p>
         </div>
 
@@ -559,7 +628,7 @@ export default function LandingPage() {
       <section className="landing-section">
         <div className="section-header reveal">
           <span className="section-label">Communauté</span>
-          <h2 className="section-title">ILS <span>DOMINENT</span> DÉJÀ</h2>
+          <h2 className="section-title">{tr("landingTestimonials")}</h2>
           <p className="section-desc">Des milliers de joueurs nous font confiance. Rejoins-les.</p>
         </div>
 
@@ -585,7 +654,7 @@ export default function LandingPage() {
       <section className="landing-section">
         <div className="section-header reveal">
           <span className="section-label">Classement</span>
-          <h2 className="section-title">TOP <span>JOUEURS</span></h2>
+          <h2 className="section-title">{tr("landingTopPlayers")}</h2>
           <p className="section-desc">Les meilleurs joueurs de la plateforme en temps réel.</p>
         </div>
 
@@ -625,9 +694,9 @@ export default function LandingPage() {
         <div className="join-section__bg" aria-hidden="true" />
         <div className="join-section__inner">
           <span className="section-label" style={{ color: "rgba(255,255,255,0.7)" }}>Rejoins l'arène</span>
-          <h2 className="join-section__title">PRÊT À <span>DOMINER</span> ?</h2>
+          <h2 className="join-section__title">{tr("landingJoinTitle")}</h2>
           <p className="join-section__sub">
-            Des milliers de joueurs t'attendent. Inscription gratuite, aucune carte bancaire.
+            {tr("landingJoinSubtitle")}
           </p>
 
           <div className="join-stats">
@@ -641,10 +710,10 @@ export default function LandingPage() {
 
           <div className="hero-cta" style={{ justifyContent: "center", marginTop: 40 }}>
             <Link to="/login" className="hero-btn hero-btn--white">
-              ⚡ COMMENCER GRATUITEMENT
+              ⚡ {tr("landingJoinCta1")}
             </Link>
             <Link to="/login" className="hero-btn hero-btn--outline-white">
-              EN SAVOIR PLUS
+              {tr("landingJoinCta2")}
             </Link>
           </div>
         </div>

@@ -57,22 +57,22 @@ export default function Friends() {
   async function handleSendRequest(addresseeId) {
     try {
       await sendRequest(addresseeId);
-      notifySuccess("Demande envoyée", `Demande d'ami envoyée`);
+      notifySuccess(tr("requestSent"), `Demande d'ami envoyée`);
       if (searchQuery.length >= 2) {
         const results = await searchPlayers(searchQuery);
         setSearchResults(Array.isArray(results) ? results : []);
       }
     } catch (err) {
-      notifyError("Erreur", err.message);
+      notifyError(tr("erreur"), err.message);
     }
   }
 
   async function handleAccept(id) {
     try {
       await acceptRequest(id);
-      notifySuccess("Ami ajouté", "Demande acceptée !");
+      notifySuccess(tr("friendAdded"), tr("friendAccepted"));
     } catch (err) {
-      notifyError("Erreur", err.message);
+      notifyError(tr("erreur"), err.message);
     }
   }
 
@@ -80,16 +80,16 @@ export default function Friends() {
     try {
       await rejectRequest(id);
     } catch (err) {
-      notifyError("Erreur", err.message);
+      notifyError(tr("erreur"), err.message);
     }
   }
 
   async function handleRemove(id) {
     try {
       await removeFriend(id);
-      notifySuccess("Ami supprimé", "Ami retiré de votre liste");
+      notifySuccess(tr("friendRemoved"), tr("friendRemovedMsg"));
     } catch (err) {
-      notifyError("Erreur", err.message);
+      notifyError(tr("erreur"), err.message);
     }
   }
 
@@ -97,10 +97,10 @@ export default function Friends() {
     if (!challengeTarget) return;
     try {
       await challenge(challengeTarget.id, challengeGame, challengeStake);
-      notifySuccess("Défi envoyé !", `${challengeTarget.display_name} a reçu votre défi`);
+      notifySuccess(tr("challengeSent"), `${challengeTarget.display_name} a reçu votre défi`);
       setChallengeTarget(null);
     } catch (err) {
-      notifyError("Erreur", err.message);
+      notifyError(tr("erreur"), err.message);
     }
   }
 
@@ -108,14 +108,14 @@ export default function Friends() {
     <div className="app-shell">
       <SessionBar />
       <div style={{ paddingTop: 72 }}>
-        <h2 className="friends-page-title">AMIS &amp; SOCIAL</h2>
+        <h2 className="friends-page-title">{tr("friendsPageTitle")}</h2>
 
         {/* Tabs */}
         <div className="friends-tabs">
           {[
-            { id: "friends", label: `Mes amis (${friends.length})` },
-            { id: "requests", label: "Demandes", badge: pendingCount },
-            { id: "search", label: "Rechercher" },
+            { id: "friends", label: `${tr("myFriends")} (${friends.length})` },
+            { id: "requests", label: tr("friendRequests"), badge: pendingCount },
+            { id: "search", label: tr("searchPlayers") },
           ].map((t) => (
             <button
               key={t.id}
@@ -146,10 +146,10 @@ export default function Friends() {
             ) : friends.length === 0 ? (
               <div className="section-card friends-empty">
                 <span style={{ color: "var(--clr-text-dim)" }}>
-                  Vous n'avez pas encore d'amis.
+                  {tr("noFriends")}
                 </span>
                 <button className="btn-ghost btn-sm" onClick={() => setTab("search")}>
-                  + Rechercher des joueurs
+                  {tr("searchPlayers2")}
                 </button>
               </div>
             ) : (
@@ -161,7 +161,7 @@ export default function Friends() {
                     <span className="friend-card__elo">ELO {f.elo}</span>
                   </div>
                   <span className={`friend-card__status${f.is_online ? " friend-card__status--online" : ""}`}>
-                    {f.is_online ? "EN LIGNE" : "HORS LIGNE"}
+                    {f.is_online ? tr("onlineStatus") : tr("offlineStatus")}
                   </span>
                   {f.is_online && (
                     <button
@@ -169,13 +169,13 @@ export default function Friends() {
                       onClick={() => setChallengeTarget(f)}
                       style={{ fontSize: "0.8rem" }}
                     >
-                      ⚔ DÉFIER
+                      {tr("challenge")}
                     </button>
                   )}
                   <button
                     className="btn-ghost btn-sm"
                     onClick={() => handleRemove(f.friendship_id)}
-                    title="Supprimer l'ami"
+                    title={tr("removeBtn")}
                     style={{ color: "var(--clr-error)", fontSize: "1rem", padding: "4px 8px" }}
                   >
                     ✕
@@ -189,9 +189,9 @@ export default function Friends() {
         {/* ── Demandes ── */}
         {tab === "requests" && (
           <div>
-            <h3 className="friends-section-title">Demandes reçues</h3>
+            <h3 className="friends-section-title">{tr("receivedRequests")}</h3>
             {requests.length === 0 ? (
-              <p style={{ color: "var(--clr-text-dim)", marginBottom: 24 }}>Aucune demande en attente.</p>
+              <p style={{ color: "var(--clr-text-dim)", marginBottom: 24 }}>{tr("noPendingRequests")}</p>
             ) : (
               <div className="friends-list">
                 {requests.map((r) => (
@@ -206,23 +206,23 @@ export default function Friends() {
                       onClick={() => handleAccept(r.friendship_id)}
                       style={{ marginLeft: "auto", fontSize: "0.8rem" }}
                     >
-                      ✓ Accepter
+                      {tr("acceptRequest")}
                     </button>
                     <button
                       className="btn-ghost btn-sm"
                       onClick={() => handleReject(r.friendship_id)}
                       style={{ fontSize: "0.8rem" }}
                     >
-                      ✕ Refuser
+                      {tr("rejectRequest")}
                     </button>
                   </div>
                 ))}
               </div>
             )}
 
-            <h3 className="friends-section-title" style={{ marginTop: 28 }}>Demandes envoyées</h3>
+            <h3 className="friends-section-title" style={{ marginTop: 28 }}>{tr("sentRequests")}</h3>
             {sent.length === 0 ? (
-              <p style={{ color: "var(--clr-text-dim)" }}>Aucune demande en cours.</p>
+              <p style={{ color: "var(--clr-text-dim)" }}>{tr("noSentRequests")}</p>
             ) : (
               <div className="friends-list">
                 {sent.map((s) => (
@@ -232,13 +232,13 @@ export default function Friends() {
                       <span className="friend-card__name">{s.display_name}</span>
                       <span className="friend-card__elo" style={{ fontSize: "0.75rem" }}>{s.id}</span>
                     </div>
-                    <span className="badge-muted" style={{ marginLeft: "auto" }}>En attente</span>
+                    <span className="badge-muted" style={{ marginLeft: "auto" }}>{tr("pending")}</span>
                     <button
                       className="btn-ghost btn-sm"
                       onClick={() => handleRemove(s.friendship_id)}
                       style={{ fontSize: "0.8rem", color: "var(--clr-error)" }}
                     >
-                      Annuler
+                      {tr("cancelRequest")}
                     </button>
                   </div>
                 ))}
@@ -252,14 +252,14 @@ export default function Friends() {
           <div>
             <input
               type="text"
-              placeholder="Rechercher par email ou pseudo..."
+              placeholder={tr("searchPlaceholder")}
               value={searchQuery}
               onChange={handleSearch}
               style={{ width: "100%", marginBottom: 16, fontSize: "0.95rem" }}
             />
-            {searchLoading && <p style={{ color: "var(--clr-text-dim)" }}>Recherche...</p>}
+            {searchLoading && <p style={{ color: "var(--clr-text-dim)" }}>{tr("searchLoading")}</p>}
             {!searchLoading && searchQuery.length >= 2 && searchResults.length === 0 && (
-              <p style={{ color: "var(--clr-text-dim)" }}>Aucun joueur trouvé.</p>
+              <p style={{ color: "var(--clr-text-dim)" }}>{tr("noPlayerFound")}</p>
             )}
             <div className="friends-list">
               {searchResults.map((r) => (
@@ -272,18 +272,18 @@ export default function Friends() {
                   <div style={{ marginLeft: "auto" }}>
                     {!r.friendship_status && (
                       <button className="btn-sm" onClick={() => handleSendRequest(r.id)} style={{ fontSize: "0.8rem" }}>
-                        + Ajouter
+                        {tr("addFriend")}
                       </button>
                     )}
                     {r.friendship_status === "pending" && (
-                      <span className="badge-muted">En attente</span>
+                      <span className="badge-muted">{tr("pending")}</span>
                     )}
                     {r.friendship_status === "accepted" && (
-                      <span className="badge-success">Ami ✓</span>
+                      <span className="badge-success">{tr("alreadyFriend")}</span>
                     )}
                     {r.friendship_status === "rejected" && (
                       <button className="btn-sm" onClick={() => handleSendRequest(r.id)} style={{ fontSize: "0.8rem" }}>
-                        + Ajouter
+                        {tr("addFriend")}
                       </button>
                     )}
                   </div>
@@ -298,10 +298,10 @@ export default function Friends() {
       {challengeTarget && (
         <div className="challenge-overlay" onClick={() => setChallengeTarget(null)}>
           <div className="challenge-modal" onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ marginBottom: 16 }}>DÉFIER {challengeTarget.display_name.toUpperCase()}</h3>
+            <h3 style={{ marginBottom: 16 }}>{tr("challengeTitle")} {challengeTarget.display_name.toUpperCase()}</h3>
 
             <label style={{ display: "block", marginBottom: 6, color: "var(--clr-text-dim)", fontSize: "0.8rem", textTransform: "uppercase" }}>
-              Jeu
+              {tr("matchmakingGame")}
             </label>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
               {GAMES.map((g) => (
@@ -317,7 +317,7 @@ export default function Friends() {
             </div>
 
             <label style={{ display: "block", marginBottom: 6, color: "var(--clr-text-dim)", fontSize: "0.8rem", textTransform: "uppercase" }}>
-              Mise (jetons)
+              {tr("stake")}
             </label>
             <input
               type="number"
@@ -329,10 +329,10 @@ export default function Friends() {
 
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={handleChallengeSend} style={{ flex: 1 }}>
-                ⚔ Envoyer le défi
+                {tr("sendChallenge")}
               </button>
               <button className="btn-ghost" onClick={() => setChallengeTarget(null)} style={{ flex: 1 }}>
-                Annuler
+                {tr("cancelRequest")}
               </button>
             </div>
           </div>

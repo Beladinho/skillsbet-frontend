@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { PlayerContext } from "../context/PlayerContext";
 import { useNotifications } from "../context/NotificationContext";
+import { useAppSettings } from "../context/AppSettingsContext";
 import {
   getAdminReports,
   adminIgnoreReport,
@@ -9,15 +10,18 @@ import {
   adminBanReport,
 } from "../api/skillsbetApi";
 
-const STATUS_LABELS = {
-  en_attente: { label: "En attente", color: "#f59e0b" },
-  traité: { label: "Traité", color: "#22c55e" },
-  ignoré: { label: "Ignoré", color: "#64748b" },
-};
-
 export default function AdminReportsPanel() {
   const { role } = useContext(PlayerContext);
   const { notifySuccess, notifyError } = useNotifications();
+  const { tr } = useAppSettings();
+
+  function getStatusLabels() {
+    return {
+      en_attente: { label: tr("reportStatusPending"), color: "#f59e0b" },
+      traité: { label: tr("reportStatusHandled"), color: "#22c55e" },
+      ignoré: { label: tr("reportStatusIgnored"), color: "#64748b" },
+    };
+  }
 
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -77,14 +81,14 @@ export default function AdminReportsPanel() {
         style={{ width: "100%", textAlign: "left", fontWeight: 800 }}
         onClick={() => setOpen((o) => !o)}
       >
-        🚩 Signalements {open ? "▲" : "▼"}
+        {tr("reportsPanelTitle")} {open ? "▲" : "▼"}
       </button>
 
       {open && (
         <div style={{ marginTop: 16 }}>
           {/* Filters */}
           <div style={{ display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
-            {[["en_attente", "En attente"], ["traité", "Traités"], ["ignoré", "Ignorés"], ["all", "Tous"]].map(
+            {[["en_attente", tr("reportsFilterPending")], ["traité", tr("reportsFilterHandled")], ["ignoré", tr("reportsFilterIgnored")], ["all", tr("reportsFilterAll")]].map(
               ([val, lbl]) => (
                 <button
                   key={val}
@@ -110,12 +114,12 @@ export default function AdminReportsPanel() {
           </div>
 
           {filtered.length === 0 && (
-            <p style={{ color: "var(--clr-text-dim)", fontSize: "0.85rem" }}>Aucun signalement.</p>
+            <p style={{ color: "var(--clr-text-dim)", fontSize: "0.85rem" }}>{tr("noReports")}</p>
           )}
 
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {filtered.map((r) => {
-              const st = STATUS_LABELS[r.status] || { label: r.status, color: "#94a3b8" };
+              const st = getStatusLabels()[r.status] || { label: r.status, color: "#94a3b8" };
               const days = suspendDays[r.id] ?? 7;
               return (
                 <div
@@ -163,11 +167,11 @@ export default function AdminReportsPanel() {
                         </span>
                       </div>
                       <div style={{ fontSize: "0.85rem", marginBottom: 4 }}>
-                        <span style={{ color: "var(--clr-text-dim)" }}>Signaleur : </span>
+                        <span style={{ color: "var(--clr-text-dim)" }}>{tr("reportReporter")} : </span>
                         <strong>{r.reporter_id}</strong>
                       </div>
                       <div style={{ fontSize: "0.85rem", marginBottom: r.details ? 6 : 0 }}>
-                        <span style={{ color: "var(--clr-text-dim)" }}>Signalé : </span>
+                        <span style={{ color: "var(--clr-text-dim)" }}>{tr("reportReported")} : </span>
                         <strong style={{ color: "#f87171" }}>{r.reported_id}</strong>
                       </div>
                       {r.details && (
@@ -193,11 +197,11 @@ export default function AdminReportsPanel() {
 
                     {r.status === "en_attente" && (
                       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-                        <button style={btnStyle("#64748b")} onClick={() => act(adminIgnoreReport, r.id, "Ignoré.")}>
-                          Ignorer
+                        <button style={btnStyle("#64748b")} onClick={() => act(adminIgnoreReport, r.id, tr("reportStatusIgnored"))}>
+                          {tr("ignoreReport")}
                         </button>
-                        <button style={btnStyle("#f59e0b")} onClick={() => act(adminWarnReport, r.id, "Averti.")}>
-                          Avertir
+                        <button style={btnStyle("#f59e0b")} onClick={() => act(adminWarnReport, r.id, tr("warnReport"))}>
+                          {tr("warnReport")}
                         </button>
                         <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
                           <input
@@ -221,13 +225,13 @@ export default function AdminReportsPanel() {
                           />
                           <button
                             style={btnStyle("#f97316")}
-                            onClick={() => act((id) => adminSuspendReport(id, days), r.id, `Suspendu ${days}j.`)}
+                            onClick={() => act((id) => adminSuspendReport(id, days), r.id, `${tr("suspendReport")} ${days} ${tr("suspendDaysLabel")}`)}
                           >
-                            Suspendre
+                            {tr("suspendReport")}
                           </button>
                         </div>
-                        <button style={btnStyle("#ef4444")} onClick={() => act(adminBanReport, r.id, "Banni.")}>
-                          Bannir
+                        <button style={btnStyle("#ef4444")} onClick={() => act(adminBanReport, r.id, tr("banReport"))}>
+                          {tr("banReport")}
                         </button>
                       </div>
                     )}
