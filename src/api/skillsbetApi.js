@@ -1381,3 +1381,15 @@ export async function adminSuspendReport(id, days = 7) {
 export async function adminBanReport(id) {
   return apiRequest(`/reports/admin/${id}/ban`, { method: "POST" });
 }
+
+/* =========================
+   SPECTATOR
+========================= */
+
+export async function getActiveDuels() {
+  return apiRequest("/duels/active");
+}
+
+export async function getDuelSpectators(duelId) {
+  return apiRequest(`/duels/${duelId}/spectators`);
+}

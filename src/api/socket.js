@@ -18,6 +18,7 @@ function buildWsUrl(path) {
 
 let duelSocket = null;
 let globalSocket = null;
+let spectatorSocket = null;
 
 export function connectToDuelSocket(duelId, onMessage, onOpen, onClose) {
   if (!duelId) return null;
@@ -177,6 +178,64 @@ export function sendDuelSocketMessage(payload) {
   }
 
   duelSocket.send(JSON.stringify(payload));
+}
+
+export function connectToSpectatorSocket(duelId, playerId, onMessage, onOpen, onClose) {
+  if (!duelId || !playerId) return null;
+
+  if (spectatorSocket) {
+    if (
+      spectatorSocket.readyState === WebSocket.OPEN ||
+      spectatorSocket.readyState === WebSocket.CONNECTING
+    ) {
+      spectatorSocket.close();
+    }
+    spectatorSocket = null;
+  }
+
+  const url = buildWsUrl(
+    `/ws/duel/${duelId}?player_id=${encodeURIComponent(playerId)}&spectator=true`
+  );
+  spectatorSocket = new WebSocket(url);
+
+  spectatorSocket.onopen = () => {
+    if (onOpen) onOpen();
+  };
+
+  spectatorSocket.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      if (onMessage) onMessage(data);
+    } catch (error) {
+      console.error("Invalid spectator WebSocket JSON:", error);
+    }
+  };
+
+  spectatorSocket.onclose = () => {
+    if (onClose) onClose();
+  };
+
+  spectatorSocket.onerror = (error) => {
+    console.error("Spectator WebSocket error:", error);
+  };
+
+  return spectatorSocket;
+}
+
+export function sendSpectatorMessage(payload) {
+  if (!spectatorSocket || spectatorSocket.readyState !== WebSocket.OPEN) return;
+  spectatorSocket.send(JSON.stringify(payload));
+}
+
+export function disconnectSpectatorSocket() {
+  if (!spectatorSocket) return;
+  if (
+    spectatorSocket.readyState === WebSocket.OPEN ||
+    spectatorSocket.readyState === WebSocket.CONNECTING
+  ) {
+    spectatorSocket.close();
+  }
+  spectatorSocket = null;
 }
 
 export function connectSocket(duelId, playerId, callback) {

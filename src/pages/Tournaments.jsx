@@ -1,4 +1,5 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { PlayerContext } from "../context/PlayerContext";
 import { useAppSettings } from "../context/AppSettingsContext";
 import { useNotifications } from "../context/NotificationContext";
@@ -457,21 +458,45 @@ export default function Tournaments() {
                             <p>Player 2 : {match.player2 || "-"}</p>
                             <p>Winner : {match.winner || "-"}</p>
 
-                            {!match.winner && match.player1 && match.player2 && role === "admin" && (
-                              <div style={{ marginTop: "10px" }}>
-                                <button
-                                  onClick={() => handleReportMatch(match.id, match.player1)}
-                                  style={{ marginRight: "8px" }}
-                                  disabled={loading}
-                                >
-                                  Gagnant : {match.player1}
-                                </button>
-                                <button
-                                  onClick={() => handleReportMatch(match.id, match.player2)}
-                                  disabled={loading}
-                                >
-                                  Gagnant : {match.player2}
-                                </button>
+                            {!match.winner && match.player1 && match.player2 && (
+                              <div style={{ marginTop: "10px", display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                                {match.duel_id && (
+                                  <Link
+                                    to={`/spectate/${match.duel_id}`}
+                                    style={{
+                                      padding: "5px 12px",
+                                      background: "rgba(255,107,0,0.08)",
+                                      border: "1px solid rgba(255,107,0,0.3)",
+                                      color: "var(--clr-orange)",
+                                      borderRadius: 5,
+                                      textDecoration: "none",
+                                      fontFamily: "var(--font-heading)",
+                                      fontWeight: 800,
+                                      fontSize: "0.75rem",
+                                      textTransform: "uppercase",
+                                      letterSpacing: 1,
+                                    }}
+                                  >
+                                    👁 Regarder
+                                  </Link>
+                                )}
+                                {role === "admin" && (
+                                  <>
+                                    <button
+                                      onClick={() => handleReportMatch(match.id, match.player1)}
+                                      style={{ marginRight: "8px" }}
+                                      disabled={loading}
+                                    >
+                                      Gagnant : {match.player1}
+                                    </button>
+                                    <button
+                                      onClick={() => handleReportMatch(match.id, match.player2)}
+                                      disabled={loading}
+                                    >
+                                      Gagnant : {match.player2}
+                                    </button>
+                                  </>
+                                )}
                               </div>
                             )}
                           </div>

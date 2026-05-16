@@ -120,6 +120,7 @@ import {
   getMissions,
   getPlayerStats,
   getSeasonLeaderboard,
+  getActiveDuels,
 } from "../api/skillsbetApi";
 
 import {
@@ -166,6 +167,7 @@ export default function Lobby() {
   const [liveScores, setLiveScores] = useState({});
   const [chatMessages, setChatMessages] = useState([]);
   const [duelAvatarUrls, setDuelAvatarUrls] = useState({});
+  const [activeDuels, setActiveDuels] = useState([]);
 
   const GAMES = ["snake", "reflex", "memory", "tetris", "checkers", "chess", "uno", "lineup4", "xobattle"];
 
@@ -262,6 +264,18 @@ export default function Lobby() {
   useEffect(() => { loadAllLobbyData(); }, [loadAllLobbyData]);
 
   useEffect(() => { setCreatorGames(getApprovedGames()); }, []);
+
+  useEffect(() => {
+    let alive = true;
+    function load() {
+      getActiveDuels()
+        .then((data) => { if (alive) setActiveDuels(Array.isArray(data) ? data : []); })
+        .catch(() => {});
+    }
+    load();
+    const id = window.setInterval(load, 10000);
+    return () => { alive = false; window.clearInterval(id); };
+  }, []);
 
   useEffect(() => {
     if (!playerId) return;
@@ -781,6 +795,56 @@ export default function Lobby() {
             );
           })}
         </div>
+      </SectionCard>
+
+      {/* Active Duels */}
+      <SectionCard title="Duels en cours" style={{ "--section-delay": "0.28s" }}>
+        {activeDuels.length === 0 ? (
+          <p style={{ color: "var(--clr-text-muted)", fontSize: "0.85rem", padding: "8px 0" }}>
+            Aucun duel en cours pour l&apos;instant.
+          </p>
+        ) : (
+          <div className="simple-list">
+            {activeDuels.map((duel) => (
+              <div
+                key={duel.duel_id}
+                className="simple-list-item"
+                style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}
+              >
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 700, fontSize: "0.88rem", color: "var(--clr-text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {duel.player1} <span style={{ color: "var(--clr-text-muted)" }}>vs</span> {duel.player2}
+                  </div>
+                  <div style={{ fontSize: "0.75rem", color: "var(--clr-text-dim)", marginTop: 2, display: "flex", gap: 10 }}>
+                    <span>{gameLabel(settings.language, duel.game)}</span>
+                    <span>· Mise : <strong style={{ color: "var(--clr-orange)" }}>{duel.stake} pts</strong></span>
+                    <span>· 👁 {duel.spectator_count ?? 0}</span>
+                  </div>
+                </div>
+                <Link
+                  to={`/spectate/${duel.duel_id}`}
+                  style={{
+                    padding: "6px 14px",
+                    background: "rgba(255,107,0,0.08)",
+                    border: "1px solid rgba(255,107,0,0.3)",
+                    color: "var(--clr-orange)",
+                    borderRadius: 6,
+                    textDecoration: "none",
+                    fontFamily: "var(--font-heading)",
+                    fontWeight: 800,
+                    fontSize: "0.75rem",
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
+                    whiteSpace: "nowrap",
+                    flexShrink: 0,
+                  }}
+                >
+                  👁 Regarder
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
       </SectionCard>
 
       <Tournaments />
