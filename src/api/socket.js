@@ -62,6 +62,8 @@ export function connectToDuelSocket(duelId, onMessage, onOpen, onClose) {
       const data = JSON.parse(raw);
       console.log("Duel WebSocket message:", data);
 
+      window.dispatchEvent(new CustomEvent("skillsbet:ws-duel", { detail: data }));
+
       if (onMessage) {
         onMessage(data);
       }
@@ -135,6 +137,8 @@ export function connectGlobalSocket(playerId, onMessage, onOpen, onClose) {
 
       const data = JSON.parse(raw);
       console.log("Global WebSocket message:", data);
+
+      window.dispatchEvent(new CustomEvent("skillsbet:ws-global", { detail: data }));
 
       if (onMessage) {
         onMessage(data);
