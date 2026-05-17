@@ -13,10 +13,20 @@ export function openChat() {
 export function useCrisp() {
   const { playerId, playerXp, subscriptionTier } = useContext(PlayerContext);
 
-  /* Bootstrap Crisp once with brand color */
+  /* Load Crisp script dynamically and bootstrap */
   useEffect(() => {
-    if (!CRISP_ID || !window.$crisp) return;
-    window.$crisp.push(["config", "color:theme", "#FF6B00"]);
+    if (!CRISP_ID) return;
+    window.$crisp = [];
+    window.CRISP_WEBSITE_ID = CRISP_ID;
+    const s = document.createElement("script");
+    s.src = "https://client.crisp.chat/l.js";
+    s.async = true;
+    document.head.appendChild(s);
+    s.onload = () => {
+      if (window.$crisp) {
+        window.$crisp.push(["config", "color:theme", "#FF6B00"]);
+      }
+    };
   }, []);
 
   /* Push user identity whenever login state changes */
