@@ -355,7 +355,11 @@ export default function Tournaments() {
               {[...Array(3)].map((_, i) => <Skeleton key={i} height={56} />)}
             </div>
           ) : tournaments.length === 0 ? (
-            <p>Aucun tournoi disponible</p>
+            <div className="empty-state">
+              <span className="empty-state__icon">🏆</span>
+              <p className="empty-state__text">Aucun tournoi disponible</p>
+              <p className="empty-state__sub">Reviens bientôt ou crée le tien !</p>
+            </div>
           ) : (
             <div className="section-card" style={{ padding: "16px" }}>
               <table border="1" cellPadding="8" style={{ width: "100%" }}>

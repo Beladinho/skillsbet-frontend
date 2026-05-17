@@ -17,6 +17,7 @@ export default function Profile() {
   const [form, setForm] = useState({ display_name: "", bio: "", country: "", avatar_url: "" });
   const [error, setError] = useState("");
   const [status, setStatus] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     async function loadProfile() {
@@ -51,6 +52,7 @@ export default function Profile() {
     try {
       setError("");
       setStatus("");
+      setSaving(true);
       const updated = await updateProfile({
         display_name: form.display_name,
         bio: form.bio,
@@ -73,6 +75,8 @@ export default function Profile() {
       const msg = err.message || "Failed to save profile";
       setError(msg);
       notifyError("Erreur profil", msg);
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -202,8 +206,19 @@ export default function Profile() {
           </select>
         </div>
 
-        <button type="submit" style={{ alignSelf: "flex-start" }}>
-          {tr("saveProfile")}
+        <button
+          type="submit"
+          disabled={saving}
+          className={status === "saved" ? "btn--success" : ""}
+          style={{ alignSelf: "flex-start" }}
+        >
+          {saving ? (
+            <><span className="btn-spinner" /> Sauvegarde…</>
+          ) : status === "saved" ? (
+            <>✓ {tr("saveProfile")}</>
+          ) : (
+            tr("saveProfile")
+          )}
         </button>
       </form>
     </div>

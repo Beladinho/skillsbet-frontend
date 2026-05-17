@@ -255,7 +255,10 @@ export default function Matchmaker({ playerId, game, stake, onMatchFound }) {
           <button onClick={handleJoin}>{tr("joinQueue")}</button>
         ) : (
           <>
-            <button className="btn-ghost" onClick={handleLeave}>{tr("leaveQueue")}</button>
+            <button className="btn-ghost btn--loading" onClick={handleLeave}>
+              <span className="btn-spinner" />
+              {tr("leaveQueue")}
+            </button>
             {waitSeconds >= 5 && !botFillStartedRef.current && (
               <button onClick={() => handleBotFill(false)}>{tr("playVsBot")}</button>
             )}

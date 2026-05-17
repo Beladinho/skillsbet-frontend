@@ -65,7 +65,13 @@ export async function apiRequest(path, options = {}) {
     fetchOptions.body = JSON.stringify(body);
   }
 
-  const res = await fetch(`${API_URL}${path}`, fetchOptions);
+  let res;
+  try {
+    res = await fetch(`${API_URL}${path}`, fetchOptions);
+  } catch (networkError) {
+    window.dispatchEvent(new CustomEvent("skillsbet:backend-down"));
+    throw networkError;
+  }
   const data = await parseResponse(res);
 
   if (!res.ok) {

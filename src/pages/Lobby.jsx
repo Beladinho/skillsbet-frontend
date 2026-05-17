@@ -882,7 +882,11 @@ export default function Lobby() {
       {/* Match History */}
       <SectionCard title={tr("matchHistory")} style={{ "--section-delay": "0.44s" }}>
         {history.length === 0 ? (
-          <p>{tr("empty")}</p>
+          <div className="empty-state">
+            <span className="empty-state__icon">🎮</span>
+            <p className="empty-state__text">Aucune partie jouée pour l'instant</p>
+            <p className="empty-state__sub">Lance ton premier duel !</p>
+          </div>
         ) : (
           <div className="simple-list">
             {history.map((match, index) => (

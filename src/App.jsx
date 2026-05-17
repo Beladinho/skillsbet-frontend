@@ -12,6 +12,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import OnboardingTour from "./components/OnboardingTour";
 import RippleEffect from "./components/RippleEffect";
 import CrispWidget from "./components/CrispWidget";
+import BackendBanner from "./components/BackendBanner";
 import Login from "./pages/Login";
 import Lobby from "./pages/Lobby";
 import LandingPage from "./pages/LandingPage";
@@ -64,6 +65,7 @@ function AppRoutes() {
   return (
     <>
       <CrispWidget />
+      <BackendBanner />
       <CookieBanner />
       <NotificationCenter />
       <RippleEffect />
@@ -102,7 +104,7 @@ function AppRoutes() {
             path="/admin"
             element={
               <ProtectedRoute adminOnly>
-                <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                <Suspense fallback={<div className="page-loader"><div className="page-loader__spinner" /></div>}>
                   <AdminHub />
                 </Suspense>
               </ProtectedRoute>
@@ -112,7 +114,7 @@ function AppRoutes() {
             path="/creator"
             element={
               <ProtectedRoute>
-                <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                <Suspense fallback={<div className="page-loader"><div className="page-loader__spinner" /></div>}>
                   <CreatorDashboard />
                 </Suspense>
               </ProtectedRoute>
@@ -122,7 +124,7 @@ function AppRoutes() {
             path="/player/:email"
             element={
               <ProtectedRoute>
-                <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                <Suspense fallback={<div className="page-loader"><div className="page-loader__spinner" /></div>}>
                   <PublicProfile />
                 </Suspense>
               </ProtectedRoute>
@@ -132,7 +134,7 @@ function AppRoutes() {
             path="/friends"
             element={
               <ProtectedRoute>
-                <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                <Suspense fallback={<div className="page-loader"><div className="page-loader__spinner" /></div>}>
                   <FriendsPage />
                 </Suspense>
               </ProtectedRoute>
@@ -142,7 +144,7 @@ function AppRoutes() {
             path="/stats"
             element={
               <ProtectedRoute>
-                <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                <Suspense fallback={<div className="page-loader"><div className="page-loader__spinner" /></div>}>
                   <StatsPage />
                 </Suspense>
               </ProtectedRoute>
@@ -152,7 +154,7 @@ function AppRoutes() {
             path="/creator/game/:id"
             element={
               <ProtectedRoute>
-                <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                <Suspense fallback={<div className="page-loader"><div className="page-loader__spinner" /></div>}>
                   <CreatorGamePage />
                 </Suspense>
               </ProtectedRoute>
@@ -162,7 +164,7 @@ function AppRoutes() {
             path="/spectate/:duel_id"
             element={
               <ProtectedRoute>
-                <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                <Suspense fallback={<div className="page-loader"><div className="page-loader__spinner" /></div>}>
                   <SpectatePage />
                 </Suspense>
               </ProtectedRoute>
@@ -172,7 +174,7 @@ function AppRoutes() {
             path="/premium"
             element={
               <ProtectedRoute>
-                <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                <Suspense fallback={<div className="page-loader"><div className="page-loader__spinner" /></div>}>
                   <PremiumPage />
                 </Suspense>
               </ProtectedRoute>
@@ -181,7 +183,7 @@ function AppRoutes() {
           <Route
             path="/legal/cgu"
             element={
-              <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+              <Suspense fallback={<div className="page-loader"><div className="page-loader__spinner" /></div>}>
                 <CGU />
               </Suspense>
             }
@@ -189,7 +191,7 @@ function AppRoutes() {
           <Route
             path="/legal/privacy"
             element={
-              <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+              <Suspense fallback={<div className="page-loader"><div className="page-loader__spinner" /></div>}>
                 <Privacy />
               </Suspense>
             }
@@ -197,7 +199,7 @@ function AppRoutes() {
           <Route
             path="/legal/responsible-gaming"
             element={
-              <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+              <Suspense fallback={<div className="page-loader"><div className="page-loader__spinner" /></div>}>
                 <ResponsibleGaming />
               </Suspense>
             }
@@ -205,7 +207,7 @@ function AppRoutes() {
           <Route
             path="/legal/contact"
             element={
-              <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+              <Suspense fallback={<div className="page-loader"><div className="page-loader__spinner" /></div>}>
                 <ContactPage />
               </Suspense>
             }
@@ -214,7 +216,7 @@ function AppRoutes() {
             path="/replay/:duel_id"
             element={
               <ProtectedRoute>
-                <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                <Suspense fallback={<div className="page-loader"><div className="page-loader__spinner" /></div>}>
                   <ReplayPage />
                 </Suspense>
               </ProtectedRoute>
@@ -224,7 +226,7 @@ function AppRoutes() {
             path="/referral"
             element={
               <ProtectedRoute>
-                <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                <Suspense fallback={<div className="page-loader"><div className="page-loader__spinner" /></div>}>
                   <ReferralPage />
                 </Suspense>
               </ProtectedRoute>
@@ -234,7 +236,7 @@ function AppRoutes() {
             path="/battlepass"
             element={
               <ProtectedRoute>
-                <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+                <Suspense fallback={<div className="page-loader"><div className="page-loader__spinner" /></div>}>
                   <BattlePassPage />
                 </Suspense>
               </ProtectedRoute>

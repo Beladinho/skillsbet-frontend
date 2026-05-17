@@ -161,25 +161,39 @@ export default function SessionBar() {
       </div>
 
       {menuOpen && (
-        <div className="session-bar__mobile-menu">
-          <div className={`session-bar__notif${unreadCount > 0 ? " session-bar__notif--active" : ""}`}>
-            {unreadCount > 0 ? `${unreadCount} NOTIF` : "0 NOTIF"}
-          </div>
-          <Link to="/friends" className="session-bar__friends" onClick={() => setMenuOpen(false)}>
-            👥 AMIS
-            {friendRequests > 0 && <span className="session-bar__friends-badge">{friendRequests}</span>}
-          </Link>
-          <Link to="/creator" className="session-bar__creator" onClick={() => setMenuOpen(false)}>
-            🎮 CRÉATEUR
-          </Link>
-          {role === "admin" && (
-            <Link to="/admin" className="session-bar__admin" onClick={() => setMenuOpen(false)}>
-              ⚙ ADMIN
+        <>
+          <div className="session-bar__mobile-overlay" onClick={() => setMenuOpen(false)} />
+          <div className="session-bar__mobile-menu">
+            <div className="session-bar__mobile-menu-header">
+              <span className="session-bar__logo">SKILLS<span>BET</span></span>
+              <button
+                className="session-bar__hamburger"
+                onClick={() => setMenuOpen(false)}
+                aria-label="Fermer"
+                style={{ display: "flex" }}
+              >
+                ✕
+              </button>
+            </div>
+            <div className={`session-bar__notif${unreadCount > 0 ? " session-bar__notif--active" : ""}`}>
+              {unreadCount > 0 ? `${unreadCount} NOTIF` : "0 NOTIF"}
+            </div>
+            <Link to="/friends" className="session-bar__friends" onClick={() => setMenuOpen(false)}>
+              👥 AMIS
+              {friendRequests > 0 && <span className="session-bar__friends-badge">{friendRequests}</span>}
             </Link>
-          )}
-          <button className="btn-ghost btn-sm" onClick={() => { unlockAudio(); setSidebarOpen(true); setMenuOpen(false); }} style={{ fontSize: 16 }}>⚙ Paramètres</button>
-          <button className="btn-ghost btn-sm" onClick={logoutPlayer}>DÉCONNEXION</button>
-        </div>
+            <Link to="/creator" className="session-bar__creator" onClick={() => setMenuOpen(false)}>
+              🎮 CRÉATEUR
+            </Link>
+            {role === "admin" && (
+              <Link to="/admin" className="session-bar__admin" onClick={() => setMenuOpen(false)}>
+                ⚙ ADMIN
+              </Link>
+            )}
+            <button className="btn-ghost btn-sm" onClick={() => { unlockAudio(); setSidebarOpen(true); setMenuOpen(false); }} style={{ fontSize: 16 }}>⚙ Paramètres</button>
+            <button className="btn-ghost btn-sm" onClick={logoutPlayer}>DÉCONNEXION</button>
+          </div>
+        </>
       )}
     </nav>
   );

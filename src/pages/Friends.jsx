@@ -144,10 +144,10 @@ export default function Friends() {
                 ))}
               </>
             ) : friends.length === 0 ? (
-              <div className="section-card friends-empty">
-                <span style={{ color: "var(--clr-text-dim)" }}>
-                  {tr("noFriends")}
-                </span>
+              <div className="empty-state">
+                <span className="empty-state__icon">👥</span>
+                <p className="empty-state__text">{tr("noFriends")}</p>
+                <p className="empty-state__sub">Invite des joueurs pour jouer ensemble !</p>
                 <button className="btn-ghost btn-sm" onClick={() => setTab("search")}>
                   {tr("searchPlayers2")}
                 </button>

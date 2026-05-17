@@ -1171,3 +1171,39 @@
     padding: 70px 20px;
   }
 }
+
+@media (max-width: 400px) {
+  .landing-nav {
+    padding: 10px 14px;
+  }
+
+  .landing-nav__logo {
+    font-size: 1.1rem;
+  }
+
+  .landing-hero {
+    padding: 100px 14px 60px;
+  }
+
+  .hero-badge {
+    font-size: 0.72rem;
+    padding: 5px 10px;
+  }
+
+  .games-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .join-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .join-section {
+    padding: 50px 14px;
+  }
+
+  .landing-footer {
+    padding: 30px 14px;
+  }
+}
