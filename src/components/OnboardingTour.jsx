@@ -53,6 +53,16 @@ export default function OnboardingTour() {
     return () => clearTimeout(timerRef.current);
   }, [location.pathname]);
 
+  // Dismiss immediately when solo/game mode starts (event fired from Lobby)
+  useEffect(() => {
+    function handleSoloStart() {
+      localStorage.setItem("sb_onboarding_done", "1");
+      setVisible(false);
+    }
+    window.addEventListener("sb:solo-start", handleSoloStart);
+    return () => window.removeEventListener("sb:solo-start", handleSoloStart);
+  }, []);
+
   useEffect(() => {
     if (!visible) return;
     const tryFind = (attempt = 0) => {

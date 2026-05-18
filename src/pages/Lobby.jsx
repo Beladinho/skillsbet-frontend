@@ -362,8 +362,10 @@ export default function Lobby() {
     );
   }
 
+  console.log("RENDER CHECK - soloConfig:", soloConfig, "currentDuel:", currentDuel, "result:", result);
+
   if (soloConfig) {
-    console.log("[Solo] Rendu jeu :", soloConfig.game, "difficulté :", soloConfig.difficulty);
+    console.log("RENDERING SOLO GAME:", soloConfig.game);
     const soloProps = { difficulty: soloConfig.difficulty, playerId, onExit: () => setSoloConfig(null) };
     return (
       <div className="app-shell">
@@ -543,8 +545,9 @@ export default function Lobby() {
               <button
                 onClick={() => {
                   const cfg = { game: soloGame, difficulty: soloDifficulty };
-                  console.log("[Solo] Démarrage :", cfg);
+                  console.log("LAUNCHING SOLO:", soloGame, soloDifficulty);
                   localStorage.setItem("sb_onboarding_done", "1");
+                  window.dispatchEvent(new Event("sb:solo-start"));
                   setSoloConfig(cfg);
                   setShowSoloModal(false);
                   window.scrollTo({ top: 0, behavior: "instant" });
