@@ -438,7 +438,10 @@ export default function Lobby() {
 
         <div style={{ marginTop: "16px", paddingTop: "16px", borderTop: "1px solid var(--clr-border)" }}>
           <button
-            onClick={() => setShowSoloModal(true)}
+            onClick={() => {
+              localStorage.setItem("sb_onboarding_done", "1");
+              setShowSoloModal(true);
+            }}
             style={{
               width: "100%",
               padding: "12px",

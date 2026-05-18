@@ -45,6 +45,8 @@ export default function OnboardingTour() {
     if (location.pathname !== "/lobby") return;
     if (localStorage.getItem("sb_onboarding_done")) return;
     timerRef.current = setTimeout(() => {
+      // Re-check flag: user may have opened the solo modal between mount and now
+      if (localStorage.getItem("sb_onboarding_done")) return;
       // Don't start tour if user is already in solo/game mode (lobby-sections absent)
       if (document.querySelector(".lobby-sections")) setVisible(true);
     }, 1800);
