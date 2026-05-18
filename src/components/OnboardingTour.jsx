@@ -44,7 +44,10 @@ export default function OnboardingTour() {
   useEffect(() => {
     if (location.pathname !== "/lobby") return;
     if (localStorage.getItem("sb_onboarding_done")) return;
-    timerRef.current = setTimeout(() => setVisible(true), 1800);
+    timerRef.current = setTimeout(() => {
+      // Don't start tour if user is already in solo/game mode (lobby-sections absent)
+      if (document.querySelector(".lobby-sections")) setVisible(true);
+    }, 1800);
     return () => clearTimeout(timerRef.current);
   }, [location.pathname]);
 
@@ -64,7 +67,8 @@ export default function OnboardingTour() {
       } else if (attempt < 5) {
         setTimeout(() => tryFind(attempt + 1), 300);
       } else {
-        setRect(null);
+        // Element not found: user likely navigated away (solo mode), dismiss tour
+        finish();
       }
     };
     tryFind();

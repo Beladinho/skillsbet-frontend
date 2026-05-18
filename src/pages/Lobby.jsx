@@ -363,11 +363,17 @@ export default function Lobby() {
   }
 
   if (soloConfig) {
+    console.log("[Solo] Rendu jeu :", soloConfig.game, "difficulté :", soloConfig.difficulty);
     const soloProps = { difficulty: soloConfig.difficulty, playerId, onExit: () => setSoloConfig(null) };
     return (
       <div className="app-shell">
         <SessionBar />
-        <Suspense fallback={<p style={{ padding: 24 }}>Chargement…</p>}>
+        <Suspense fallback={
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "60vh", gap: 16 }}>
+            <div style={{ width: 40, height: 40, border: "3px solid rgba(0,180,216,0.25)", borderTop: "3px solid #00b4d8", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+            <p style={{ color: "#00b4d8", fontFamily: "var(--font-heading)", letterSpacing: "0.1em", textTransform: "uppercase", fontSize: "0.85rem" }}>Chargement du jeu…</p>
+          </div>
+        }>
           {soloConfig.game === "lineup4"  && <LineUp4BotGame    {...soloProps} />}
           {soloConfig.game === "xobattle" && <XOBattleBotGame   {...soloProps} />}
           {soloConfig.game === "snake"    && <ViperSoloGame      {...soloProps} />}
@@ -532,7 +538,14 @@ export default function Lobby() {
 
             <div style={{ display: "flex", gap: "10px" }}>
               <button
-                onClick={() => { setSoloConfig({ game: soloGame, difficulty: soloDifficulty }); setShowSoloModal(false); }}
+                onClick={() => {
+                  const cfg = { game: soloGame, difficulty: soloDifficulty };
+                  console.log("[Solo] Démarrage :", cfg);
+                  localStorage.setItem("sb_onboarding_done", "1");
+                  setSoloConfig(cfg);
+                  setShowSoloModal(false);
+                  window.scrollTo({ top: 0, behavior: "instant" });
+                }}
                 style={{ flex: 1, padding: "12px" }}
               >
                 ▶ Jouer
